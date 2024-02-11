@@ -162,7 +162,7 @@ function KYCApplication() {
         <Link to="/kyc-user-profile">
           <span className="prp dark:prp-dark">{`${applcation.firstName} ${applcation.lastName}`}</span>
         </Link>,
-        <span className="prp dark:prp-dark">2000/06/01</span>,
+        <span className="prp dark:prp-dark">{applcation.dob}</span>,
         <Status type="Withdrawn" text="Pending" />,
         <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
         <div>
