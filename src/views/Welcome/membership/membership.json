@@ -1,0 +1,20 @@
+[
+  {
+    "id": 6785,
+    "icon": "/images/Group 166.svg",
+    "title": "Engage & Earn",
+    "content": "You can buy cover and earn more USDC by helping run the platfom, including voting on claims, investing in risk pools and voting on proposals."
+  },
+  {
+    "id": 4567,
+    "icon": "/images/avatar-with-online-indicator.svg",
+    "title": "Onboarding Cost ",
+    "content": "Onboarding gives you rights to the assets of the platform and involves a one-off access fee of 3 USDC (~ $3.09)."
+  },
+  {
+    "id": 678,
+    "icon": "/images/Frame 2917.svg",
+    "title": "KYC / AML",
+    "content": "To become a member, you will need to verify your identity using our Know-Your-Customer / Anti-Money-Laundering process. If this fails, your membership fee will be refunded to you."
+  }
+]

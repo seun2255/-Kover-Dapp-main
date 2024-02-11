@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Amaranth&display=swap');
+/* @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap"); */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&display=swap');
+@import url('./globals.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  @apply box-border;
+}
+
+html {
+  @apply scroll-smooth;
+}
+
+body {
+  @apply p-0 m-0 text-2xl font-normal text-white bg-dark-700 font-roboto;
+}
+
+@layer components {
+  a {
+    @apply no-underline hover:underline;
+  }
+
+  input,
+  textarea {
+    @apply bg-transparent focus:outline-none;
+  }
+}
+
+body {
+  font-family: 'Space Grotesk', sans-serif !important ;
+}
+a:hover {
+  text-decoration-line: none !important;
+}

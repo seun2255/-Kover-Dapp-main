@@ -1,0 +1,163 @@
+import React, { useState } from 'react'
+import Agreament from '../../components/common/Agreament'
+import UploadingFile from '../../components/common/FileUpload/UploadingFile'
+import WeightTitle from '../../components/common/WeightTitle'
+import QRConnector from '../../components/common/QRConnector'
+import Rules from '../../components/common/FileUpload/Rules'
+import SelectField from '../../components/common/TextField/SelectField'
+import { UserContext } from '../../App'
+import useWindowDimensions from '../../components/global/UserInform/useWindowDimensions'
+import FormAgreament from '../../components/common/FormAgreament'
+import { Link } from 'react-router-dom'
+import { Tooltip as ReactTooltip } from 'react-tooltip'
+
+function Adjuster() {
+  const { theme } = React.useContext(UserContext)
+  const { width } = useWindowDimensions()
+  const [currentIcon, setcurrentIcon] = useState('')
+  const fileName = ['Id_back.png', 'Id_front.png', 'img 001.png', 'Doc 002.pdf']
+  return (
+    <>
+      <div className="mb-10 lg:flex gap-[60px] sm:mt-[20px]">
+        <div className="flex-grow">
+          <div className="lg:grid lg:grid-cols-2">
+            <div className="sm:w-[60%] w-full">
+              <div className="flex gap-[5px] items-center mb-[10px] ">
+                <b className="form-section-title dark:form-section-title-dark block">
+                  Professional Details
+                </b>
+              </div>
+              <p className="form-section-subtitle">
+                Your professional information is never to other users.
+              </p>
+            </div>
+            <div className="flex flex-col gap-5 pt-5 lg:pt-2">
+              <SelectField label="Work Area" placeholder="Please Select" />
+              <SelectField label="Work Field" placeholder="Domain" />
+            </div>
+          </div>
+          <hr className="my-[25px]" />
+          <div className="lg:grid lg:grid-cols-2">
+            <div className="sm:w-[60%] w-full">
+              <div className="flex gap-[5px] items-stretch mb-[10px] ">
+                <b className="form-section-title dark:form-section-title-dark block">
+                  {' '}
+                  Professional Certification
+                </b>
+                <img
+                  src={`${
+                    currentIcon === 'professional-certification-1'
+                      ? '/images/info-green-icon.svg'
+                      : '/images/Maskd (2).svg'
+                  }`}
+                  className="w-[14px]"
+                  alt=""
+                  id={`professional-certification-1`}
+                  onMouseEnter={() => {
+                    setcurrentIcon('professional-certification-1')
+                  }}
+                  onMouseLeave={() => {
+                    setcurrentIcon('')
+                  }}
+                />
+                <ReactTooltip
+                  className={`my-tool-tip z-500`}
+                  anchorId={'professional-certification-1'}
+                  place="bottom"
+                  content="This is the total amount available for  you to borrow. You can borrow based on your collateral and until the borrowcap is reached."
+                />
+              </div>
+              <p className="form-section-subtitle">
+                Drag and drop one or multiple files (Max size: 1Mb)
+              </p>
+            </div>
+            <div className="flex flex-col gap-5 lg:pt-0 pt-[10px]">
+              <div>
+                <label
+                  className={`flex justify-center w-full  transition border-2 border-gray-300 dark:dark-light-box-border dark:border-dashed border-dashed appearance-none cursor-pointer hover:border-gray-400 focus:outline-none border-color w-full h-[40px]`}
+                >
+                  <span className="flex items-center gap-[10px] sm:gap-[15px]">
+                    <img
+                      className="w-[14px] h-[16px]"
+                      src="/images/uploadAeroBlack.svg"
+                      alt=""
+                    />
+                    <span className="upload-text dark:text-dark-800">
+                      Upload
+                    </span>
+                  </span>
+                  <input type="file" name="file_upload" className="hidden" />
+                </label>
+              </div>
+              <div className="flex gap-[12px] flex-col">
+                <UploadingFile progress={100} />
+                <UploadingFile progress={80} />
+              </div>
+              <Rules padding={width < 600 ? '' : 'px-[20px] py-[22px]'} />
+            </div>
+          </div>
+
+          <hr className="my-[25px]" />
+          <div className="lg:grid lg:grid-cols-2 mt-[20px]">
+            <div className="col-start-2">
+              <FormAgreament
+                agreeURL="/"
+                mainClass="flex flex-col"
+                variety="checkbox"
+                agree="Terms of Use"
+                bntText="Submit"
+                item1Class="w-full flex gap-[12px] items-center"
+                item2Class="w-full mt-[10px] flex justify-end"
+                btn="sm:w-fit w-full"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-center">
+          <div className="flex flex-col gap-5 sm:w-[285px] max-[640px]:w-full pt-8">
+            <QRConnector
+              className="hidden lg:block"
+              size="w-[279px] h-[249px]"
+            />
+
+            <div className="bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
+              <WeightTitle title="Attachments" />
+              <div className="flex gap-[12px] flex-col mt-[25px] sm:mt-[0px]">
+                {[...Array(2)].map((value, index) => (
+                  <>
+                    <div className="flex justify-between">
+                      <div className="flex basis-3/4 gap-[16px]">
+                        <img src="/images/pin.svg" alt="" />
+                        <Link
+                          className={`${
+                            theme === 'dark'
+                              ? 'font-bold text-[#606166] hover:text-[#000000]'
+                              : 'text-white hover:text-[#50ff7f]'
+                          } file-name `}
+                          to={''}
+                        >
+                          Essential IPID
+                        </Link>
+                      </div>
+                      <img
+                        className="items-end w-[20px]"
+                        src={
+                          theme === 'dark'
+                            ? '/images/downloadblack.svg'
+                            : '/images/download.svg'
+                        }
+                        alt=""
+                      />
+                    </div>
+                  </>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+export default Adjuster

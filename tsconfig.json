@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    
+    "lib": [
+      "es6",
+      "dom",
+      "dom.iterable",
+      "esnext",
+      
+
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "*": ["node_modules/*"]
+    },
+
+    
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "types": [
+      "node",
+      "@types/node",
+      "web3"]
+  },
+  "include": [
+    "src"
+  ],
+  
+}

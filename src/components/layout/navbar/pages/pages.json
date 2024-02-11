@@ -1,0 +1,59 @@
+[
+  {
+    "id": 13423,
+    "icon": ["/images/Mask.svg", "/images/Mask (1).svg"],
+    "name": "Home",
+    "url": "/"
+  },
+  {
+    "id": 85678,
+    "icon": [
+      "/images/Combined Shape (2).svg",
+      "/images/Combined Shape (1).svg"
+    ],
+    "url": "/insurance",
+    "name": "INSURANCE"
+  },
+  {
+    "id": 45646,
+    "icon": [
+      "/images/Combined Shape (4).svg",
+      "/images/Combined Shape (3).svg"
+    ],
+    "url": "/bond",
+    "name": "Liquidity"
+  },
+  {
+    "id": 234465,
+    "icon": ["/images/claim-light.svg", "/images/claim-dark.svg"],
+    "url": "/claims",
+    "name": "CLAIMS"
+  },
+  {
+    "id": 95767645,
+    "icon": [
+      "/images/staking.svg",
+      "/images/staking.svg"
+    ],
+    "url": "/staking",
+    "name": "staking"
+  },
+  {
+    "id": 95767645,
+    "icon": [
+      "/images/Combined Shape (13).svg",
+      "/images/Combined Shape (9).svg"
+    ],
+    "url": "/profile",
+    "name": "Profile"
+  },
+  {
+    "id": 95767646,
+    "icon": [
+      "/images/Combined Shape17.svg",
+      "/images/Combined Shape17.svg"
+    ],
+    "url": "/insure-pro",
+    "name": "InsurePro"
+  }
+]

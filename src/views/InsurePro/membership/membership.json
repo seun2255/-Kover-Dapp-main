@@ -1,0 +1,20 @@
+[
+  {
+    "id": 6785,
+    "icon": "/images/Group 166.svg",
+    "title": "Engage & Earn",
+    "content": "By being a part of InsurePro community, you can engage in various roles such as KYC Reviewer, Policy Reviewer, Adjuster, or Actuary to earn rewards."
+  },
+  {
+    "id": 4567,
+    "icon": "/images/avatar-with-online-indicator.svg",
+    "title": "Onboarding Cost ",
+    "content": "Onboarding gives you rights to the assets of the platform and involves a one-off access fee of 3 USDC (~ $3.09)."
+  },
+  {
+    "id": 678,
+    "icon": "/images/Frame 2917.svg",
+    "title": "InsurePro Credentials",
+    "content": "To participate, completion of our InsurePro Credentials verification is necessary. If verification is unsuccessful, a portion of the access fee will be refunded."
+  }
+]

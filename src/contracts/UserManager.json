@@ -1,0 +1,2353 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Usermanager",
+  "sourceName": "contracts/Usermanager.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_protocol_manager",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_base_token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_kover_token_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_staking_pool_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_revenue_pool_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_users_table_address",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "result_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rejection_fee_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.FeeParams",
+          "name": "_membership_fee_params",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rejection_fee_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.AdminFeeParams",
+          "name": "_kyc_reviewer_application_fee_params",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "minimum_reputation",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximum_reputation",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initial_reputation",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "trusted_reputation",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reputation_increment_denominator",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reputation_decrement_denominator",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.ValidationParams",
+          "name": "_validation_params",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "BaseToken",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_credentials_application_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "apply_for_KYC_reviewer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_credentials_application_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "apply_for_adjustor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_data",
+          "type": "string"
+        }
+      ],
+      "name": "apply_for_membership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_credentials_application_ipfs_hash",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_application_policy_duration_index",
+          "type": "uint256"
+        }
+      ],
+      "name": "apply_for_or_modify_policy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_credentials_application_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "apply_for_policy_reviewer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_ipfs_hash",
+          "type": "tuple"
+        }
+      ],
+      "name": "are_ipfs_hashes_bounded",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policy_holder_address",
+          "type": "address"
+        }
+      ],
+      "name": "assign_adjustor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "_should_inactivate_kyc_reviewer",
+          "type": "bool"
+        }
+      ],
+      "name": "assign_membership_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_should_inactivate_policy_reviewer",
+          "type": "bool"
+        }
+      ],
+      "name": "assign_policy_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "checkUpkeep",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "upkeepNeeded",
+          "type": "bool"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_kyc_reviewer_address",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_approved",
+          "type": "bool"
+        }
+      ],
+      "name": "conclude_KYC_reviewer_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_adjustor_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_approved",
+          "type": "bool"
+        }
+      ],
+      "name": "conclude_adjustor_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        }
+      ],
+      "name": "conclude_membership_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        }
+      ],
+      "name": "conclude_policy_application_review_rejection",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        }
+      ],
+      "name": "conclude_policy_assessment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policy_reviewer_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_approved",
+          "type": "bool"
+        }
+      ],
+      "name": "conclude_policy_reviewer_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policyholder_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_approved",
+          "type": "bool"
+        }
+      ],
+      "name": "conclude_policy_termination_request",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policy_holder_address",
+          "type": "address"
+        }
+      ],
+      "name": "conclude_validation",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        }
+      ],
+      "name": "decline_policy_assessment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_application_policy_duration_index",
+          "type": "uint256"
+        }
+      ],
+      "name": "extend_policy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_membership_applicants",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "region",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "get_region_KYC",
+      "outputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "internalType": "bool",
+              "name": "is_member",
+              "type": "bool"
+            },
+            {
+              "internalType": "enum Definitions.ApplicationStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "application_ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "assign_timestamp",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_timestamp",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "reviewer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "enum Definitions.ResultStatus",
+                  "name": "status",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_wait_time",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.Result",
+              "name": "result",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Definitions.KYC",
+          "name": "kyc",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        }
+      ],
+      "name": "get_validation_reputation",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        }
+      ],
+      "name": "is_kyc_reviewer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "kover_token_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "kyc_reviewer_application_fee_params",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "approval_fee_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rejection_fee_perc",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "membership_applications",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "membership_fee_params",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stake_fee_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "result_wait_time",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stake_wait_time",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "approval_fee_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rejection_fee_perc",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_credentials_application_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "modify_KYC_reviewer_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_credentials_application_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "modify_adjustor_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "minimum",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximum",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.PayoutParams",
+          "name": "_appeal_payout_params",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_claim_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "modify_appeal_data",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "minimum",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximum",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.PayoutParams",
+          "name": "_payout_params",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_claim_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "modify_claim_data",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_application_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "modify_membership_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_credentials_application_ipfs_hashes",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_application_policy_duration_index",
+          "type": "uint256"
+        }
+      ],
+      "name": "modify_policy_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_credentials_application_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "modify_policy_reviewer_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_termination_request_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "modify_policy_termination_request",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "performUpkeep",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "policy_reviewer_application_fee_params",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "reviewer_stake_fee_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "reviewer_result_wait_time",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "reviewer_stake_wait_time",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "reviewer_approval_fee_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "reviewer_rejection_fee_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "assessment_wait_time",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "assesment_validity_time",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "termination_fee_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "termination_approval_fee_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "termination_rejection_fee_perc",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_claim_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "raise_claim",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "region_KYC_map",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "ipfs_hashes",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bool",
+          "name": "is_member",
+          "type": "bool"
+        },
+        {
+          "internalType": "enum Definitions.ApplicationStatus",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "application_ipfs_hashes",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "assign_timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "result_timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "reviewer",
+              "type": "address"
+            },
+            {
+              "internalType": "enum Definitions.ResultStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "result_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_wait_time",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.Result",
+          "name": "result",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "region_KYC_reviewer_map",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "ipfs_hashes",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "credentials_ipfs_hashes",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bool",
+          "name": "is_expert",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "has_applied",
+          "type": "bool"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "application_ipfs_hashes",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "credentials_application_ipfs_hashes",
+          "type": "tuple"
+        },
+        {
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_applicant",
+          "type": "address"
+        }
+      ],
+      "name": "remove_membership_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_termination_request_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "request_policy_termination",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "revenue_pool_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policy_holder_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_should_inactivate_adjustor",
+          "type": "bool"
+        },
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "internalType": "bool",
+              "name": "is_member",
+              "type": "bool"
+            },
+            {
+              "internalType": "enum Definitions.ApplicationStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "application_ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "assign_timestamp",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_timestamp",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "reviewer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "enum Definitions.ResultStatus",
+                  "name": "status",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_wait_time",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.Result",
+              "name": "result",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Definitions.KYC",
+          "name": "_source_kyc",
+          "type": "tuple"
+        }
+      ],
+      "name": "revert_adjustor_assessment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "_should_conclude_application",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "_should_inactivate_kyc_reviewer",
+          "type": "bool"
+        }
+      ],
+      "name": "revert_membership_application_result",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_should_conclude_application",
+          "type": "bool"
+        }
+      ],
+      "name": "revert_policy_application_assessment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_should_conclude_application",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "_should_inactivate_policy_reviewer",
+          "type": "bool"
+        }
+      ],
+      "name": "revert_policy_application_revie",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_days",
+          "type": "uint256"
+        }
+      ],
+      "name": "setReflectionPeriod",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_kyc_reviewer_address",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "_status",
+          "type": "bool"
+        }
+      ],
+      "name": "set_KYC_reviewer_status",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_adjustor_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_status",
+          "type": "bool"
+        }
+      ],
+      "name": "set_adjustor_status",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "_can_apply_for_kyc_reviewer_application",
+          "type": "bool"
+        }
+      ],
+      "name": "set_can_apply_for_kyc_reviewer_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rejection_fee_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.AdminFeeParams",
+          "name": "_kyc_reviewer_application_fee_params",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_kyc_reviewer_application_fee_params",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "result_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rejection_fee_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.FeeParams",
+          "name": "_membership_fee_params",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_membership_fee_params",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "_status",
+          "type": "bool"
+        }
+      ],
+      "name": "set_membership_status",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policy_reviewer_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_status",
+          "type": "bool"
+        }
+      ],
+      "name": "set_policy_reviewer_status",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "minimum_reputation",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximum_reputation",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initial_reputation",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "trusted_reputation",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reputation_increment_denominator",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reputation_decrement_denominator",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.ValidationParams",
+          "name": "_validation_params",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_validation_params",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "staking_pool_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policy_holder_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_approved",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_approved_payout",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "_report_ipfs_hash",
+          "type": "string"
+        }
+      ],
+      "name": "submit_adjustor_assessment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policy_holder_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_accept",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_claimant_rating",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_claim_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "submit_claimant_assessment_decision",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_reviewed_ipfs_hashes",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_approved",
+          "type": "bool"
+        }
+      ],
+      "name": "submit_membership_application_result",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_assessed_max_exposure",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_assessed_src",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_assessed_deductible_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_risk_factor",
+          "type": "uint256"
+        }
+      ],
+      "name": "submit_policy_application_assessment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_reviewed_ipfs_hashes",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_reviewed_credentials_ipfs_hashes",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_approved",
+          "type": "bool"
+        },
+        {
+          "internalType": "address",
+          "name": "source",
+          "type": "address"
+        }
+      ],
+      "name": "submit_policy_application_result",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policyholder_address",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_assessed_max_exposure",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_assessed_src",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_assessed_deductible_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_assessed_risk_factor",
+          "type": "uint256"
+        }
+      ],
+      "name": "submit_policy_reassessment_post_claim",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policy_holder_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_validator",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_new_reputation",
+          "type": "uint256"
+        }
+      ],
+      "name": "update_validation_reputation",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policy_holder_address",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_stake",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "is_yes",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_validator_rating",
+          "type": "uint256"
+        }
+      ],
+      "name": "validate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "validation_params",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "minimum_reputation",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maximum_reputation",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "initial_reputation",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "trusted_reputation",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "reputation_increment_denominator",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "reputation_decrement_denominator",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "validation_reputation_map",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+}

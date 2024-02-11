@@ -1,0 +1,148 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  theme: {
+    extend: {},
+    screens: {
+      sm: '600px',
+      xsm: '700px',
+      md: '1020px',
+      lg: '1200px',
+      xl: '1400px',
+      xxl: '1600px',
+    },
+    colors: {
+      white: 'white',
+      black: 'black',
+      transparent: 'transparent',
+      light: {
+        1200: '#e8e6e6',
+        1100: '#E9E9E9',
+        1000: '#FFF9F9',
+        900: '#F8F8F8',
+        800: '#F1F1F1',
+        700: '#F6F6F6',
+        600: '#F5F5F5',
+        500: '#F4F4F4',
+        400: '#F3F3F3',
+        300: '#F2F2F2',
+        200: '#F1F0F0',
+        100: '#F0F0F0',
+      },
+      dark: {
+        1000: '#101212',
+        900: '#252529',
+        800: '#2A2B31',
+        700: '#18191D',
+        650: '#85858A',
+        600: '#1D2024',
+        550: '#78797E',
+        500: '#606166',
+        400: '#4C4D55',
+        350: '#43444B',
+        300: '#42434B',
+        200: '#6D6E76',
+        100: '#3F4048',
+        85: '#3F3F47',
+        75: '#323235',
+        50: '#3A3C43',
+        10: '#FAFAFA',
+      },
+      primary: {
+        800: '#7AC231',
+        // 700: '#50ff7f',
+        700: '#50ff7f',
+        750: '#466D1D',
+        800: '#416919',
+      },
+      brand: {
+        100: '#C11E0F',
+        200: '#FF9800',
+        300: '#494AA7',
+        400: '#50FF7F',
+        500: '#DA0A0A',
+        600: '#007AFF',
+        700: '#D0021B',
+      },
+    },
+    borderRadius: {
+      none: '0',
+      DEFAULT: '0.125rem',
+      sm: '0.25rem',
+      md: '0.375rem',
+      lg: '0.5rem',
+      full: '9999px',
+      large: '12px',
+    },
+    fontFamily: {
+      amaranth: ["'Amaranth'", 'sans-serif'],
+      poppins: ["'Poppins'", 'sans-serif'],
+      roboto: ["'Roboto'", 'sans-serif'],
+      rubik: ["'Rubik'", 'sans-serif'],
+    },
+    fontSize: {
+      sm: [
+        '9px',
+        { lineHeight: '11px', letterSpacing: '0.3499999940395355px' },
+      ],
+      md: [
+        '10px',
+        { lineHeight: '12px', letterSpacing: '0.3499999940395355px' },
+      ],
+      base: [
+        '11px',
+        { lineHeight: '13px', letterSpacing: '0.3499999940395355px' },
+      ],
+      lg: [
+        '12px',
+        { lineHeight: '14px', letterSpacing: '0.3499999940395355px' },
+      ],
+      xl: [
+        '13px',
+        { lineHeight: '15px', letterSpacing: '0.3499999940395355px' },
+      ],
+      '2xl': [
+        '14px',
+        { lineHeight: '16px', letterSpacing: '0.3499999940395355px' },
+      ],
+      '3xl': [
+        '16px',
+        { lineHeight: '18px', letterSpacing: '0.3499999940395355px' },
+      ],
+      '4xl': [
+        '18px',
+        { lineHeight: '21px', letterSpacing: '0.3499999940395355px' },
+      ],
+      '5xl': [
+        '20px',
+        { lineHeight: '23px', letterSpacing: '0.6000000238418579px' },
+      ],
+      '6xl': [
+        '24px',
+        { lineHeight: '28px', letterSpacing: '0.3499999940395355px' },
+      ],
+      '7xl': [
+        '34px',
+        { lineHeight: '40px', letterSpacing: '0.3499999940395355px' },
+      ],
+      '8xl': [
+        '35px',
+        { lineHeight: '41px', letterSpacing: '0.3499999940395355px' },
+      ],
+      '9xl': [
+        '48px',
+        { lineHeight: '56px', letterSpacing: '0.3499999940395355px' },
+      ],
+      '10xl': ['56px', { lineHeight: '64px', letterSpacing: '0px' }],
+    },
+    backgroundImage: {
+      // badge: "radial-gradient(50% 50% at 50% 50%, #7AC231 0%, #50ff7f 100%)",
+      badge: 'linear-gradient(180deg, #00C535 0%, #50FF7F 100%)',
+    },
+    flexBasis: {
+      '1/7': '14.2857143%',
+    },
+  },
+  plugins: [],
+  darkMode: 'class',
+}
