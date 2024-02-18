@@ -4,9 +4,119 @@
   "sourceName": "contracts/KoverToken.sol",
   "abi": [
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "stateMutability": "nonpayable",
       "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "allowance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "needed",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC20InsufficientAllowance",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "needed",
+          "type": "uint256"
+        }
+      ],
+      "name": "ERC20InsufficientBalance",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "approver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC20InvalidApprover",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        }
+      ],
+      "name": "ERC20InvalidReceiver",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "ERC20InvalidSender",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "ERC20InvalidSpender",
+      "type": "error"
     },
     {
       "anonymous": false,
@@ -14,7 +124,7 @@
         {
           "indexed": true,
           "internalType": "address",
-          "name": "tokenOwner",
+          "name": "owner",
           "type": "address"
         },
         {
@@ -26,7 +136,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "tokens",
+          "name": "value",
           "type": "uint256"
         }
       ],
@@ -34,23 +144,28 @@
       "type": "event"
     },
     {
-      "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
           "internalType": "address",
-          "name": "from",
+          "name": "to",
           "type": "address"
         },
         {
-          "indexed": false,
           "internalType": "uint256",
-          "name": "tokens",
+          "name": "value",
           "type": "uint256"
         }
       ],
-      "name": "Burn",
-      "type": "event"
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
       "anonymous": false,
@@ -70,7 +185,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "tokens",
+          "name": "value",
           "type": "uint256"
         }
       ],
@@ -81,7 +196,36 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "tokenOwner",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
           "type": "address"
         },
         {
@@ -105,31 +249,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "tokens",
-          "type": "uint256"
-        }
-      ],
-      "name": "approve",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "tokenOwner",
+          "name": "account",
           "type": "address"
         }
       ],
@@ -142,25 +262,6 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "tokens",
-          "type": "uint256"
-        }
-      ],
-      "name": "burn_my_tokens",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -204,7 +305,7 @@
     },
     {
       "inputs": [],
-      "name": "total_supply",
+      "name": "totalSupply",
       "outputs": [
         {
           "internalType": "uint256",
@@ -212,60 +313,7 @@
           "type": "uint256"
         }
       ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "tokens",
-          "type": "uint256"
-        }
-      ],
-      "name": "transfer",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "tokens",
-          "type": "uint256"
-        }
-      ],
-      "name": "transferFrom",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     }
   ]

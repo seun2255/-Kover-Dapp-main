@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../Button'
 import Header from '../header/Header'
@@ -33,6 +33,7 @@ import {
   getUser,
 } from '../../../tableland'
 import { convertJsonToString } from '../../../utils/helpers'
+import { getCurrentDateTime } from '../../../utils/dateTime'
 import app from '../../../firebaseConfig/firebaseApp'
 
 import {
@@ -51,22 +52,23 @@ function KYC({ onClose }: popupProps, props: any) {
   const [currentIcon, setcurrentIcon] = useState('')
   const { library, account } = useWeb3React()
   const [formState, setFormState] = useState({
-    email: 'johndoe@gmail.com',
-    firstName: 'Emmanuel',
-    lastName: 'Daniels',
-    dob: {},
-    countryCode: '233',
-    phoneNumber: '092385333432',
-    state: 'georgia',
-    address1: 'first place',
-    address2: 'second place',
-    city: 'New york',
-    postCode: '2334',
-    country: 'France',
-    identityType: 'ID',
-    nationalID: '831492894394',
+    email: '',
+    firstName: '',
+    lastName: '',
+    dob: '',
+    countryCode: '',
+    phoneNumber: '',
+    state: '',
+    address1: '',
+    address2: '',
+    city: '',
+    postCode: '',
+    country: '',
+    identityType: '',
+    nationalID: '',
     documentsLink: '',
   })
+  const [formFilled, setFormFilled] = useState(true)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
   type VerificationState = 'unverified' | 'verifying' | 'verified'
@@ -83,10 +85,6 @@ function KYC({ onClose }: popupProps, props: any) {
       (progressData?.uploaded / progressData?.total) * 100
     )
     setUploadProgress(percentageDone)
-  }
-
-  const ErrorMessage = () => {
-    return <span style={{ color: 'red' }}>Error, not valid address</span>
   }
 
   //Uploads File to IPFS
@@ -139,14 +137,34 @@ function KYC({ onClose }: popupProps, props: any) {
     }))
   }
 
+  function areAllValuesFilled(obj: any) {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key) && obj[key] === '') {
+        return false // If any value is not an empty string, return false
+      }
+    }
+    return true // All values are empty strings
+  }
+
   // Handle form submission
   const handleSubmit = async () => {
-    const dataString = convertJsonToString(formState)
-    const userData = await uploadJsonData(dataString)
-    const signer = library.getSigner(account)
-    // const isReviwer = await is_kyc_reviewer(signer);
-    await apply_for_membership(signer, userData)
-    if (onClose !== undefined) onClose()
+    const date = getCurrentDateTime()
+    setFormState((prevState) => ({
+      ...prevState,
+      date: date,
+    }))
+    const formFilled = areAllValuesFilled(formState)
+    setFormFilled(formFilled)
+    if (formFilled) {
+      const formData = { ...formState, date: date, address: account as string }
+      console.log(formData)
+      const dataString = convertJsonToString(formState)
+      const userData = await uploadJsonData(dataString)
+      const signer = library.getSigner(account)
+      // const isReviwer = await is_kyc_reviewer(signer);
+      await apply_for_membership(signer, userData)
+      if (onClose !== undefined) onClose()
+    }
   }
 
   const verifymail = async () => {
@@ -242,25 +260,28 @@ function KYC({ onClose }: popupProps, props: any) {
                     <div className="flex flex-col gap-5 lg:grid lg:grid-cols-2">
                       <TextField
                         handleChange={handleChange}
+                        filled={formFilled}
                         label="First Name"
                         name="firstName"
                         labelIcon={false}
                         placeholder="Nikita"
                         outline={true}
-                        classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                        classname="dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                       />
                       <TextField
                         handleChange={handleChange}
+                        filled={formFilled}
                         label="Last Name"
                         name="lastName"
                         labelIcon={false}
                         placeholder="Resheteev"
                         outline={true}
-                        classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                        classname="dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                       />
                     </div>
                     <SelectField
                       labelIcon={false}
+                      filled={formFilled}
                       name="dob"
                       label="Date of Birth"
                       placeholder={['Month', 'Day', 'Year']}
@@ -268,6 +289,7 @@ function KYC({ onClose }: popupProps, props: any) {
                     />
                     <TextField
                       handleChange={handleChange}
+                      filled={formFilled}
                       label="Email"
                       name="email"
                       labelIcon={false}
@@ -281,6 +303,7 @@ function KYC({ onClose }: popupProps, props: any) {
                     <div className="sm:grid sm:grid-cols-[100px_auto]  max-[640px]:grid  max-[640px]:grid-cols-[100px_auto] sm:gap-5 gap-2.5">
                       <SelectField
                         handleChange={handleChange}
+                        filled={formFilled}
                         label="Phone"
                         name="countryCode"
                         labelIcon={false}
@@ -289,6 +312,7 @@ function KYC({ onClose }: popupProps, props: any) {
                       <div className="mt-[25px]">
                         <TextField
                           handleChange={handleChange}
+                          filled={true}
                           verify={true}
                           name="phoneNumber"
                           placeholder="654875236"
@@ -328,25 +352,26 @@ function KYC({ onClose }: popupProps, props: any) {
                   <div className="flex flex-col gap-5 sm:pt-2 max-[640px]:pt-6">
                     <TextField
                       handleChange={handleChange}
+                      filled={formFilled}
                       label="State/ Province"
                       outline={true}
-                      endElement={ErrorMessage()}
                       name="state"
                       labelIcon={false}
                       placeholder="e.g. California"
-                      classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                      classname="dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
 
                       // classname="border-none"
                     />
                     <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
                       <TextField
                         handleChange={handleChange}
+                        filled={formFilled}
                         label="Address Line 1"
                         outline={true}
                         name="address1"
                         labelIcon={false}
                         placeholder="e.g. 645 EShaw Ave"
-                        classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                        classname="dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
 
                         // classname={`${
                         //   theme === "dark" ? "otp-input-dark" : "otp-input"
@@ -354,32 +379,35 @@ function KYC({ onClose }: popupProps, props: any) {
                       />
                       <TextField
                         handleChange={handleChange}
+                        filled={formFilled}
                         label="Address Line 2"
                         labelIcon={false}
                         name="address2"
                         placeholder="e.g.  Fresco, ca 93710"
                         outline={true}
-                        classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                        classname="dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                       />
                     </div>
                     <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
                       <TextField
                         handleChange={handleChange}
+                        filled={formFilled}
                         label="City"
                         labelIcon={false}
                         name="city"
                         placeholder="e.g. New York"
                         outline={true}
-                        classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                        classname="dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                       />
                       <TextField
                         handleChange={handleChange}
+                        filled={formFilled}
                         label="Post Code"
                         labelIcon={false}
                         name="postCode"
                         placeholder="e.g.  4450"
                         outline={true}
-                        classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                        classname="dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                       />
                     </div>
                   </div>
@@ -425,6 +453,7 @@ function KYC({ onClose }: popupProps, props: any) {
                   <div className="flex flex-col gap-5 sm:pt-2 max-[640px]:pt-6">
                     <SelectField
                       handleChange={handleChange}
+                      filled={formFilled}
                       label="Issuing Country/Region"
                       labelIcon={false}
                       placeholder="Please Select"
@@ -433,6 +462,7 @@ function KYC({ onClose }: popupProps, props: any) {
 
                     <SelectField
                       handleChange={handleChange}
+                      filled={formFilled}
                       label="Identity Type"
                       labelIcon={false}
                       name="identityType"
@@ -441,11 +471,12 @@ function KYC({ onClose }: popupProps, props: any) {
 
                     <TextField
                       handleChange={handleChange}
+                      filled={formFilled}
                       label="National ID Number"
                       name="nationalID"
                       labelIcon={false}
                       placeholder="e.g. 5589855455"
-                      classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                      classname="dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                     />
                   </div>
                 </div>

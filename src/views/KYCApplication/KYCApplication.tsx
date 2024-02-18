@@ -24,8 +24,13 @@ import useWindowDimensions from '../../components/global/UserInform/useWindowDim
 import Alert from '../../components/common/Alert'
 import AdminCard, { AdminCardProps } from '../Assessement/AdminCard'
 import { useWeb3React } from '@web3-react/core'
-import { get_applications } from '../../api'
+import {
+  assignMembershipApplication,
+  get_applications,
+  getKycDetails,
+} from '../../api'
 import axios from 'axios'
+import { addContractState } from '../../utils/helpers'
 
 function KYCApplication() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
@@ -35,6 +40,7 @@ function KYCApplication() {
   const [membershipApplications, setMembershipApplications] = useState<any[]>(
     []
   )
+  const [assignpopup, setAssignPopup] = useState(false)
   const { width } = useWindowDimensions()
   const toggleDrawer = () => {
     setIsOpen((prevState) => !prevState)
@@ -48,23 +54,26 @@ function KYCApplication() {
   const [tabs, setTabs] = useState<number>(0)
   const [dateFilter, setDateFilter] = useState<number>(0)
 
-  useEffect(() => {
-    console.log('UseEffect reran')
-    const getData = async () => {
-      if (account) {
-        const signer = library.getSigner(account)
-        const applicants = await get_applications(signer)
+  const getData = async () => {
+    if (account) {
+      const signer = library.getSigner(account)
+      const applicants = await get_applications(signer)
 
-        const axiosRequests = applicants.map(async (applicant) => {
-          const response = await axios.get(applicant.data as string)
-          return response.data
-        })
+      const axiosRequests = applicants.map(async (applicant) => {
+        const response = await axios.get(applicant.data as string)
+        const kyc_details = await getKycDetails(signer, response.data.address)
+        const result = addContractState(response.data, kyc_details)
+        return result
+      })
 
-        // Wait for all axios requests to complete
-        const membership_applications = await Promise.all(axiosRequests)
-        setMembershipApplications(membership_applications)
-      }
+      // Wait for all axios requests to complete
+      const membership_applications = await Promise.all(axiosRequests)
+      console.log(membership_applications)
+      setMembershipApplications(membership_applications)
     }
+  }
+
+  useEffect(() => {
     getData()
   }, [account, library])
 
@@ -128,6 +137,10 @@ function KYCApplication() {
     id: 20,
   }
 
+  function capitalizeFirstLetter(inputString: any) {
+    return inputString.charAt(0).toUpperCase() + inputString.slice(1)
+  }
+
   const kyc: TableProps = {
     tabs: tabs,
     options: [{ name: 'Revert' }, { name: 'Cancel' }],
@@ -157,43 +170,143 @@ function KYCApplication() {
         width: 'w-[9%] ',
       },
     ],
-    rows: membershipApplications.map((applcation: any) => {
+    rows: membershipApplications.map((application: any) => {
       return [
         <Link to="/kyc-user-profile">
-          <span className="prp dark:prp-dark">{`${applcation.firstName} ${applcation.lastName}`}</span>
+          <span className="prp dark:prp-dark">{`${application.firstName} ${application.lastName}`}</span>
         </Link>,
-        <span className="prp dark:prp-dark">{applcation.dob}</span>,
-        <Status type="Withdrawn" text="Pending" />,
-        <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
+        <span className="prp dark:prp-dark">{application.dob}</span>,
+        <Status
+          type={capitalizeFirstLetter(application.resultStatus)}
+          text={capitalizeFirstLetter(application.resultStatus)}
+        />,
+        <span className="prp dark:prp-dark">{application.date}</span>,
         <div>
-          <Box
-            sx={{
-              '.Mui-checked': {
-                color: `${
-                  theme === 'dark' ? '#606166' : '#ff9800'
-                } !important;`,
-              },
-              '.MuiSwitch-track': {
-                background: `${
-                  theme === 'dark' ? '#606166' : 'rgba(148, 233, 63, 0.4)'
-                } !important;`,
-              },
-            }}
-          >
-            <Switch className="convert-switch" id="1" />
-          </Box>
+          {application.applicationStatus === 'assigned' ? (
+            <Box
+              sx={{
+                '.Mui-checked': {
+                  color: `${
+                    theme === 'dark' ? '#606166' : '#50ff7f'
+                  } !important;`,
+                },
+                '.MuiSwitch-track': {
+                  background: `${
+                    theme === 'dark' ? '#606166' : 'rgba(148, 233, 63, 0.4)'
+                  } !important;`,
+                },
+              }}
+            >
+              <Switch className="convert-switch" id="1" />
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                '.Mui-checked': {
+                  color: `${
+                    theme === 'dark' ? '#606166' : '#ff9800'
+                  } !important;`,
+                },
+                '.MuiSwitch-track': {
+                  background: `${
+                    theme === 'dark' ? '#606166' : 'rgba(148, 233, 63, 0.4)'
+                  } !important;`,
+                },
+              }}
+            >
+              <Switch className="convert-switch" id="1" />
+            </Box>
+          )}
         </div>,
         <div>
-          <Button
-            // onClick={() => popupHandle(myCoverPopup)}
-            text="Assign"
-            btnText="table-action"
-            endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
-            className={`${
-              theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
-            } px-[19.5px] py-[11.5px] w-full`}
-          />
+          {application.applicationStatus === 'assigned' ? (
+            <Button
+              // onClick={() => popupHandle(myCoverPopup)}
+              text="Submit"
+              btnText="table-action"
+              endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
+              className={`${
+                theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+              } px-[19.5px] py-[11.5px] w-full`}
+            />
+          ) : (
+            <Button
+              // onClick={() => popupHandle(myCoverPopup)}
+              onClick={async () => {
+                setAssignPopup(true)
+              }}
+              text="Assign"
+              btnText="table-action"
+              endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
+              className={`${
+                theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+              } px-[19.5px] py-[11.5px] w-full`}
+            />
+          )}
         </div>,
+        <Popup
+          visible={assignpopup}
+          onClose={() => {
+            setAssignPopup(false)
+          }}
+        >
+          <div className="px-[30px] pb-[40px] pt-[30px] dark:bg-white w-[345px] sm:w-[310px]">
+            <div className="flex justify-end">
+              <img
+                role={'button'}
+                className="w-2.5"
+                src="/images/Group 158.svg"
+                alt=""
+                onClick={() => {
+                  setAssignPopup(false)
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col items-center mb-[32px]">
+              <img
+                className="mt-[10px] w-[25px] h-[27px]"
+                src={
+                  theme === 'dark'
+                    ? '/images/x-logo-dark.svg'
+                    : '/images/x-logo.svg'
+                }
+                alt=""
+              />
+              <h3 className="mt-[17px] fw-500 fs-16 lh-28">Lock To Assess</h3>
+            </div>
+            <div className="mt-[32px] rounded box-border-2x-light dark:box-border-2x-dark  dark:bg-[#F1F1F1] bg-[#2A2B31] h-[50px] min-w-[250px] px-[20px] py-[4px] flex justify-between items-center">
+              <span className="fw-400 text-[24px] lh-42 text-[#FAFAFA] dark:text-dark-800">
+                25
+              </span>
+              <div className="bg-[#3F4048] dark:bg-[#FFF] my-[6px] py-[6px] px-[18px] h-[30px]">
+                <button className="fw-500 fs-16 lh-19">USDC</button>
+              </div>
+            </div>
+            <div className="flex justify-end items-center mt-[10px] mb-[15px]">
+              <span className="text-[#606166] fw-500 fs-12 lh-14"> ~ $25 </span>
+            </div>
+            <div className="mt-[14px]">
+              <button
+                type="button"
+                className={` ${
+                  theme === 'dark'
+                    ? `dark:white dark:box-border`
+                    : `greenGradient`
+                } contained medium  font-medium px-8 w-full square button`}
+                onClick={async () => {
+                  const signer = library.getSigner(account)
+                  await assignMembershipApplication(signer, application.address)
+                  await getData()
+                  setAssignPopup(false)
+                }}
+              >
+                <span>Submit</span>
+                <img className="duration-150 " src="/images/125.svg" alt="" />
+              </button>
+            </div>
+          </div>
+        </Popup>,
       ]
     }),
   }

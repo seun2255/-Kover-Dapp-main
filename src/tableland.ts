@@ -3,7 +3,8 @@ import { ethers } from 'ethers'
 import { convertJsonStringToObject } from './utils/helpers'
 
 //Localhost
-const usersTableName = 'kover_finance_421614_448'
+// const usersTableName = ' kover_finance_31337_3'
+const usersTableName = 'kover_finance_421614_449'
 
 //mumbai
 // const usersTableName = "libra_80001_7661";
@@ -36,11 +37,10 @@ const get_membership_appliants = async (addresses: any[]) => {
   const { results } = await db
     .prepare(
       `SELECT * FROM ${usersTableName} WHERE address IN (${addresses
-        .map((addr) => `"${addr}"`)
+        .map((addr) => `"${addr.toLowerCase()}"`)
         .join(', ')});`
     )
     .all()
-  console.log(results)
   return results
 }
 

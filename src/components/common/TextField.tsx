@@ -77,6 +77,7 @@ interface TextFieldProps {
   verificationState?: 'unverified' | 'verified' | 'verifying'
   outline?: boolean
   handleChange?: Function
+  filled?: boolean
 }
 
 function TextField(props: TextFieldProps) {
@@ -95,17 +96,31 @@ function TextField(props: TextFieldProps) {
     handleChange,
     verificationState,
     startVerification,
+    filled,
   } = props
   const { theme } = React.useContext(UserContext)
   const [error, setError] = useState(false)
+  const [value, setValue] = useState('')
   const checkIfCorrect = (text: any) => {
     // Use a regular expression to check for only alphabetical characters
-    const regex = /^[a-zA-Z]+$/
-    regex.test(text) ? setError(false) : setError(true)
+    if (name === 'state' || name === 'firstName' || name === 'lastName') {
+      const regex = /^[a-zA-Z]+$/
+      regex.test(text) ? setError(false) : setError(true)
+    }
   }
   let variantStyle = 'bg-dark-800'
   if (variant === 'outlined') {
     variantStyle = 'border-2 border-dark-350'
+  }
+
+  const ErrorMessage = () => {
+    return (
+      <span style={{ color: 'red' }}>
+        {filled
+          ? 'Error, Please enter a valid value'
+          : 'This filed is required'}
+      </span>
+    )
   }
 
   interface InputProps
@@ -127,7 +142,7 @@ function TextField(props: TextFieldProps) {
           field ? '' : 'px-5'
         }`}
       />
-      {endElement}
+      {((!filled && value === '') || error) && ErrorMessage()}
     </div>
   )
 
@@ -147,11 +162,32 @@ function TextField(props: TextFieldProps) {
         <>
           {verify ? (
             <>
-              <div className="rounded relative flex gap-3 items-center h-10 bg-dark-800 dark:bg-[#F1F1F1]  box-border-2x-light dark:box-border-2x-dark">
+              <div
+                className="rounded relative flex gap-3 items-center h-10 bg-dark-800 dark:bg-[#F1F1F1]  dark:box-border-2x-dark"
+                style={{
+                  border: `1px solid ${
+                    (!filled && value === '') || error
+                      ? 'red'
+                      : theme === 'dark'
+                      ? '#bbbbbb'
+                      : '#43444B'
+                  }`,
+                  borderColor:
+                    (!filled && value === '') || error
+                      ? 'red'
+                      : theme === 'dark'
+                      ? '#bbbbbb'
+                      : '#43444B',
+                }}
+              >
                 <input
                   placeholder="654875236"
                   name={name}
-                  onChange={(e) => handleChange?.(e)}
+                  onChange={(e) => {
+                    checkIfCorrect(e.target.value)
+                    handleChange?.(e)
+                    setValue(e.target.value)
+                  }}
                   className="placeholder:text-dark-650 flex-grow text-white dark:text-[#000000] text-lg py-3 w-full px-5  "
                 />
                 {verificationState === 'unverified' ? (
@@ -176,65 +212,48 @@ function TextField(props: TextFieldProps) {
                   </span>
                 )}
               </div>
+              {((!filled && value === '') || error) && ErrorMessage()}
             </>
           ) : (
             <>
               {outline ? (
-                name === 'state' ? (
-                  <>
-                    <input
-                      placeholder={placeholder}
-                      name={name}
-                      className={`
-              ${
-                classname ||
-                ` placeholder:text-dark-650 flex-grow 
-              ${
-                theme === 'dark'
-                  ? 'dark:bg-[#F1F1F1] text-dark-800'
-                  : 'text-white bg-dark-800'
-              }`
-              } rounded h-[40px] text-lg py-3 w-full px-5`}
-                      style={{
-                        border: `1px solid ${
-                          error
-                            ? 'red'
-                            : theme === 'dark'
-                            ? '#bbbbbb'
-                            : '#43444B'
-                        }`,
-                      }}
-                      onChange={(e) => {
-                        checkIfCorrect(e.target.value)
-                        handleChange?.(e)
-                      }}
-                    />
-                    {error && endElement}
-                  </>
-                ) : (
-                  <>
-                    <input
-                      placeholder={placeholder}
-                      name={name}
-                      className={`
-                ${
-                  classname ||
-                  ` placeholder:text-dark-650 flex-grow 
-                ${
-                  theme === 'dark'
-                    ? 'dark:bg-[#F1F1F1] text-dark-800'
-                    : 'text-white bg-dark-800'
-                }`
-                } rounded h-[40px] text-lg py-3 w-full px-5`}
-                      style={{
-                        border: `0px solid ${
-                          theme === 'dark' ? '#bbbbbb' : '#43444B'
-                        }`,
-                      }}
-                      onChange={(e) => handleChange?.(e)}
-                    />
-                  </>
-                )
+                <>
+                  <input
+                    placeholder={placeholder}
+                    name={name}
+                    className={`
+    ${
+      classname ||
+      `placeholder:text-dark-650 flex-grow 
+      ${
+        theme === 'dark'
+          ? 'dark:bg-[#F1F1F1] text-dark-800'
+          : 'text-white bg-dark-800'
+      }`
+    } rounded h-[40px] text-lg py-3 w-full px-5`}
+                    style={{
+                      border: `1px solid ${
+                        (!filled && value === '') || error
+                          ? 'red'
+                          : theme === 'dark'
+                          ? '#bbbbbb'
+                          : '#43444B'
+                      }`,
+                      borderColor:
+                        (!filled && value === '') || error
+                          ? 'red'
+                          : theme === 'dark'
+                          ? '#bbbbbb'
+                          : '#43444B',
+                    }}
+                    onChange={(e) => {
+                      checkIfCorrect(e.target.value)
+                      handleChange?.(e)
+                      setValue(e.target.value)
+                    }}
+                  />
+                  {((!filled && value === '') || error) && ErrorMessage()}
+                </>
               ) : (
                 <>
                   <input
@@ -250,8 +269,28 @@ function TextField(props: TextFieldProps) {
                   : 'text-white bg-dark-800'
               }`
               } rounded h-[40px] text-lg py-3 w-full px-5`}
-                    onChange={(e) => handleChange?.(e)}
+                    style={{
+                      border: `1px solid ${
+                        (!filled && value === '') || error
+                          ? 'red'
+                          : theme === 'dark'
+                          ? '#bbbbbb'
+                          : '#43444B'
+                      }`,
+                      borderColor:
+                        (!filled && value === '') || error
+                          ? 'red'
+                          : theme === 'dark'
+                          ? '#bbbbbb'
+                          : '#43444B',
+                    }}
+                    onChange={(e) => {
+                      checkIfCorrect(e.target.value)
+                      handleChange?.(e)
+                      setValue(e.target.value)
+                    }}
                   />
+                  {((!filled && value === '') || error) && ErrorMessage()}
                 </>
               )}
             </>

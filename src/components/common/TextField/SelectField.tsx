@@ -13,6 +13,7 @@ interface SelectField {
   handleChange?: Function
   borderRight?: string
   placeholder?: string | any[]
+  filled?: boolean
 }
 
 function SelectField({
@@ -23,6 +24,7 @@ function SelectField({
   name,
   handleDobChange,
   handleChange,
+  filled,
   ...rest
 }: SelectField) {
   const { theme } = React.useContext(UserContext)
@@ -64,6 +66,7 @@ function SelectField({
               {...rest}
               name={value.toLowerCase()}
               handleChange={handleSelect}
+              filled={filled}
             />
           ))}
         </div>
@@ -73,6 +76,7 @@ function SelectField({
           {...rest}
           name={name}
           handleChange={handleSelect}
+          filled={filled}
         />
       )}
     </div>

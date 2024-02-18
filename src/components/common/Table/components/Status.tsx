@@ -27,6 +27,7 @@ function Status({ type, text }: StatusProps) {
     case 'Ongoing':
     case 'Inactive':
     case 'Withdrawn':
+    case 'Pending':
       icon = '/images/Group 282.svg' // down arrow - yellow
       break
   }

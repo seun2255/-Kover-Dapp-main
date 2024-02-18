@@ -1,5 +1,6 @@
 import { ethers } from 'ethers'
-import CONTRACT from './contracts/TableLand.json'
+// import CONTRACT from './contracts/TableLand.json'
+import CONTRACT from './contracts/UserManager.json'
 import TOKENCONTRACT from './contracts/KoverToken.json'
 import { getAllUsers, get_membership_appliants } from './tableland'
 
@@ -21,6 +22,22 @@ const getContract = async (signer: any) => {
   return contract
 }
 
+// const getContractJson = async () => {
+//     const rpcURL = 'http://127.0.0.1:8545';
+
+//     // Creates an ethers.js provider using the JSON-RPC URL
+//     const provider = new ethers.JsonRpcProvider(rpcURL);
+
+//     // Creates a contract instance
+//     const contractJson = new ethers.Contract(
+//     CONTRACT.abi as string,
+//       CONTRACT,
+//       provider
+//     );
+//   }
+//   return contractJson;
+// };
+
 const getTokenContract = async (signer: any) => {
   const contract = new ethers.Contract(
     process.env.REACT_APP_KOVER_TOKEN_CONTRACT_ADDRESS as string,
@@ -40,32 +57,57 @@ const is_kyc_reviewer = async (signer: any) => {
 
 const apply_for_membership = async (signer: any, data: string) => {
   const contract = await getContract(signer)
-  console.log('Got here 1')
-  // const feeParams = await contract.membership_fee_params()
+  const feeParams = await contract.membership_fee_params()
 
-  // const fee = parseInt(feeParams.fee.toString())
+  var fee = ethers.parseEther(feeParams.fee.toString())
+  // fee = ethers.parseUnits(fee, 18)
 
-  await approve(signer, 5)
+  await approve(signer, fee)
 
-  // const tx = await contract.apply_for_membership('Nigeria', data)
-  await contract.createUser(data)
+  const tx = await contract.apply_for_membership('Nigeria', [data, data])
+  // await contract.createUser(data)
   // await tx.wait()
 }
 
+// const get_access_fee = async (signer: any) => {
+
+// }
+
+const assignMembershipApplication = async (signer: any, address: any) => {
+  const contract = await getContract(signer)
+
+  const fee = ethers.parseEther('2.5')
+
+  await approve(signer, fee)
+
+  const tx = await contract.assign_membership_application(
+    address,
+    'Nigeria',
+    false
+  )
+}
+
 const get_applications = async (signer: any) => {
-  // const contract = await getContract(signer)
-  // var applicants = await contract.get_membership_applicants()
-  // applicants = applicants['0']
-  // const addressesArray = Object.values(applicants || {}).map((address: any) =>
-  //   address.toLowerCase()
-  // )
-  // const membershipApplicants = await get_membership_appliants(addressesArray)
-  const membershipApplicants = await getAllUsers()
+  const contract = await getContract(signer)
+  var applicants = await contract.get_membership_applicants()
+  const addressesArray = Object.values(applicants || {}).map((address: any) =>
+    address.toLowerCase()
+  )
+  console.log(applicants)
+  const membershipApplicants = await get_membership_appliants(addressesArray)
+  console.log(membershipApplicants)
+  // const membershipApplicants = await getAllUsers()
   return membershipApplicants
 }
 
+const getKycDetails = async (signer: any, address: any) => {
+  const contract = await getContract(signer)
+  var kycDetails = await contract.region_KYC_map('Nigeria', address)
+  return kycDetails
+}
+
 // Token
-const approve = async (signer: any, amount: number) => {
+const approve = async (signer: any, amount: any) => {
   const contract = await getTokenContract(signer)
 
   const approvalTx = await contract.approve(
@@ -76,61 +118,11 @@ const approve = async (signer: any, amount: number) => {
   // await approvalTx.wait()
 }
 
-// const isCommunityMember = async (contractAddress) => {
-//   const contract = await getCommunityContract(contractAddress)
-
-//   const isMember = await contract.isMember()
-//   return isMember
-// }
-
-// const joinCommunity = async (contractAddress, cost) => {
-//   const contract = await getCommunityContract(contractAddress)
-//   const tokenContract = await getTokenContract()
-
-//   const costAmount = ethers.parseEther(cost.toString())
-
-//   if (cost !== '0') {
-//     const approvalTx = await tokenContract.approve(contractAddress, costAmount)
-
-//     await approvalTx.wait()
-//   }
-//   console.log('e reach here')
-
-//   let txn = await contract.joinCommunity()
-//   await txn.wait()
-// }
-
-// const uploadFileCommunity = async (
-//   title,
-//   description,
-//   type,
-//   url,
-//   hash,
-//   tags,
-//   contractAddress
-// ) => {
-//   const contract = await getCommunityContract(contractAddress)
-
-//   const currentDate = new Date()
-//   const createdAt = fileUploadTime(currentDate)
-
-//   let txn = await contract.uploadFile(
-//     title,
-//     description,
-//     type,
-//     url,
-//     hash,
-//     tags,
-//     createdAt
-//   )
-//   await txn.wait()
-// }
-
-// const getTable = async () => {
-//   const signer = await getSigner()
-
-//   const tableland = new Database({ signer })
-//   return tableland
-// }
-
-export { is_kyc_reviewer, approve, apply_for_membership, get_applications }
+export {
+  is_kyc_reviewer,
+  approve,
+  apply_for_membership,
+  get_applications,
+  getKycDetails,
+  assignMembershipApplication,
+}
