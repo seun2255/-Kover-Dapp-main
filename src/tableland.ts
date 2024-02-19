@@ -4,7 +4,7 @@ import { convertJsonStringToObject } from './utils/helpers'
 
 //Localhost
 // const usersTableName = ' kover_finance_31337_3'
-const usersTableName = 'kover_finance_421614_449'
+const usersTableName = 'kover_finance_421614_450'
 
 //mumbai
 // const usersTableName = "libra_80001_7661";
