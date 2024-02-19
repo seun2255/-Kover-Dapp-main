@@ -162,7 +162,7 @@ function KYC({ onClose }: popupProps, props: any) {
     if (formFilled) {
       const formData = { ...formState, date: date, address: account }
       console.log(formData)
-      const dataString = convertJsonToString(formState)
+      const dataString = convertJsonToString(formData)
       const userData = await uploadJsonData(dataString)
       const signer = library.getSigner(account)
       // const isReviwer = await is_kyc_reviewer(signer);
