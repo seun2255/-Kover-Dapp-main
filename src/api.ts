@@ -93,16 +93,19 @@ const get_applications = async (signer: any) => {
   const addressesArray = Object.values(applicants || {}).map((address: any) =>
     address.toLowerCase()
   )
-  console.log(applicants)
+  // console.log(applicants)
   const membershipApplicants = await get_membership_appliants(addressesArray)
-  console.log(membershipApplicants)
+  // console.log(membershipApplicants)
   // const membershipApplicants = await getAllUsers()
   return membershipApplicants
 }
 
 const getKycDetails = async (signer: any, address: any) => {
   const contract = await getContract(signer)
+  console.log('In getKYCdetails')
+  console.log('got contract')
   var kycDetails = await contract.region_KYC_map('Nigeria', address)
+  console.log('got kycdetails')
   return kycDetails
 }
 

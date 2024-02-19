@@ -156,7 +156,7 @@ function KYC({ onClose }: popupProps, props: any) {
     const formFilled = areAllValuesFilled(formState)
     setFormFilled(formFilled)
     if (formFilled) {
-      const formData = { ...formState, date: date, address: account as string }
+      const formData = { ...formState, date: date, address: account }
       console.log(formData)
       const dataString = convertJsonToString(formState)
       const userData = await uploadJsonData(dataString)

@@ -59,10 +59,14 @@ function KYCApplication() {
       const signer = library.getSigner(account)
       const applicants = await get_applications(signer)
 
+      console.log('Applicants: ', applicants)
       const axiosRequests = applicants.map(async (applicant) => {
         const response = await axios.get(applicant.data as string)
+        console.log('Applicant Details: ', response)
         const kyc_details = await getKycDetails(signer, response.data.address)
+        console.log('KYC Details: ', kyc_details)
         const result = addContractState(response.data, kyc_details)
+        console.log('Result: ', result)
         return result
       })
 
