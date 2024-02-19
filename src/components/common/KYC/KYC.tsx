@@ -153,6 +153,10 @@ function KYC({ onClose }: popupProps, props: any) {
       ...prevState,
       date: date,
     }))
+    setFormState((prevState) => ({
+      ...prevState,
+      address: account,
+    }))
     const formFilled = areAllValuesFilled(formState)
     setFormFilled(formFilled)
     if (formFilled) {
