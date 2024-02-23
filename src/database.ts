@@ -1,4 +1,4 @@
-import app from '@/firebase/firebaseApp'
+import app from './firebaseConfig/firebaseApp'
 import {
   getFirestore,
   collection,
@@ -6,7 +6,7 @@ import {
   setDoc,
   doc,
 } from 'firebase/firestore'
-import { timeStamp } from './utils/dateFunctions'
+// import { timeStamp } from './utils/dateFunctions'
 
 const db = getFirestore(app)
 
@@ -15,8 +15,8 @@ const db = getFirestore(app)
  */
 
 //Checks if the User exists in the database
-const checkIfUserExists = async (user) => {
-  var data = {}
+const checkIfUserExists = async (user: any) => {
+  var data: any = {}
   const userData = await getDocs(collection(db, 'users'))
   userData.forEach((doc) => {
     data[doc.id] = doc.data()
@@ -30,14 +30,11 @@ const checkIfUserExists = async (user) => {
 }
 
 //creates a new User
-const createUser = async (address, name) => {
+const createUser = async (address: any) => {
   const user = {
-    name: name,
-    profilePic: '',
-    address: address.toLowerCase(),
     canModifyKYC: false,
   }
-  var data = {}
+  var data: any = {}
   const userData = await getDocs(collection(db, 'users'))
   userData.forEach((doc) => {
     // doc.data() is never undefined for query doc snapshots
@@ -50,8 +47,8 @@ const createUser = async (address, name) => {
   }
 }
 
-const switchKYCModify = async (address) => {
-  var data = {}
+const switchKYCModify = async (address: any) => {
+  var data: any = {}
   const userData = await getDocs(collection(db, 'users'))
   userData.forEach((doc) => {
     // doc.data() is never undefined for query doc snapshots
@@ -83,8 +80,8 @@ const switchKYCModify = async (address) => {
 // };
 
 //gets a users data
-const getUserDetails = async (address) => {
-  var data = {}
+const getUserDetails = async (address: any) => {
+  var data: any = {}
   const userData = await getDocs(collection(db, 'users'))
   userData.forEach((doc) => {
     // doc.data() is never undefined for query doc snapshots

@@ -12,14 +12,14 @@ import WeightRow from '../../components/common/WeightRow'
 import WeightTitle from '../../components/common/WeightTitle'
 import { useNavigate } from 'react-router-dom'
 import TextFieldS from '../../components/common/TextFieldS'
-import { Tooltip as ReactTooltip } from "react-tooltip";
+import { Tooltip as ReactTooltip } from 'react-tooltip'
 import AttachmentPreview from '../../components/common/AttachmentPreview/AttachmentPreview'
-import Popup from "../../components/templates/Popup";
+import Popup from '../../components/templates/Popup'
 
 function InsureProUserProfile() {
-  const { theme } = React.useContext(UserContext);
-  const [currentIcon, setcurrentIcon] = useState("");
-  const [popup, setPopup] = useState(false);
+  const { theme } = React.useContext(UserContext)
+  const [currentIcon, setcurrentIcon] = useState('')
+  const [popup, setPopup] = useState(false)
   const togglePopup = () => setPopup((v) => !v)
   let navigate = useNavigate()
   return (
@@ -49,22 +49,20 @@ function InsureProUserProfile() {
       </div>
       <div className="mb-10 lg:flex gap-[60px]">
         <div className="flex-grow mb-[50px]">
-          <InsureProUserInfom variant="customer" />
+          <InsureProUserInfom variant="customer" user={{}} />
           <div className="flex-grow mb-[50px] mt-[20px]">
             <div className="lg:grid lg:grid-cols-2">
               <div className="sm:w-[60%]">
                 <b className="font-normal text-3xl mb-2.5 block">
-                    Professional Details
+                  Professional Details
                 </b>
                 <p className="text-lg text-dark-650 ">
-                    Your professional information is never to other users.
+                  Your professional information is never to other users.
                 </p>
               </div>
               {/* text-dark-650 flex-grow 
               text-white bg-dark-800 rounded h-[40px] text-lg py-3 w-full px-5 */}
               <div className="flex flex-col gap-5 pt-5 lg:pt-2">
-                
-
                 <SelectField
                   labelIcon={true}
                   label="Work Area"
@@ -75,7 +73,6 @@ function InsureProUserProfile() {
                   label="Work Field"
                   placeholder="Domain"
                 />
-
               </div>
             </div>
             <hr className="my-[24px]" />
@@ -105,9 +102,9 @@ function InsureProUserProfile() {
                       <div className="flex basis-3/4 gap-[16px]">
                         <img src="/images/pin.svg" alt="" />
                         <Link
-                         onClick={() => {
-                          setPopup(true);
-                           }}
+                          onClick={() => {
+                            setPopup(true)
+                          }}
                           className={`${
                             theme === 'dark'
                               ? 'font-bold text-[#606166] hover:text-[#000000]'
@@ -135,14 +132,10 @@ function InsureProUserProfile() {
           </div>
         </div>
       </div>
-      <Popup
-        visible={popup}
-        onClose={togglePopup}
-        maxWidth="max-w-[824px]"
-      >
-        <AttachmentPreview 
-        attachmentName='Id_front.png'
-        onClose={togglePopup}
+      <Popup visible={popup} onClose={togglePopup} maxWidth="max-w-[824px]">
+        <AttachmentPreview
+          attachmentName="Id_front.png"
+          onClose={togglePopup}
         />
       </Popup>
     </>

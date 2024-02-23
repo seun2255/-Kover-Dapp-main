@@ -33,6 +33,7 @@ import axios from 'axios'
 import { addContractState } from '../../utils/helpers'
 import { useDispatch } from 'react-redux'
 import { setKYCApplicants } from '../../redux/kyc'
+import { getUserDetails } from '../../database'
 
 function KYCApplication() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
@@ -70,7 +71,9 @@ function KYCApplication() {
         const kyc_details = await getKycDetails(signer, response.data.address)
         console.log('KYC Details: ', kyc_details)
         const result = addContractState(response.data, kyc_details)
+        const userFirebaseDetails = await getUserDetails(response.data.address)
         result.id = applicant.id
+        result.canModifyKYC = userFirebaseDetails.canModifyKYC
         console.log('Result: ', result)
         return result
       })

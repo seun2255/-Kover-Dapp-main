@@ -26,12 +26,6 @@ import {
   signInWithEmailAndPassword,
   deleteUser,
 } from 'firebase/auth'
-import {
-  createTable,
-  createUser,
-  getAllUsers,
-  getUser,
-} from '../../../tableland'
 import { convertJsonToString } from '../../../utils/helpers'
 import { getCurrentDateTime } from '../../../utils/dateTime'
 import app from '../../../firebaseConfig/firebaseApp'
@@ -44,6 +38,7 @@ import {
 } from '../../../utils/encryption'
 import { uploadJsonData } from '../../../lighthouse'
 import { is_kyc_reviewer, apply_for_membership } from '../../../api'
+import { createUser } from '../../../database'
 
 interface popupProps {
   onClose?: () => void
@@ -169,6 +164,7 @@ function KYC({ onClose }: popupProps, props: any) {
       const signer = library.getSigner(account)
       // const isReviwer = await is_kyc_reviewer(signer);
       await apply_for_membership(signer, userData)
+      await createUser(account)
       if (onClose !== undefined) onClose()
       setSuccess(true)
       setTimeout(() => {

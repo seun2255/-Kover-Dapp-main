@@ -4,6 +4,8 @@ import Button from '../../common/Button'
 import InfoText from '../../common/InfoText'
 import UploadButton from '../../common/UploadButton'
 import useWindowDimensions from './useWindowDimensions'
+import { switchKYCModify } from '../../../database'
+import { useWeb3React } from '@web3-react/core'
 
 interface UserInformProps {
   variant?: 'customer' | 'personal'
@@ -13,6 +15,7 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
   const [viewmore, setViewmore] = useState(false)
   const [history, setHistory] = useState(false)
   const { theme } = React.useContext(UserContext)
+  const { account } = useWeb3React()
   const viewmoreHandler = () => {
     viewmore ? setViewmore(false) : setViewmore(true)
   }
@@ -119,7 +122,7 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
           <div className="mt-[20px]">
             <Button
               className="w-full sm:min-w-[125px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
-              text="Allow Edit"
+              text={user.canModifyKYC ? 'Stop Edit' : 'grant Edit'}
             />
             {variant === 'personal' ? (
               ''
@@ -189,7 +192,12 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
                 <div className="self-center">
                   <Button
                     className="min-w-[125px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
-                    text="Allow Edit"
+                    text={user.canModifyKYC ? 'Stop Edit' : 'Allow Edit'}
+                    onClick={() => {
+                      if (user.reviewer === account) {
+                        switchKYCModify(user.address)
+                      }
+                    }}
                   />
                   {variant === 'personal' ? (
                     ''

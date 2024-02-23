@@ -17,16 +17,18 @@ import { Tooltip as ReactTooltip } from 'react-tooltip'
 import Popup from '../../components/templates/Popup'
 import { useSelector, useDispatch } from 'react-redux'
 import { createDateString } from '../../utils/dateTime'
+import { useWeb3React } from '@web3-react/core'
 
 function KYCUserProfile() {
   const { theme } = React.useContext(UserContext)
   const { kycApplicants } = useSelector((state: any) => state.kyc)
   const [popup, setPopup] = useState(false)
   const togglePopup = () => setPopup((v) => !v)
+  const { account } = useWeb3React()
   const [currentIcon, setcurrentIcon] = useState('')
   let { userId } = useParams()
   let navigate = useNavigate()
-  const applicant = kycApplicants[0]
+  const applicant = kycApplicants[userId as string]
   const [canModify, setCanModify] = useState(false)
   const [formState, setFormState] = useState(applicant)
   const [formFilled, setFormFilled] = useState(true)
@@ -57,7 +59,11 @@ function KYCUserProfile() {
     return true // All values are empty strings
   }
 
-  useEffect(() => {}, [])
+  useEffect(() => {
+    if (applicant.canModifyKYC && applicant.address === account) {
+      setCanModify(true)
+    }
+  }, [])
 
   return (
     <>
@@ -283,6 +289,37 @@ function KYCUserProfile() {
             <div className="bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
               <WeightTitle title="Attachments" />
               <div className="flex gap-[12px] flex-col mt-[25px] sm:mt-[0px]">
+                {/* {[...Array(4)].map((value, index) => (
+                  <>
+                    <div className="flex justify-between">
+                      <div className="flex basis-3/4 gap-[16px]">
+                        <img src="/images/pin.svg" alt="" />
+                        <Link
+                          onClick={() => {
+                            setPopup(true)
+                          }}
+                          className={`${
+                            theme === 'dark'
+                              ? 'font-bold text-[#606166] hover:text-[#000000]'
+                              : 'text-white hover:text-[#50ff7f]'
+                          } file-name `}
+                          to={''}
+                        >
+                          Id_front.png
+                        </Link>
+                      </div>
+                      <img
+                        className="items-end w-[20px]"
+                        src={
+                          theme === 'dark'
+                            ? '/images/downloadblack.svg'
+                            : '/images/Remove (1).svg'
+                        }
+                        alt=""
+                      />
+                    </div>
+                  </>
+                ))} */}
                 {[...Array(4)].map((value, index) => (
                   <>
                     <div className="flex justify-between">

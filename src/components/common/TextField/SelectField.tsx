@@ -72,7 +72,9 @@ function SelectField({
               handleChange={handleSelect}
               filled={filled}
               disabled={disabled}
-              initialValue={initialValue.split('/')[index]}
+              initialValue={
+                initialValue ? initialValue.split('/')[index] : null
+              }
             />
           ))}
         </div>
