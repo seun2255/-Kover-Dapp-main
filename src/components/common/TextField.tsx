@@ -78,6 +78,8 @@ interface TextFieldProps {
   outline?: boolean
   handleChange?: Function
   filled?: boolean
+  initialValue?: string
+  disabled?: boolean
 }
 
 function TextField(props: TextFieldProps) {
@@ -97,6 +99,8 @@ function TextField(props: TextFieldProps) {
     verificationState,
     startVerification,
     filled,
+    initialValue,
+    disabled,
   } = props
   const { theme } = React.useContext(UserContext)
   const [error, setError] = useState(false)
@@ -116,7 +120,7 @@ function TextField(props: TextFieldProps) {
   const ErrorMessage = () => {
     return (
       <span style={{ color: 'red' }}>
-        {filled
+        {filled && value !== ''
           ? 'Error, Please enter a valid value'
           : 'This filed is required'}
       </span>
@@ -138,6 +142,8 @@ function TextField(props: TextFieldProps) {
       {field && <span className="inline-block ml-5 -mr-2">{field}</span>}
       <input
         {...rest}
+        defaultValue={initialValue}
+        disabled={disabled}
         className={`placeholder:text-dark-650 flex-grow text-white text-lg py-3 w-full ${className} ${
           field ? '' : 'px-5'
         }`}
@@ -155,7 +161,17 @@ function TextField(props: TextFieldProps) {
       {typeof placeholder === 'object' ? (
         <div className="flex items-center justify-between gap-5 ">
           {placeholder.map((value, index) => (
-            <Input placeholder={value} key={index} />
+            <Input
+              placeholder={value}
+              key={index}
+              defaultValue={initialValue}
+              disabled={disabled}
+              onBlur={(e) => {
+                if (e.target.value.trim() === '') {
+                  setError(true)
+                }
+              }}
+            />
           ))}
         </div>
       ) : (
@@ -183,10 +199,17 @@ function TextField(props: TextFieldProps) {
                 <input
                   placeholder="654875236"
                   name={name}
+                  defaultValue={initialValue}
+                  disabled={disabled}
                   onChange={(e) => {
                     checkIfCorrect(e.target.value)
                     handleChange?.(e)
                     setValue(e.target.value)
+                  }}
+                  onBlur={(e) => {
+                    if (e.target.value.trim() === '') {
+                      setError(true)
+                    }
                   }}
                   className="placeholder:text-dark-650 flex-grow text-white dark:text-[#000000] text-lg py-3 w-full px-5  "
                 />
@@ -221,6 +244,8 @@ function TextField(props: TextFieldProps) {
                   <input
                     placeholder={placeholder}
                     name={name}
+                    defaultValue={initialValue}
+                    disabled={disabled}
                     className={`
     ${
       classname ||
@@ -251,6 +276,11 @@ function TextField(props: TextFieldProps) {
                       handleChange?.(e)
                       setValue(e.target.value)
                     }}
+                    onBlur={(e) => {
+                      if (e.target.value.trim() === '') {
+                        setError(true)
+                      }
+                    }}
                   />
                   {((!filled && value === '') || error) && ErrorMessage()}
                 </>
@@ -259,6 +289,8 @@ function TextField(props: TextFieldProps) {
                   <input
                     placeholder={placeholder}
                     name={name}
+                    defaultValue={initialValue}
+                    disabled={disabled}
                     className={`
               ${
                 classname ||
@@ -288,6 +320,11 @@ function TextField(props: TextFieldProps) {
                       checkIfCorrect(e.target.value)
                       handleChange?.(e)
                       setValue(e.target.value)
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value.trim() === '') {
+                        setError(true)
+                      }
                     }}
                   />
                   {((!filled && value === '') || error) && ErrorMessage()}

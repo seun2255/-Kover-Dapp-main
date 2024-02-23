@@ -35,6 +35,7 @@ import {
 import { convertJsonToString } from '../../../utils/helpers'
 import { getCurrentDateTime } from '../../../utils/dateTime'
 import app from '../../../firebaseConfig/firebaseApp'
+import Alert from '../Alert'
 
 import {
   encryptAndHandleFile,
@@ -56,8 +57,8 @@ function KYC({ onClose }: popupProps, props: any) {
     firstName: '',
     lastName: '',
     dob: '',
-    countryCode: '',
-    phoneNumber: '',
+    // countryCode: '',
+    // phoneNumber: '',
     state: '',
     address1: '',
     address2: '',
@@ -74,6 +75,7 @@ function KYC({ onClose }: popupProps, props: any) {
   type VerificationState = 'unverified' | 'verifying' | 'verified'
   const [verificationState, setVerificationState] =
     useState<VerificationState>('unverified')
+  const [success, setSuccess] = useState(false)
 
   type ProgressData = {
     total: number
@@ -168,6 +170,10 @@ function KYC({ onClose }: popupProps, props: any) {
       // const isReviwer = await is_kyc_reviewer(signer);
       await apply_for_membership(signer, userData)
       if (onClose !== undefined) onClose()
+      setSuccess(true)
+      setTimeout(() => {
+        setSuccess(false)
+      }, 2000)
     }
   }
 
@@ -304,7 +310,7 @@ function KYC({ onClose }: popupProps, props: any) {
                       startVerification={verifymail}
                     />
 
-                    <div className="sm:grid sm:grid-cols-[100px_auto]  max-[640px]:grid  max-[640px]:grid-cols-[100px_auto] sm:gap-5 gap-2.5">
+                    {/* <div className="sm:grid sm:grid-cols-[100px_auto]  max-[640px]:grid  max-[640px]:grid-cols-[100px_auto] sm:gap-5 gap-2.5">
                       <SelectField
                         handleChange={handleChange}
                         filled={formFilled}
@@ -323,9 +329,9 @@ function KYC({ onClose }: popupProps, props: any) {
                           outerClass="justify-end"
                         />
                       </div>
-                    </div>
+                    </div> */}
 
-                    <TextFieldS
+                    {/* <TextFieldS
                       handleChange={handleChange}
                       variant="outlined"
                       label="OTP Code"
@@ -337,7 +343,7 @@ function KYC({ onClose }: popupProps, props: any) {
                           ? 'otp-input-dark'
                           : 'otp-input bg-transparent'
                       }`}
-                    />
+                    /> */}
                   </div>
                 </div>
                 <hr className="my-[24px]" />
@@ -548,15 +554,12 @@ function KYC({ onClose }: popupProps, props: any) {
                         <UploadingFile progress={uploadProgress} file={file} />
                       </div>
                     ))}
-                    {/* <div className="mb-[5px]">
-                      <UploadingFile progress={100} />
-                    </div>
-                    <div className="mb-[5px]">
-                      <UploadingFile progress={45} />
-                    </div> */}
                     <div className="my-[20px]">
                       <Rules padding="py-[20px] px-[20px]" space="ml-[20px]" />
                     </div>
+                    {!formFilled && formState.documentsLink === '' && (
+                      <span style={{ color: 'red' }}>Document is required</span>
+                    )}
                   </div>
                 </div>
                 <hr className="my-[24px]" />
@@ -581,6 +584,18 @@ function KYC({ onClose }: popupProps, props: any) {
           </div>
         </div>
       </div>
+      {success && (
+        <div style={{ position: 'absolute', right: 30, top: 30 }}>
+          <Alert
+            id={1}
+            variant={'Successful'}
+            classname={'text-black'}
+            title={'Submission Successful'}
+            tag1={'KYC application submitted'}
+            tag2={'View on etherscan'}
+          />
+        </div>
+      )}
     </div>
   )
 }

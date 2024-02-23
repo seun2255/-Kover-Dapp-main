@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../../components/common/Button'
 import Header from '../../components/common/header/Header'
@@ -10,18 +10,55 @@ import Score from '../Dashboard/Score'
 import Attachment from '../../components/common/Attachment'
 import WeightRow from '../../components/common/WeightRow'
 import WeightTitle from '../../components/common/WeightTitle'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import TextFieldS from '../../components/common/TextFieldS'
 import AttachmentPreview from '../../components/common/AttachmentPreview/AttachmentPreview'
-import { Tooltip as ReactTooltip } from "react-tooltip";
-import Popup from "../../components/templates/Popup";
+import { Tooltip as ReactTooltip } from 'react-tooltip'
+import Popup from '../../components/templates/Popup'
+import { useSelector, useDispatch } from 'react-redux'
+import { createDateString } from '../../utils/dateTime'
 
 function KYCUserProfile() {
-  const { theme } = React.useContext(UserContext);
-  const [popup, setPopup] = useState(false);
+  const { theme } = React.useContext(UserContext)
+  const { kycApplicants } = useSelector((state: any) => state.kyc)
+  const [popup, setPopup] = useState(false)
   const togglePopup = () => setPopup((v) => !v)
-  const [currentIcon, setcurrentIcon] = useState("");
+  const [currentIcon, setcurrentIcon] = useState('')
+  let { userId } = useParams()
   let navigate = useNavigate()
+  const applicant = kycApplicants[0]
+  const [canModify, setCanModify] = useState(false)
+  const [formState, setFormState] = useState(applicant)
+  const [formFilled, setFormFilled] = useState(true)
+
+  const handleDobChange = (value: any) => {
+    const dateString = createDateString(value)
+    setFormState((prevState: any) => ({
+      ...prevState,
+      dob: dateString,
+    }))
+  }
+
+  // Generic change handler for all inputs
+  const handleChange = (e: any) => {
+    const { name, value } = e.target
+    setFormState((prevState: any) => ({
+      ...prevState,
+      [name]: value,
+    }))
+  }
+
+  function areAllValuesFilled(obj: any) {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key) && obj[key] === '') {
+        return false // If any value is not an empty string, return false
+      }
+    }
+    return true // All values are empty strings
+  }
+
+  useEffect(() => {}, [])
+
   return (
     <>
       <Header name="Profile" showBackAero={true} />
@@ -49,7 +86,7 @@ function KYCUserProfile() {
       </div>
       <div className="mb-10 lg:flex gap-[60px]">
         <div className="flex-grow mb-[50px]">
-          <InsureProUserInfom variant="personal" />
+          <InsureProUserInfom variant="personal" user={applicant} />
           <div className="flex-grow mb-[50px] mt-[20px]">
             <div className="lg:grid lg:grid-cols-2">
               <div className="sm:w-[60%]">
@@ -69,11 +106,15 @@ function KYCUserProfile() {
                     labelIcon={false}
                     placeholder="Nikita"
                     outline={true}
+                    initialValue={applicant.firstName}
+                    disabled={!canModify}
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                   />
                   <TextField
                     label="Last Name"
                     labelIcon={false}
+                    initialValue={applicant.lastName}
+                    disabled={!canModify}
                     outline={true}
                     placeholder="Resheteev"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
@@ -82,6 +123,8 @@ function KYCUserProfile() {
 
                 <SelectField
                   labelIcon={false}
+                  initialValue={applicant.dob}
+                  disabled={!canModify}
                   label="Date of Birth"
                   placeholder={['Month', 'Day', 'Year']}
                 />
@@ -89,38 +132,11 @@ function KYCUserProfile() {
                 <TextField
                   label="Email"
                   labelIcon={false}
+                  initialValue={applicant.email}
+                  disabled={!canModify}
                   variant="outlined"
                   placeholder="nik.resheteev@gmail.com"
                   verify={true}
-                />
-                <div className="sm:grid sm:grid-cols-[100px_auto] sm:gap-5 max-[640px]:grid  max-[640px]:grid-cols-[100px_auto] max-[640px]:gap-2 ">
-                  <SelectField
-                    label="Phone"
-                    labelIcon={false}
-                    placeholder="+331"
-                  />
-                  <div className="mt-[25px]">
-                    <TextField
-                      verify={true}
-                      variant="outlined"
-                      placeholder="654875236"
-                      outerClass="justify-end"
-                      classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
-                    />
-                  </div>
-                </div>
-
-                <TextFieldS
-                  variant="outlined"
-                  label="OTP Code"
-                  labelIcon={false}
-                  placeholder="65487"
-                  outline={true}
-                  classname={`${
-                    theme === 'dark'
-                      ? 'otp-input-dark'
-                      : 'otp-input bg-transparent'
-                  } box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]`}
                 />
               </div>
             </div>
@@ -138,6 +154,8 @@ function KYCUserProfile() {
                 <TextField
                   label="State/ Province"
                   labelIcon={false}
+                  initialValue={applicant.state}
+                  disabled={!canModify}
                   placeholder="e.g. California"
                   classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                 />
@@ -145,12 +163,16 @@ function KYCUserProfile() {
                   <TextField
                     label="Address Line 1"
                     labelIcon={false}
+                    initialValue={applicant.address1}
+                    disabled={!canModify}
                     placeholder="e.g. 645 EShaw Ave"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                   />
                   <TextField
                     label="Address Line 2"
                     labelIcon={false}
+                    initialValue={applicant.address2}
+                    disabled={!canModify}
                     placeholder="e.g.  Fresco, ca 93710"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                   />
@@ -159,12 +181,16 @@ function KYCUserProfile() {
                   <TextField
                     label="City"
                     labelIcon={false}
+                    initialValue={applicant.city}
+                    disabled={!canModify}
                     placeholder="e.g. New York"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                   />
                   <TextField
                     label="Post Code"
                     labelIcon={false}
+                    initialValue={applicant.postCode}
+                    disabled={!canModify}
                     placeholder="e.g.  4450"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                   />
@@ -175,45 +201,62 @@ function KYCUserProfile() {
             <div className="lg:grid lg:grid-cols-2">
               <div className="sm:w-[60%]">
                 <div className="flex gap-[5px] items-center mb-[10px] ">
-                  <b className="font-normal text-3xl mb-2.5 block">Identity Details</b>
-                  
-                    <img src={`${currentIcon === "kyc-Identity-Details" ? "/images/info-green-icon.svg" : "/images/Maskd (2).svg"}`}  alt="" width={14} height={14}
-                        id="kyc-Identity-Details"
-                        className='mb-2.5'
-                        onMouseEnter={()=>{ 
-                            setcurrentIcon("kyc-Identity-Details");
-                        }} onMouseLeave={()=>{
-                            setcurrentIcon("");
-                        }}
-                    />
-                    {/* <img className="w-[14px] h-[14px]" src="/images/Mask (11).svg" alt="" /> */}
-                    <ReactTooltip   
+                  <b className="font-normal text-3xl mb-2.5 block">
+                    Identity Details
+                  </b>
+
+                  <img
+                    src={`${
+                      currentIcon === 'kyc-Identity-Details'
+                        ? '/images/info-green-icon.svg'
+                        : '/images/Maskd (2).svg'
+                    }`}
+                    alt=""
+                    width={14}
+                    height={14}
+                    id="kyc-Identity-Details"
+                    className="mb-2.5"
+                    onMouseEnter={() => {
+                      setcurrentIcon('kyc-Identity-Details')
+                    }}
+                    onMouseLeave={() => {
+                      setcurrentIcon('')
+                    }}
+                  />
+                  {/* <img className="w-[14px] h-[14px]" src="/images/Mask (11).svg" alt="" /> */}
+                  <ReactTooltip
                     className="my-tool-tip z-500"
-                    anchorId={"kyc-Identity-Details"}
+                    anchorId={'kyc-Identity-Details'}
                     place="bottom"
                     content="This is the total amount available for  you to borrow. You can borrow based on your 		collateral and until the borrowcap is reached."
                   />
                 </div>
                 <p className="text-lg text-dark-650 ">
-                Your identity is never shared with other users.
+                  Your identity is never shared with other users.
                 </p>
               </div>
               <div className="flex flex-col gap-5 sm:pt-2 max-[640px]:pt-6">
                 <SelectField
-                    label="Issuing Country/Region"
-                    labelIcon={false}
-                    placeholder="Please Select"
-                  />
-              
+                  label="Issuing Country/Region"
+                  initialValue={applicant.country}
+                  disabled={!canModify}
+                  labelIcon={false}
+                  placeholder="Please Select"
+                />
+
                 <SelectField
-                    label="Identity Type"
-                    labelIcon={true}
-                    placeholder="Please Select"
-                  />
-             
+                  label="Identity Type"
+                  initialValue={applicant.identityType}
+                  disabled={!canModify}
+                  labelIcon={true}
+                  placeholder="Please Select"
+                />
+
                 <TextField
                   label="National ID Number"
                   labelIcon={false}
+                  initialValue={applicant.nationalID}
+                  disabled={!canModify}
                   placeholder="e.g. 5589855455"
                   classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                 />
@@ -245,9 +288,10 @@ function KYCUserProfile() {
                     <div className="flex justify-between">
                       <div className="flex basis-3/4 gap-[16px]">
                         <img src="/images/pin.svg" alt="" />
-                        <Link   onClick={() => {
-                              setPopup(true);
-                               }}
+                        <Link
+                          onClick={() => {
+                            setPopup(true)
+                          }}
                           className={`${
                             theme === 'dark'
                               ? 'font-bold text-[#606166] hover:text-[#000000]'
@@ -276,15 +320,10 @@ function KYCUserProfile() {
         </div>
       </div>
 
-     
-      <Popup
-        visible={popup}
-        onClose={togglePopup}
-        maxWidth="max-w-[824px]"
-      >
-        <AttachmentPreview 
-        attachmentName='Id_front.png'
-        onClose={togglePopup}
+      <Popup visible={popup} onClose={togglePopup} maxWidth="max-w-[824px]">
+        <AttachmentPreview
+          attachmentName="Id_front.png"
+          onClose={togglePopup}
         />
       </Popup>
     </>

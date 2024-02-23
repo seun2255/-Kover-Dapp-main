@@ -2,7 +2,6 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   connected: false,
-  verified: false,
   user: {},
 }
 
@@ -21,7 +20,6 @@ export const userSlice = createSlice({
   reducers: {
     login: (state: any, action: LoginAction) => {
       state.connected = true
-      state.verified = action.payload.verified
       state.user = action.payload.data
     },
     updateUser: (state: any, action: any) => {

@@ -14,6 +14,8 @@ interface SelectField {
   borderRight?: string
   placeholder?: string | any[]
   filled?: boolean
+  initialValue?: any
+  disabled?: boolean
 }
 
 function SelectField({
@@ -25,6 +27,8 @@ function SelectField({
   handleDobChange,
   handleChange,
   filled,
+  initialValue,
+  disabled,
   ...rest
 }: SelectField) {
   const { theme } = React.useContext(UserContext)
@@ -67,6 +71,8 @@ function SelectField({
               name={value.toLowerCase()}
               handleChange={handleSelect}
               filled={filled}
+              disabled={disabled}
+              initialValue={initialValue.split('/')[index]}
             />
           ))}
         </div>
@@ -77,6 +83,8 @@ function SelectField({
           name={name}
           handleChange={handleSelect}
           filled={filled}
+          disabled={disabled}
+          initialValue={initialValue}
         />
       )}
     </div>

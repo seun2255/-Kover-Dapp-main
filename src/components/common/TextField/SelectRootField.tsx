@@ -7,6 +7,8 @@ export interface SelectRootFieldProps {
   name?: string
   handleChange: Function
   filled?: boolean
+  initialValue?: string
+  disabled?: boolean
 }
 
 const dayOptions = [
@@ -549,6 +551,8 @@ function SelectRootField({
   name,
   handleChange,
   filled,
+  initialValue,
+  disabled,
 }: SelectRootFieldProps) {
   const [open, setOpen] = useState(false)
   const toggleOpen = () => setOpen((v) => !v)
@@ -561,7 +565,8 @@ function SelectRootField({
     )
   }
 
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState(initialValue ? initialValue : '')
+  const [selected, setSelected] = useState(true)
   const changeValue = (value: string) => {
     setValue(value)
     handleChange(name, value)
@@ -595,20 +600,29 @@ function SelectRootField({
         }`}
         style={{
           border: `1px solid ${
-            !filled && value === ''
+            (!filled || !selected) && value === ''
               ? 'red'
               : theme === 'dark'
               ? '#bbbbbb'
               : '#43444B'
           }`,
           borderColor:
-            !filled && value === ''
+            (!filled || !selected) && value === ''
               ? 'red'
               : theme === 'dark'
               ? '#bbbbbb'
               : '#43444B',
         }}
-        onClick={toggleOpen}
+        onClick={() => {
+          if (!disabled) {
+            toggleOpen()
+          }
+        }}
+        // onBlur={() => {
+        //   if (value === '') {
+        //     setSelected(false)
+        //   }
+        // }}
       >
         <span className="block px-5 py-3 text-lg truncate">
           {value === '' ? (

@@ -7,8 +7,9 @@ import useWindowDimensions from './useWindowDimensions'
 
 interface UserInformProps {
   variant?: 'customer' | 'personal'
+  user: any
 }
-function InsureProUserInform({ variant }: UserInformProps) {
+function InsureProUserInform({ variant, user }: UserInformProps) {
   const [viewmore, setViewmore] = useState(false)
   const [history, setHistory] = useState(false)
   const { theme } = React.useContext(UserContext)
@@ -27,26 +28,26 @@ function InsureProUserInform({ variant }: UserInformProps) {
           <div className="flex flex-row justify-between">
             <div className="flex flex-row justify-between">
               <div className="flex gap-8 w-[88px] h-[88px] bg-[#2A2B31] dark:bg-light-1200 items-center justify-center">
-                  <img
-                    width={50}
-                    height={50}
-                    src="/images/profile-photo.jpg"
-                    alt=""
-                    className="rounded-full"
-                  />
-                </div>
-                <div className="ml-[20px]">
-                  <span className="text-md block mb-2.5 fw-400">
-                    User ID <span className="font-medium">525432</span>
-                  </span>
-                  <strong
-                    role="button"
-                    className="font-medium text-3xl fs-400 mb-[5px] nderline block user-name"
-                  >
-                    Sandra Adams
-                  </strong>
-                </div>
-                <div className="">sandra.adams@gmail.com</div>
+                <img
+                  width={50}
+                  height={50}
+                  src="/images/profile-photo.jpg"
+                  alt=""
+                  className="rounded-full"
+                />
+              </div>
+              <div className="ml-[20px]">
+                <span className="text-md block mb-2.5 fw-400">
+                  User ID <span className="font-medium">{user.id}</span>
+                </span>
+                <strong
+                  role="button"
+                  className="font-medium text-3xl fs-400 mb-[5px] nderline block user-name"
+                >
+                  {`${user.firstName} ${user.lastName}`}
+                </strong>
+              </div>
+              <div className="">{user.email}</div>
             </div>
             <div className="flex flex-row-reverse justify-end">
               <div className="flex gap-1.5">
@@ -116,12 +117,13 @@ function InsureProUserInform({ variant }: UserInformProps) {
             </div>
           </div>
           <div className="mt-[20px]">
-            
-              <Button
-                className="w-full sm:min-w-[125px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
-                text="Allow Edit"
-              />
-            {variant === 'personal' ? '' : (
+            <Button
+              className="w-full sm:min-w-[125px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
+              text="Allow Edit"
+            />
+            {variant === 'personal' ? (
+              ''
+            ) : (
               <Button
                 variant="outline"
                 color="dark"
@@ -158,19 +160,19 @@ function InsureProUserInform({ variant }: UserInformProps) {
 
                   <div className="w-max">
                     <span className="text-md block mb-2.5 fw-400 ">
-                      User ID <span className="font-medium">525432</span>
+                      User ID <span className="font-medium">{user.id}</span>
                     </span>
                     <strong
                       role="button"
                       className="font-medium text-3xl mb-[5px] hover:underline block user-name"
                     >
-                      Sandra Adams
+                      {`${user.firstName} ${user.lastName}`}
                     </strong>
                     <span
                       role="button"
                       className="block mb-4 text-dark-650 hover:underline"
                     >
-                      sandra.adams@gmail.com
+                      {user.email}
                     </span>
                     <div className="flex justify-end max-[640px]:items-center">
                       <div className="items-center flex gap-1.5">
@@ -185,12 +187,13 @@ function InsureProUserInform({ variant }: UserInformProps) {
             <div>
               <div>
                 <div className="self-center">
-                  
-                    <Button
-                      className="min-w-[125px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
-                      text="Allow Edit"
-                    />
-                  {variant === 'personal' ? '' : (
+                  <Button
+                    className="min-w-[125px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
+                    text="Allow Edit"
+                  />
+                  {variant === 'personal' ? (
+                    ''
+                  ) : (
                     <Button
                       variant="outline"
                       color="dark"
@@ -212,9 +215,7 @@ function InsureProUserInform({ variant }: UserInformProps) {
             </div>
             <div>
               <div>
-                <div className="relative z-0 col-span-4">
-                 
-                </div>
+                <div className="relative z-0 col-span-4"></div>
               </div>
             </div>
             <div>
@@ -234,7 +235,7 @@ function InsureProUserInform({ variant }: UserInformProps) {
               <div className="flex px-[10px] sm:px-[60px] py-[20px] gap-[20px]">
                 <div className="flex flex-col gap-[20px] basis-1/3 sm:basis-1/2">
                   <span className="font-normal infotext-span lg:font-medium fw-400 tab-text">
-                    Date of Birth
+                    {user.dob}
                   </span>
                   <span className="font-normal infotext-span lg:font-medium fw-400 tab-text">
                     Address
@@ -242,9 +243,7 @@ function InsureProUserInform({ variant }: UserInformProps) {
                 </div>
                 <div className="flex flex-col gap-[20px] basis-1/3 sm:basis-1/2">
                   <span className="text-lg font-medium">26/01/1993</span>
-                  <span className="text-lg font-medium">
-                    26 av Louis Vito CH45 8 London UK
-                  </span>
+                  <span className="text-lg font-medium">{user.address1}</span>
                 </div>
               </div>
             </div>

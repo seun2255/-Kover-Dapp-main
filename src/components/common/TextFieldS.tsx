@@ -14,6 +14,8 @@ interface TextFieldProps {
   verify?: boolean
   outline?: boolean
   handleChange?: Function
+  initialValue?: string
+  disabled?: boolean
 }
 
 function TextFieldS(props: TextFieldProps) {
@@ -29,6 +31,8 @@ function TextFieldS(props: TextFieldProps) {
     verify = false,
     outline,
     handleChange,
+    initialValue,
+    disabled,
   } = props
   const { theme } = React.useContext(UserContext)
   let variantStyle = 'bg-dark-800'
@@ -48,6 +52,8 @@ function TextFieldS(props: TextFieldProps) {
       {field && <span className="ml-5 inline-block -mr-2">{field}</span>}
       <input
         {...rest}
+        defaultValue={initialValue}
+        disabled={disabled}
         className={`placeholder:text-dark-650 flex-grow text-white text-lg py-3 w-full ${className} ${
           field ? '' : 'px-5'
         }`}
@@ -65,7 +71,12 @@ function TextFieldS(props: TextFieldProps) {
       {typeof placeholder === 'object' ? (
         <div className="flex gap-5 items-center justify-between">
           {placeholder.map((value, index) => (
-            <Input placeholder={value} key={index} />
+            <Input
+              placeholder={value}
+              key={index}
+              defaultValue={initialValue}
+              disabled={disabled}
+            />
           ))}
         </div>
       ) : (
@@ -75,6 +86,8 @@ function TextFieldS(props: TextFieldProps) {
               <div className="rounded relative flex gap-3 items-center h-10 bg-dark-800 dark:bg-[#F1F1F1]">
                 <input
                   placeholder="654875236"
+                  defaultValue={initialValue}
+                  disabled={disabled}
                   className="placeholder:text-dark-650 flex-grow text-white dark:text-[#000000] text-lg py-3 w-full px-5 border-solid 1px"
                 />
                 <span className="font-medium text-lg text-primary-700 whitespace-nowrap cursor-pointer mr-4 dark:text-dark-800">
@@ -88,6 +101,8 @@ function TextFieldS(props: TextFieldProps) {
                 <>
                   <input
                     placeholder={placeholder}
+                    defaultValue={initialValue}
+                    disabled={disabled}
                     className={`
                 ${
                   classname ||

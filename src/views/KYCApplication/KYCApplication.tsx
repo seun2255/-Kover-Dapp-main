@@ -31,9 +31,12 @@ import {
 } from '../../api'
 import axios from 'axios'
 import { addContractState } from '../../utils/helpers'
+import { useDispatch } from 'react-redux'
+import { setKYCApplicants } from '../../redux/kyc'
 
 function KYCApplication() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
+  const dispatch = useDispatch()
   const [isOpen, setIsOpen] = React.useState(false)
   const { library, account } = useWeb3React()
   const [selectItem, setselectItem] = useState()
@@ -58,6 +61,7 @@ function KYCApplication() {
     if (account) {
       const signer = library.getSigner(account)
       const applicants = await get_applications(signer)
+      console.log(applicants)
 
       console.log('Applicants: ', applicants)
       const axiosRequests = applicants.map(async (applicant) => {
@@ -66,13 +70,14 @@ function KYCApplication() {
         const kyc_details = await getKycDetails(signer, response.data.address)
         console.log('KYC Details: ', kyc_details)
         const result = addContractState(response.data, kyc_details)
+        result.id = applicant.id
         console.log('Result: ', result)
         return result
       })
 
       // Wait for all axios requests to complete
       const membership_applications = await Promise.all(axiosRequests)
-      console.log(membership_applications)
+      dispatch(setKYCApplicants({ data: membership_applications }))
       setMembershipApplications(membership_applications)
     }
   }
@@ -174,9 +179,9 @@ function KYCApplication() {
         width: 'w-[9%] ',
       },
     ],
-    rows: membershipApplications.map((application: any) => {
+    rows: membershipApplications.map((application: any, index: any) => {
       return [
-        <Link to="/kyc-user-profile">
+        <Link to={`/kyc-user-profile/${index}`}>
           <span className="prp dark:prp-dark">{`${application.firstName} ${application.lastName}`}</span>
         </Link>,
         <span className="prp dark:prp-dark">{application.dob}</span>,
