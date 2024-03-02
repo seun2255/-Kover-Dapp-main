@@ -107,8 +107,16 @@ function TextField(props: TextFieldProps) {
   const [value, setValue] = useState('')
   const checkIfCorrect = (text: any) => {
     // Use a regular expression to check for only alphabetical characters
-    if (name === 'state' || name === 'firstName' || name === 'lastName') {
+    if (
+      name === 'state' ||
+      name === 'firstName' ||
+      name === 'lastName' ||
+      name === 'city'
+    ) {
       const regex = /^[a-zA-Z]+$/
+      regex.test(text) ? setError(false) : setError(true)
+    } else if (name === 'postCode') {
+      var regex = /^[0-9]+$/
       regex.test(text) ? setError(false) : setError(true)
     }
   }

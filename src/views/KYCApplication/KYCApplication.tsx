@@ -34,6 +34,7 @@ import { addContractState } from '../../utils/helpers'
 import { useDispatch } from 'react-redux'
 import { setKYCApplicants } from '../../redux/kyc'
 import { getUserDetails } from '../../database'
+import { createChatRoom } from '../../database'
 
 function KYCApplication() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
@@ -49,6 +50,7 @@ function KYCApplication() {
   const toggleDrawer = () => {
     setIsOpen((prevState) => !prevState)
   }
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const handlerLink = (item: any) => {
     setselectItem(item)
@@ -87,6 +89,9 @@ function KYCApplication() {
 
   useEffect(() => {
     getData()
+    if (account && account === '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266') {
+      setIsAdmin(true)
+    }
   }, [account, library])
 
   const [popup, setPopup] = useState<PopConfirmProps | null>(null)
@@ -154,8 +159,12 @@ function KYCApplication() {
   }
 
   const kyc: TableProps = {
+    title: 'kyc',
+    data: membershipApplications,
     tabs: tabs,
-    options: [{ name: 'Revert' }, { name: 'Cancel' }],
+    options: isAdmin
+      ? [{ name: 'Revert' }, { name: 'Cancel' }]
+      : [{ name: 'Chat' }, { name: 'Profile' }],
     columns: [
       {
         name: 'LEGAL NAME',
@@ -184,7 +193,7 @@ function KYCApplication() {
     ],
     rows: membershipApplications.map((application: any, index: any) => {
       return [
-        <Link to={`/kyc-user-profile/${index}`}>
+        <Link to={`/kyc-user-profile/${application.id}`}>
           <span className="prp dark:prp-dark">{`${application.firstName} ${application.lastName}`}</span>
         </Link>,
         <span className="prp dark:prp-dark">{application.dob}</span>,
@@ -309,6 +318,10 @@ function KYCApplication() {
                 onClick={async () => {
                   const signer = library.getSigner(account)
                   await assignMembershipApplication(signer, application.address)
+                  await createChatRoom('kyc', application.id, {
+                    [application.address]: application.firstName,
+                    [application.reviewer]: 'reviwer',
+                  })
                   await getData()
                   setAssignPopup(false)
                 }}

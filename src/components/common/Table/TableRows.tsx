@@ -11,9 +11,19 @@ export interface TableRowsProps extends TableOptionsProps, TableColumnsProps {
   tableId?: number
   tabs?: number
   rows: JSX.Element[][]
+  data?: any
+  title?: string
 }
 
-function TableRows({ rows, options, columns, tableId, tabs }: TableRowsProps) {
+function TableRows({
+  rows,
+  options,
+  columns,
+  tableId,
+  tabs,
+  data,
+  title,
+}: TableRowsProps) {
   const totalItem = columns.length - 1
   const { theme } = React.useContext(UserContext)
   const [claimSwitch, setClaimSwitch] = useState([
@@ -179,7 +189,11 @@ function TableRows({ rows, options, columns, tableId, tabs }: TableRowsProps) {
                     <div className="w-6 -mr-6 min-w-[1.5rem]">
                       {options.length > 0 ? (
                         <>
-                          <TableOptions options={options} />
+                          <TableOptions
+                            options={options}
+                            title={title}
+                            index={data[index].id}
+                          />
                         </>
                       ) : (
                         <> </>

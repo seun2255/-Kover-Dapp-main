@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { UserContext } from '../../../App'
+import { Link } from 'react-router-dom'
 import Button from '../../common/Button'
 import InfoText from '../../common/InfoText'
 import UploadButton from '../../common/UploadButton'
@@ -227,12 +228,12 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
               </div>
             </div>
             <div>
-              <>
+              <Link to={`/chat/kyc-${user.id}`}>
                 <Button
                   className="min-w-[120px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
                   text="Contact User"
                 />
-              </>
+              </Link>
             </div>
           </div>
         </div>

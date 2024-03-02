@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { UserContext } from '../../App'
 import Attachment from '../../components/common/Attachment'
@@ -10,13 +10,28 @@ import WeightTitle from '../../components/common/WeightTitle'
 import Conversition from './Conversition'
 import InfoHeader from './InfoHeader'
 import MessageType from './MessageType'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { getChatRoom, sendMessage, db } from '../../database'
+import { useWeb3React } from '@web3-react/core'
+import { doc, onSnapshot } from 'firebase/firestore'
 
 function Chat() {
   let navigate = useNavigate()
   const [open, setOpen] = useState<boolean>(false)
+  const { account } = useWeb3React()
+
+  interface ChatRoom {
+    messages: any[]
+    names: { [key: string]: any }
+  }
+
   const toggle = () => setOpen((v) => !v)
   const { theme } = React.useContext(UserContext)
+  const [chatRoom, setChatRoom] = useState<ChatRoom>({
+    messages: [],
+    names: {},
+  })
+  let { roomId } = useParams()
   const fileList = ['Id_back.png', 'Id_front.png', 'img 001.png', 'doc 002.pdf']
   const options = [
     {
@@ -31,6 +46,42 @@ function Chat() {
 
   const titleClassName = 'fw-400 fs-13 lh-15 text-light-800 dark:text-dark-600'
   const textClassName = 'fw-500 fs-13 lh-15 text-light-800 dark:text-dark-600'
+
+  const handleSend = (text: any) => {
+    if (account && roomId) {
+      var temp: any = { ...chatRoom }
+      const message = {
+        message: {
+          text,
+          time: '...',
+        },
+        sender: {
+          name: chatRoom.names[account],
+          address: account,
+        },
+      }
+      temp.messages.push(message)
+      setChatRoom(temp)
+      console.log(chatRoom.names)
+
+      const sender = {
+        name: chatRoom.names[account],
+        address: account,
+      }
+      sendMessage(roomId, sender, text)
+    }
+  }
+
+  useEffect(() => {
+    if (roomId) {
+      getChatRoom(roomId).then((chatRoom) => {
+        setChatRoom(chatRoom)
+      })
+      const unsubChatRoom = onSnapshot(doc(db, 'chat-rooms', roomId), (doc) => {
+        setChatRoom(doc.data() as ChatRoom)
+      })
+    }
+  }, [])
 
   return (
     <div className="mb-10">
@@ -51,8 +102,8 @@ function Chat() {
           </div>
           <div className="rounded bg-dark-600 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
             <InfoHeader />
-            <Conversition />
-            <MessageType />
+            <Conversition messages={chatRoom.messages} />
+            <MessageType handleSend={handleSend} />
           </div>
         </div>
 

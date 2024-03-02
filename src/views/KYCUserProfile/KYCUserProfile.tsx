@@ -18,6 +18,7 @@ import Popup from '../../components/templates/Popup'
 import { useSelector, useDispatch } from 'react-redux'
 import { createDateString } from '../../utils/dateTime'
 import { useWeb3React } from '@web3-react/core'
+import { findObjectById } from '../../utils/helpers'
 
 function KYCUserProfile() {
   const { theme } = React.useContext(UserContext)
@@ -28,7 +29,7 @@ function KYCUserProfile() {
   const [currentIcon, setcurrentIcon] = useState('')
   let { userId } = useParams()
   let navigate = useNavigate()
-  const applicant = kycApplicants[userId as string]
+  const applicant = findObjectById(kycApplicants, userId)
   const [canModify, setCanModify] = useState(false)
   const [formState, setFormState] = useState(applicant)
   const [formFilled, setFormFilled] = useState(true)

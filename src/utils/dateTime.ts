@@ -18,4 +18,26 @@ function getCurrentDateTime() {
   return formattedDateTime
 }
 
-export { createDateString, getCurrentDateTime }
+function getCurrentTime() {
+  // Create a new Date object representing the current time
+  var currentDate = new Date()
+
+  // Get hours, minutes, and AM/PM indicator
+  var hours = currentDate.getHours()
+  var minutes: any = currentDate.getMinutes()
+  var ampm = hours >= 12 ? 'PM' : 'AM'
+
+  // Convert hours to 12-hour format
+  hours = hours % 12
+  hours = hours ? hours : 12 // The hour '0' should be '12' in 12-hour format
+
+  // Pad single-digit minutes with a leading zero
+  minutes = minutes < 10 ? '0' + minutes : minutes
+
+  // Construct the time string
+  var timeString = hours + ':' + minutes + ' ' + ampm
+
+  return timeString
+}
+
+export { createDateString, getCurrentDateTime, getCurrentTime }

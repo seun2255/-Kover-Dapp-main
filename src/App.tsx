@@ -87,7 +87,7 @@ export const routes = [
   },
   {
     id: 764,
-    route: 'chat',
+    route: 'chat/:roomId',
     el: <Chat />,
   },
   {

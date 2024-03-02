@@ -43,4 +43,20 @@ const addContractState = (application: any, kyc_details: any) => {
   return application
 }
 
-export { convertJsonToString, convertJsonStringToObject, addContractState }
+function findObjectById(array: any[], id: any) {
+  for (const obj of array) {
+    if (obj.id == id) {
+      console.log('this ran')
+      return obj
+    }
+  }
+  // If no matching object is found, you can return null or handle it as needed.
+  return null
+}
+
+export {
+  convertJsonToString,
+  convertJsonStringToObject,
+  addContractState,
+  findObjectById,
+}
