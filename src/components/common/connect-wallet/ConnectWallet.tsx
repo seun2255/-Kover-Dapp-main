@@ -173,18 +173,18 @@ const networks = [
   //   text: 'ETH',
   //   chainId: '0x1',
   // },
-  {
-    id: 34526,
-    icon: '/images/Group-29.svg',
-    text: 'LCH',
-    chainId: '0x7a69',
-  },
   // {
   //   id: 34526,
   //   icon: '/images/Group-29.svg',
-  //   text: 'sepolia',
-  //   chainId: '0x66eee',
+  //   text: 'LCH',
+  //   chainId: '0x7a69',
   // },
+  {
+    id: 34526,
+    icon: '/images/Group-29.svg',
+    text: 'sepolia',
+    chainId: '0x66eee',
+  },
   {
     id: 34527,
     icon: '/images/Group (1).svg',
@@ -372,18 +372,18 @@ function ConnectWallet(
       case 'WalletConnect':
         try {
           const walletConnector = new WalletConnectConnector({
-            // rpc: {
-            //   [testNetworkChainId.binance]: testNetworkRPC.binance,
-            //   [testNetworkChainId.polygon]: testNetworkRPC.polygon,
-            //   [mainNetworkChainId.ethereum]: mainNetworkRPC.ethereum,
-            //   [mainNetworkChainId.binance]: mainNetworkRPC.binance,
-            //   [mainNetworkChainId.polygon]: mainNetworkRPC.polygon,
-            //   [mainNetworkChainId.avax]: mainNetworkRPC.avax,
-            //   [testNetworkChainId.avax]: testNetworkRPC.avax,
-            // },
-            // qrcodeModalOptions: {
-            //   mobileLinks: ['metamask'],
-            // },
+            rpc: {
+              [testNetworkChainId.binance]: testNetworkRPC.binance,
+              [testNetworkChainId.polygon]: testNetworkRPC.polygon,
+              [mainNetworkChainId.ethereum]: mainNetworkRPC.ethereum,
+              [mainNetworkChainId.binance]: mainNetworkRPC.binance,
+              [mainNetworkChainId.polygon]: mainNetworkRPC.polygon,
+              [mainNetworkChainId.avax]: mainNetworkRPC.avax,
+              [testNetworkChainId.avax]: testNetworkRPC.avax,
+            },
+            qrcodeModalOptions: {
+              mobileLinks: ['metamask'],
+            },
           })
 
           activate(walletConnector)
