@@ -29,6 +29,7 @@ import {
   assignMembershipApplication,
   get_applications,
   getKycDetails,
+  submitApplicationReviewResult,
 } from '../../api'
 import axios from 'axios'
 import { addContractState } from '../../utils/helpers'
@@ -62,12 +63,15 @@ function KYCApplication() {
   const { theme } = React.useContext(UserContext)
   const [tabs, setTabs] = useState<number>(0)
   const [dateFilter, setDateFilter] = useState<number>(0)
-  const [kycDecisionFuncion, setKYCDecisionFunction] = useState()
+  const [kycDecisionFunction, setKYCDecisionFunction] = useState<() => void>(
+    () => {}
+  )
   const [kycDecisionMade, setKycDecisionMade] = useState(false)
+  const [kycDecision, setKycDecision] = useState(true)
 
-  const makeKYCDecision = (decisionFunction: any) => {
+  const makeKYCDecision = (decision: boolean) => {
     setKycDecisionMade(true)
-    setKYCDecisionFunction(decisionFunction)
+    setKycDecision(decision)
   }
 
   const getData = async () => {
@@ -93,6 +97,7 @@ function KYCApplication() {
             )
             result.id = applicant.id
             result.canModifyKYC = userFirebaseDetails.canModifyKYC
+            result.ipfsHash = applicant.data
             console.log('Result: ', result)
             return result
           })
@@ -216,17 +221,21 @@ function KYCApplication() {
         </Link>,
         <span className="prp dark:prp-dark">{application.dob}</span>,
         <Status
-          type={capitalizeFirstLetter(application.resultStatus)}
-          text={capitalizeFirstLetter(application.resultStatus)}
+          type={
+            application.resultStatus === 'rejected'
+              ? 'Declined'
+              : capitalizeFirstLetter(application.resultStatus)
+          }
+          text={
+            application.resultStatus === 'rejected'
+              ? 'Declined'
+              : capitalizeFirstLetter(application.resultStatus)
+          }
         />,
         <span className="prp dark:prp-dark">{application.date}</span>,
         <div>
           {application.applicationStatus === 'assigned' ? (
-            <DecisionToggle
-              acceptFunction={() => {}}
-              rejectFunction={() => {}}
-              makeDecision={makeKYCDecision}
-            />
+            <DecisionToggle makeDecision={makeKYCDecision} />
           ) : (
             <Box
               sx={{
@@ -247,7 +256,19 @@ function KYCApplication() {
           )}
         </div>,
         <div>
-          {application.applicationStatus === 'assigned' ? (
+          {application.resultStatus === 'approved' ||
+          application.resultStatus === 'rejected' ? (
+            <Button
+              // onClick={() => popupHandle(myCoverPopup)}
+              disabled
+              text="Assign"
+              btnText="table-action"
+              endIcon={'/images/126.svg'}
+              className={`${
+                theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+              } px-[19.5px] py-[11.5px] w-full disabled:opacity-10 disabled:pointer-events-none`}
+            />
+          ) : application.applicationStatus === 'assigned' ? (
             <Button
               // onClick={() => popupHandle(myCoverPopup)}
               text="Submit"
@@ -256,7 +277,52 @@ function KYCApplication() {
               className={`${
                 theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
               } px-[19.5px] py-[11.5px] w-full`}
-              onClick={kycDecisionFuncion}
+              onClick={async () => {
+                console.log('Was clicked')
+                if (kycDecisionMade) {
+                  const signer = library.getSigner(account)
+                  await submitApplicationReviewResult(
+                    signer,
+                    application.address,
+                    application.region,
+                    application.ipfsHash,
+                    kycDecision
+                  )
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 1,
+                        variant: 'Successful',
+                        classname: 'text-black',
+                        title: 'Submission Successful',
+                        tag1: 'KYC Review submitted',
+                        tag2: 'View on etherscan',
+                      },
+                    })
+                  )
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                } else {
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 2,
+                        variant: 'Failed',
+                        classname: 'text-black',
+                        title: 'Transaction Failed',
+                        tag1: 'A decision has not been made',
+                        tag2: 'View on etherscan',
+                      },
+                    })
+                  )
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                }
+              }}
             />
           ) : (
             <Button

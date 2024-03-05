@@ -95,6 +95,23 @@ const assignMembershipApplication = async (
   )
 }
 
+const submitApplicationReviewResult = async (
+  signer: any,
+  address: any,
+  region: string,
+  link: string,
+  decision: boolean
+) => {
+  const contract = await getContract(signer)
+
+  const tx = await contract.submit_membership_application_result(
+    address,
+    region,
+    [link, link],
+    decision
+  )
+}
+
 const get_applications = async (signer: any, region: string) => {
   const contract = await getContract(signer)
   var applicants = await contract.get_membership_applicants(region)
@@ -110,7 +127,7 @@ const get_applications = async (signer: any, region: string) => {
 
 const getKycDetails = async (signer: any, address: any, region: string) => {
   const contract = await getContract(signer)
-  var kycDetails = await contract.region_KYC_map('Nigeria', address)
+  var kycDetails = await contract.region_KYC_map(region, address)
   return kycDetails
 }
 
@@ -133,4 +150,5 @@ export {
   get_applications,
   getKycDetails,
   assignMembershipApplication,
+  submitApplicationReviewResult,
 }
