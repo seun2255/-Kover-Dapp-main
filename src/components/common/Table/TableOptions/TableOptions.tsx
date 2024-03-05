@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { UserContext } from '../../../../App'
 import { Link } from 'react-router-dom'
+import { is_kyc_reviewer } from '../../../../api'
 
 export interface TableOptionsProps {
   options: { name: string; action?: () => void }[]
@@ -14,7 +15,8 @@ function TableOptions({ options, title, index }: TableOptionsProps) {
   const { theme } = React.useContext(UserContext)
 
   const optionLinks: any = {
-    Chat: `/chat/${title}-${index}`,
+    // Chat: `/chat/${title}-${index}`,
+    Chat: null,
     Profile: `/kyc-user-profile/${index}`,
     Revert: null,
     Cancel: null,

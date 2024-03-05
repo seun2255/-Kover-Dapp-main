@@ -112,6 +112,21 @@ const submitApplicationReviewResult = async (
   )
 }
 
+const revertMembershipApplication = async (
+  signer: any,
+  region: string,
+  address: string
+) => {
+  const contract = await getContract(signer)
+
+  const tx = await contract.revert_membership_application_result(
+    address,
+    region,
+    false,
+    false
+  )
+}
+
 const get_applications = async (signer: any, region: string) => {
   const contract = await getContract(signer)
   var applicants = await contract.get_membership_applicants(region)
@@ -151,4 +166,5 @@ export {
   getKycDetails,
   assignMembershipApplication,
   submitApplicationReviewResult,
+  revertMembershipApplication,
 }
