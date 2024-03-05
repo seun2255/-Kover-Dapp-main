@@ -34,6 +34,7 @@ const checkIfUserExists = async (user: any) => {
 const createUser = async (address: any) => {
   const user = {
     canModifyKYC: false,
+    kycVerificationState: 'verifying',
   }
   var data: any = {}
   const userData = await getDocs(collection(db, 'users'))
@@ -157,8 +158,12 @@ const getUserDetails = async (address: any) => {
     // doc.data() is never undefined for query doc snapshots
     data[doc.id] = doc.data()
   })
-  const details = data[address.toLowerCase()]
-  return details
+  if (data[address.toLowerCase()]) {
+    const details = data[address.toLowerCase()]
+    return details
+  } else {
+    return false
+  }
 }
 
 export {

@@ -59,24 +59,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_member_address",
-          "type": "address"
-        },
-        {
-          "internalType": "string",
-          "name": "_region",
-          "type": "string"
-        }
-      ],
-      "name": "conclude_membership_application",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "string",
           "name": "_region",
           "type": "string"
@@ -107,22 +89,102 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_applicant",
-          "type": "address"
-        }
-      ],
-      "name": "remove_membership_application",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_member_address",
-          "type": "address"
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "internalType": "bool",
+              "name": "is_member",
+              "type": "bool"
+            },
+            {
+              "internalType": "enum Definitions.ApplicationStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "application_ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "assign_timestamp",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_timestamp",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "reviewer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "enum Definitions.ResultStatus",
+                  "name": "status",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_wait_time",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.Result",
+              "name": "result",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Definitions.KYC",
+          "name": "_kyc",
+          "type": "tuple"
         },
         {
           "internalType": "string",
@@ -130,60 +192,12 @@
           "type": "string"
         },
         {
-          "internalType": "bool",
-          "name": "_should_conclude_application",
-          "type": "bool"
-        },
-        {
-          "internalType": "bool",
-          "name": "_should_inactivate_kyc_reviewer",
-          "type": "bool"
+          "internalType": "address",
+          "name": "_member",
+          "type": "address"
         }
       ],
-      "name": "revert_membership_application_result",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bool",
-          "name": "_can_apply_for_kyc_reviewer_application",
-          "type": "bool"
-        }
-      ],
-      "name": "set_can_apply_for_kyc_reviewer_application",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "components": [
-            {
-              "internalType": "uint256",
-              "name": "fee",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "approval_fee_perc",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "rejection_fee_perc",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct Definitions.AdminFeeParams",
-          "name": "_kyc_reviewer_application_fee_params",
-          "type": "tuple"
-        }
-      ],
-      "name": "set_kyc_reviewer_application_fee_params",
+      "name": "set_KYC",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -229,29 +243,6 @@
         }
       ],
       "name": "set_membership_fee_params",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_member_address",
-          "type": "address"
-        },
-        {
-          "internalType": "string",
-          "name": "_region",
-          "type": "string"
-        },
-        {
-          "internalType": "bool",
-          "name": "_status",
-          "type": "bool"
-        }
-      ],
-      "name": "set_membership_status",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -531,7 +522,13 @@
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        }
+      ],
       "name": "get_membership_applicants",
       "outputs": [
         {
@@ -576,30 +573,12 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "kyc_reviewer_application_fee_params",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "fee",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "approval_fee_perc",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "rejection_fee_perc",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
         {
           "internalType": "uint256",
           "name": "",
@@ -649,69 +628,6 @@
         {
           "internalType": "uint256",
           "name": "rejection_fee_perc",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "policy_reviewer_application_fee_params",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "fee",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "reviewer_stake_fee_perc",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "reviewer_result_wait_time",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "reviewer_stake_wait_time",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "reviewer_approval_fee_perc",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "reviewer_rejection_fee_perc",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "assessment_wait_time",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "assesment_validity_time",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "termination_fee_perc",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "termination_approval_fee_perc",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "termination_rejection_fee_perc",
           "type": "uint256"
         }
       ],
@@ -823,108 +739,6 @@
           "internalType": "struct Definitions.Result",
           "name": "result",
           "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        },
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "region_KYC_reviewer_map",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "credentials_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "internalType": "bool",
-          "name": "is_expert",
-          "type": "bool"
-        },
-        {
-          "internalType": "bool",
-          "name": "has_applied",
-          "type": "bool"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "application_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "credentials_application_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "internalType": "uint256",
-          "name": "fee",
-          "type": "uint256"
         }
       ],
       "stateMutability": "view",

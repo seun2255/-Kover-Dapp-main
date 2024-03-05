@@ -3,6 +3,7 @@ import Layout from './components/layout/Layout'
 import RoutesList from './RoutesList'
 import './styles/main.css'
 import './styles/globals.css'
+import { useSelector, useDispatch } from 'react-redux'
 import Test from './Test'
 import Assessement from './views/Assessement/Assessement'
 import Bond from './views/Bond/Bond'
@@ -43,6 +44,7 @@ import InsureProUserProfile from './views/InsureProUserProfile/InsureProUserProf
 import PolicyRiskUserPofile from './views/PolicyRiskUserPofile/PolicyRiskUserPofile'
 import RiskPoolMnagamentHome from './views/RiskMnagament/RiskPoolMnagamentHome'
 import Staking from './views/Staking/Staking'
+import AlertModal from './components/common/Alert'
 export const routes = [
   {
     id: 343,
@@ -232,6 +234,8 @@ export const UserContext = React.createContext<{
 function App() {
   const [theme, setTheme] = useState('')
   const [connectwallet, setConnectWallet] = useState('')
+  const { displayAlert, alertData } = useSelector((state: any) => state.alerts)
+
   useEffect(() => {
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setTheme('dark')
@@ -286,6 +290,11 @@ function App() {
             </Route>
             <Route path="/routes" element={<RoutesList />} />
           </Routes>
+          {displayAlert && (
+            <div style={{ position: 'absolute', right: 30, top: 30 }}>
+              <AlertModal {...alertData} />
+            </div>
+          )}
         </BrowserRouter>
       </Scrollbars>
     </UserContext.Provider>

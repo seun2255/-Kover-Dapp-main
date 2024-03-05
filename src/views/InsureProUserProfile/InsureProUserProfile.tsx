@@ -135,6 +135,7 @@ function InsureProUserProfile() {
       <Popup visible={popup} onClose={togglePopup} maxWidth="max-w-[824px]">
         <AttachmentPreview
           attachmentName="Id_front.png"
+          attachmentLink=""
           onClose={togglePopup}
         />
       </Popup>

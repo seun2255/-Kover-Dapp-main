@@ -30,6 +30,7 @@ import { convertJsonToString } from '../../../utils/helpers'
 import { getCurrentDateTime } from '../../../utils/dateTime'
 import app from '../../../firebaseConfig/firebaseApp'
 import Alert from '../Alert'
+import { openAlert, closeAlert } from '../../../redux/alerts'
 
 import {
   encryptAndHandleFile,
@@ -39,14 +40,21 @@ import {
 import { uploadJsonData } from '../../../lighthouse'
 import { is_kyc_reviewer, apply_for_membership } from '../../../api'
 import { createUser } from '../../../database'
+import { useDispatch } from 'react-redux'
 
 interface popupProps {
   onClose?: () => void
 }
+interface Document {
+  link: string
+  name: string
+}
+
 function KYC({ onClose }: popupProps, props: any) {
   const { theme } = React.useContext(UserContext)
   const [currentIcon, setcurrentIcon] = useState('')
   const { library, account } = useWeb3React()
+  const dispatch = useDispatch()
   const [formState, setFormState] = useState({
     email: '',
     firstName: '',
@@ -62,7 +70,10 @@ function KYC({ onClose }: popupProps, props: any) {
     country: '',
     identityType: '',
     nationalID: '',
-    documentsLink: '',
+    document: {
+      link: '',
+      name: '',
+    },
   })
   const [formFilled, setFormFilled] = useState(true)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
@@ -71,6 +82,7 @@ function KYC({ onClose }: popupProps, props: any) {
   const [verificationState, setVerificationState] =
     useState<VerificationState>('unverified')
   const [success, setSuccess] = useState(false)
+  const [fileUploadInitated, setFileUploadInitiated] = useState(false)
 
   type ProgressData = {
     total: number
@@ -86,6 +98,7 @@ function KYC({ onClose }: popupProps, props: any) {
 
   //Uploads File to IPFS
   const uploadFile = async (file: any) => {
+    console.log(file)
     const output = await lighthouse.upload(
       file,
       process.env.REACT_APP_LIGHTHOUSE_API_KEY as string,
@@ -96,11 +109,15 @@ function KYC({ onClose }: popupProps, props: any) {
     const link = 'https://gateway.lighthouse.storage/ipfs/' + output.data.Hash
     setFormState((prevState) => ({
       ...prevState,
-      documentsLink: link,
+      document: {
+        link: link,
+        name: file[0].name,
+      },
     }))
   }
 
   const handleFileChange = async (event: any) => {
+    setFileUploadInitiated(true)
     const files = event.target.files
     const updatedFiles = []
 
@@ -145,6 +162,7 @@ function KYC({ onClose }: popupProps, props: any) {
 
   // Handle form submission
   const handleSubmit = async () => {
+    setFileUploadInitiated(true)
     const date = getCurrentDateTime()
     setFormState((prevState) => ({
       ...prevState,
@@ -156,20 +174,45 @@ function KYC({ onClose }: popupProps, props: any) {
     }))
     const formFilled = areAllValuesFilled(formState)
     setFormFilled(formFilled)
-    if (formFilled) {
-      const formData = { ...formState, date: date, address: account }
-      console.log(formData)
-      const dataString = convertJsonToString(formData)
-      const userData = await uploadJsonData(dataString)
-      const signer = library.getSigner(account)
-      // const isReviwer = await is_kyc_reviewer(signer);
-      await apply_for_membership(signer, userData)
-      await createUser(account)
-      if (onClose !== undefined) onClose()
-      setSuccess(true)
-      setTimeout(() => {
-        setSuccess(false)
-      }, 2000)
+    if (formFilled && verificationState === 'verified') {
+      fetch('https://ipinfo.io/json')
+        .then((response) => response.json())
+        .then(async (data) => {
+          console.log('Country: ' + data.country)
+          const formData = {
+            ...formState,
+            date: date,
+            address: account,
+            region: data.country,
+          }
+          const dataString = convertJsonToString(formData)
+          const userData = await uploadJsonData(dataString)
+          const signer = library.getSigner(account)
+          // const isReviwer = await is_kyc_reviewer(signer);
+
+          await apply_for_membership(signer, userData, data.country)
+          await createUser(account)
+          dispatch(
+            openAlert({
+              displayAlert: true,
+              data: {
+                id: 1,
+                variant: 'Successful',
+                classname: 'text-black',
+                title: 'Submission Successful',
+                tag1: 'KYC application submitted',
+                tag2: 'View on etherscan',
+              },
+            })
+          )
+          setTimeout(() => {
+            dispatch(closeAlert())
+          }, 3000)
+          if (onClose !== undefined) onClose()
+        })
+        .catch((error) => {
+          console.log('Error fetching IP address information: ', error)
+        })
     }
   }
 
@@ -527,6 +570,11 @@ function KYC({ onClose }: popupProps, props: any) {
                   <div>
                     <label
                       className={`mb-[20px] mt-[15px] flex justify-center w-full  transition border-2 border-gray-300 dark:dark-light-box-border dark:border-dashed border-dashed appearance-none cursor-pointer hover:border-gray-400 focus:outline-none border-color w-full h-[40px]`}
+                      onClick={() =>
+                        setTimeout(() => {
+                          setFileUploadInitiated(true)
+                        }, 5000)
+                      }
                     >
                       <span className="flex items-center space-x-2">
                         <img
@@ -553,7 +601,8 @@ function KYC({ onClose }: popupProps, props: any) {
                     <div className="my-[20px]">
                       <Rules padding="py-[20px] px-[20px]" space="ml-[20px]" />
                     </div>
-                    {!formFilled && formState.documentsLink === '' && (
+                    {((formState.document.link === '' && fileUploadInitated) ||
+                      !formFilled) && (
                       <span style={{ color: 'red' }}>Document is required</span>
                     )}
                   </div>
@@ -580,18 +629,6 @@ function KYC({ onClose }: popupProps, props: any) {
           </div>
         </div>
       </div>
-      {success && (
-        <div style={{ position: 'absolute', right: 30, top: 30 }}>
-          <Alert
-            id={1}
-            variant={'Successful'}
-            classname={'text-black'}
-            title={'Submission Successful'}
-            tag1={'KYC application submitted'}
-            tag2={'View on etherscan'}
-          />
-        </div>
-      )}
     </div>
   )
 }

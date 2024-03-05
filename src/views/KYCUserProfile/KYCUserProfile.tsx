@@ -30,6 +30,11 @@ function KYCUserProfile() {
   let { userId } = useParams()
   let navigate = useNavigate()
   const applicant = findObjectById(kycApplicants, userId)
+  // const applicant = { ...applicant1 }
+  // applicant.document = {
+  //   link: applicant.documentsLink,
+  //   name: 'random.png',
+  // }
   const [canModify, setCanModify] = useState(false)
   const [formState, setFormState] = useState(applicant)
   const [formFilled, setFormFilled] = useState(true)
@@ -109,6 +114,7 @@ function KYCUserProfile() {
               <div className="flex flex-col gap-5 pt-5 lg:pt-2">
                 <div className="flex flex-col gap-5 border-none lg:grid lg:grid-cols-2">
                   <TextField
+                    filled={formFilled}
                     label="First Name"
                     labelIcon={false}
                     placeholder="Nikita"
@@ -118,6 +124,7 @@ function KYCUserProfile() {
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                   />
                   <TextField
+                    filled={formFilled}
                     label="Last Name"
                     labelIcon={false}
                     initialValue={applicant.lastName}
@@ -129,6 +136,7 @@ function KYCUserProfile() {
                 </div>
 
                 <SelectField
+                  filled={formFilled}
                   labelIcon={false}
                   initialValue={applicant.dob}
                   disabled={!canModify}
@@ -137,6 +145,7 @@ function KYCUserProfile() {
                 />
 
                 <TextField
+                  filled={formFilled}
                   label="Email"
                   labelIcon={false}
                   initialValue={applicant.email}
@@ -159,6 +168,7 @@ function KYCUserProfile() {
               </div>
               <div className="flex flex-col gap-5 sm:pt-2 max-[640px]:pt-6">
                 <TextField
+                  filled={formFilled}
                   label="State/ Province"
                   labelIcon={false}
                   initialValue={applicant.state}
@@ -168,6 +178,7 @@ function KYCUserProfile() {
                 />
                 <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
                   <TextField
+                    filled={formFilled}
                     label="Address Line 1"
                     labelIcon={false}
                     initialValue={applicant.address1}
@@ -176,6 +187,7 @@ function KYCUserProfile() {
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                   />
                   <TextField
+                    filled={formFilled}
                     label="Address Line 2"
                     labelIcon={false}
                     initialValue={applicant.address2}
@@ -186,6 +198,7 @@ function KYCUserProfile() {
                 </div>
                 <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
                   <TextField
+                    filled={formFilled}
                     label="City"
                     labelIcon={false}
                     initialValue={applicant.city}
@@ -194,6 +207,7 @@ function KYCUserProfile() {
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                   />
                   <TextField
+                    filled={formFilled}
                     label="Post Code"
                     labelIcon={false}
                     initialValue={applicant.postCode}
@@ -244,6 +258,7 @@ function KYCUserProfile() {
               </div>
               <div className="flex flex-col gap-5 sm:pt-2 max-[640px]:pt-6">
                 <SelectField
+                  filled={formFilled}
                   label="Issuing Country/Region"
                   initialValue={applicant.country}
                   disabled={!canModify}
@@ -252,6 +267,7 @@ function KYCUserProfile() {
                 />
 
                 <SelectField
+                  filled={formFilled}
                   label="Identity Type"
                   initialValue={applicant.identityType}
                   disabled={!canModify}
@@ -260,6 +276,7 @@ function KYCUserProfile() {
                 />
 
                 <TextField
+                  filled={formFilled}
                   label="National ID Number"
                   labelIcon={false}
                   initialValue={applicant.nationalID}
@@ -290,7 +307,7 @@ function KYCUserProfile() {
             <div className="bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
               <WeightTitle title="Attachments" />
               <div className="flex gap-[12px] flex-col mt-[25px] sm:mt-[0px]">
-                {/* {[...Array(4)].map((value, index) => (
+                {[applicant.document].map((document, index) => (
                   <>
                     <div className="flex justify-between">
                       <div className="flex basis-3/4 gap-[16px]">
@@ -306,38 +323,7 @@ function KYCUserProfile() {
                           } file-name `}
                           to={''}
                         >
-                          Id_front.png
-                        </Link>
-                      </div>
-                      <img
-                        className="items-end w-[20px]"
-                        src={
-                          theme === 'dark'
-                            ? '/images/downloadblack.svg'
-                            : '/images/Remove (1).svg'
-                        }
-                        alt=""
-                      />
-                    </div>
-                  </>
-                ))} */}
-                {[...Array(4)].map((value, index) => (
-                  <>
-                    <div className="flex justify-between">
-                      <div className="flex basis-3/4 gap-[16px]">
-                        <img src="/images/pin.svg" alt="" />
-                        <Link
-                          onClick={() => {
-                            setPopup(true)
-                          }}
-                          className={`${
-                            theme === 'dark'
-                              ? 'font-bold text-[#606166] hover:text-[#000000]'
-                              : 'text-white hover:text-[#50ff7f]'
-                          } file-name `}
-                          to={''}
-                        >
-                          Id_front.png
+                          {document.name}
                         </Link>
                       </div>
                       <img
@@ -360,7 +346,8 @@ function KYCUserProfile() {
 
       <Popup visible={popup} onClose={togglePopup} maxWidth="max-w-[824px]">
         <AttachmentPreview
-          attachmentName="Id_front.png"
+          attachmentName={applicant.document.name}
+          attachmentLink={applicant.document.link}
           onClose={togglePopup}
         />
       </Popup>

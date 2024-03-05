@@ -48,14 +48,18 @@ const getTokenContract = async (signer: any) => {
 }
 
 // User Manager
-const is_kyc_reviewer = async (signer: any) => {
+const is_kyc_reviewer = async (signer: any, region: string) => {
   const contract = await getContract(signer)
 
-  const isReviewer = await contract.is_kyc_reviewer('Nigeria')
+  const isReviewer = await contract.is_kyc_reviewer(region)
   return isReviewer
 }
 
-const apply_for_membership = async (signer: any, data: string) => {
+const apply_for_membership = async (
+  signer: any,
+  data: string,
+  region: string
+) => {
   const contract = await getContract(signer)
   const feeParams = await contract.membership_fee_params()
 
@@ -64,7 +68,7 @@ const apply_for_membership = async (signer: any, data: string) => {
 
   await approve(signer, fee)
 
-  const tx = await contract.apply_for_membership('Nigeria', [data, data])
+  const tx = await contract.apply_for_membership(region, [data, data])
   // await contract.createUser(data)
   // await tx.wait()
 }
@@ -73,23 +77,27 @@ const apply_for_membership = async (signer: any, data: string) => {
 
 // }
 
-const assignMembershipApplication = async (signer: any, address: any) => {
+const assignMembershipApplication = async (
+  signer: any,
+  address: any,
+  region: string
+) => {
   const contract = await getContract(signer)
 
-  const fee = ethers.parseEther('2.5')
+  const fee = ethers.parseEther('25')
 
   await approve(signer, fee)
 
   const tx = await contract.assign_membership_application(
     address,
-    'Nigeria',
+    region,
     false
   )
 }
 
-const get_applications = async (signer: any) => {
+const get_applications = async (signer: any, region: string) => {
   const contract = await getContract(signer)
-  var applicants = await contract.get_membership_applicants()
+  var applicants = await contract.get_membership_applicants(region)
   const addressesArray = Object.values(applicants || {}).map((address: any) =>
     address.toLowerCase()
   )
@@ -100,12 +108,9 @@ const get_applications = async (signer: any) => {
   return membershipApplicants
 }
 
-const getKycDetails = async (signer: any, address: any) => {
+const getKycDetails = async (signer: any, address: any, region: string) => {
   const contract = await getContract(signer)
-  console.log('In getKYCdetails')
-  console.log('got contract')
   var kycDetails = await contract.region_KYC_map('Nigeria', address)
-  console.log('got kycdetails')
   return kycDetails
 }
 

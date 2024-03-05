@@ -3,16 +3,23 @@ import { UserContext } from '../../../App'
 import Button from '../Button'
 import { useWeb3React } from '@web3-react/core'
 import { useContext } from 'react'
+import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer'
 
 interface AttachmentPreviewProps {
   attachmentName: any
+  attachmentLink: string
   onClose?: () => void
 }
 
 function AttachmentPreview(
-  { attachmentName, onClose }: AttachmentPreviewProps,
+  { attachmentName, attachmentLink, onClose }: AttachmentPreviewProps,
   props: any
 ) {
+  const docs = [
+    {
+      uri: attachmentLink,
+    },
+  ]
   const { theme } = React.useContext(UserContext)
   return (
     <div className="attachments-prev-popup">
@@ -41,9 +48,20 @@ function AttachmentPreview(
       >
         <div className="force-overflow">
           <div className="flex justify-between">
-            <div className="flex gap-[10px] items-center">
+            {/* <div className="flex gap-[10px] items-center">
               <img src="/images/id_front.png" />
-            </div>
+            </div> */}
+            <DocViewer
+              documents={docs}
+              config={{
+                header: {
+                  disableHeader: true,
+                  disableFileName: true,
+                  retainURLParams: true,
+                },
+              }}
+              pluginRenderers={DocViewerRenderers}
+            />
           </div>
         </div>
       </div>

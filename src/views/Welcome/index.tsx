@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Membership from './membership/Membership'
 import StartKYC from './membership/StartKYC'
 import VerifyIdentity from './membership/VerifyIdentity'
@@ -9,10 +9,28 @@ import useWindowDimensions from '../../components/global/UserInform/useWindowDim
 import AdminCard, { AdminCardProps } from './AdminCard'
 import Alert from '../../components/common/Alert'
 import { useSelector, useDispatch } from 'react-redux'
+import { getUserDetails } from '../../database'
+import { useWeb3React } from '@web3-react/core'
 
 function Welcome() {
   const { width } = useWindowDimensions()
   const { connected, verified } = useSelector((state: any) => state.user)
+  const { account } = useWeb3React()
+  const [userVerificationState, setUserVerificationState] =
+    useState('unverified')
+
+  useEffect(() => {
+    console.log('Connected')
+    if (account) {
+      getUserDetails(account).then((user) => {
+        if (user) {
+          setUserVerificationState(user.kycVerificationState)
+        }
+        console.log(user)
+      })
+    }
+  }, [account])
+
   const overfiewCards: AdminCardProps[] = [
     {
       key: 45,
@@ -87,7 +105,7 @@ function Welcome() {
           )}
           {!verified && (
             <div className="mt-[24px]">
-              <StartKYC />
+              <StartKYC verificationState={userVerificationState} />
             </div>
           )}
         </div>

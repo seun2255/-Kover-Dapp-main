@@ -23,6 +23,7 @@ import { Box } from '@mui/material'
 import useWindowDimensions from '../../components/global/UserInform/useWindowDimensions'
 import Alert from '../../components/common/Alert'
 import AdminCard, { AdminCardProps } from '../Assessement/AdminCard'
+import DecisionToggle from '../../components/common/decisionToggle'
 import { useWeb3React } from '@web3-react/core'
 import {
   assignMembershipApplication,
@@ -51,6 +52,7 @@ function KYCApplication() {
     setIsOpen((prevState) => !prevState)
   }
   const [isAdmin, setIsAdmin] = useState(false)
+  const [acceptedKyc, setAcceptedKyc] = useState([])
 
   const handlerLink = (item: any) => {
     setselectItem(item)
@@ -59,31 +61,48 @@ function KYCApplication() {
   const { theme } = React.useContext(UserContext)
   const [tabs, setTabs] = useState<number>(0)
   const [dateFilter, setDateFilter] = useState<number>(0)
+  const [kycDecisionFuncion, setKYCDecisionFunction] = useState()
+  const [kycDecisionMade, setKycDecisionMade] = useState(false)
+
+  const makeKYCDecision = (decisionFunction: any) => {
+    setKycDecisionMade(true)
+    setKYCDecisionFunction(decisionFunction)
+  }
 
   const getData = async () => {
     if (account) {
-      const signer = library.getSigner(account)
-      const applicants = await get_applications(signer)
-      console.log(applicants)
+      fetch('https://ipinfo.io/json')
+        .then((response) => response.json())
+        .then(async (data) => {
+          const signer = library.getSigner(account)
+          const applicants = await get_applications(signer, data.country)
+          console.log(applicants)
 
-      console.log('Applicants: ', applicants)
-      const axiosRequests = applicants.map(async (applicant) => {
-        const response = await axios.get(applicant.data as string)
-        console.log('Applicant Details: ', response)
-        const kyc_details = await getKycDetails(signer, response.data.address)
-        console.log('KYC Details: ', kyc_details)
-        const result = addContractState(response.data, kyc_details)
-        const userFirebaseDetails = await getUserDetails(response.data.address)
-        result.id = applicant.id
-        result.canModifyKYC = userFirebaseDetails.canModifyKYC
-        console.log('Result: ', result)
-        return result
-      })
+          console.log('Applicants: ', applicants)
+          const axiosRequests = applicants.map(async (applicant) => {
+            const response = await axios.get(applicant.data as string)
+            console.log('Applicant Details: ', response)
+            const kyc_details = await getKycDetails(
+              signer,
+              response.data.address,
+              data.country
+            )
+            console.log('KYC Details: ', kyc_details)
+            const result = addContractState(response.data, kyc_details)
+            const userFirebaseDetails = await getUserDetails(
+              response.data.address
+            )
+            result.id = applicant.id
+            result.canModifyKYC = userFirebaseDetails.canModifyKYC
+            console.log('Result: ', result)
+            return result
+          })
 
-      // Wait for all axios requests to complete
-      const membership_applications = await Promise.all(axiosRequests)
-      dispatch(setKYCApplicants({ data: membership_applications }))
-      setMembershipApplications(membership_applications)
+          // Wait for all axios requests to complete
+          const membership_applications = await Promise.all(axiosRequests)
+          dispatch(setKYCApplicants({ data: membership_applications }))
+          setMembershipApplications(membership_applications)
+        })
     }
   }
 
@@ -204,28 +223,31 @@ function KYCApplication() {
         <span className="prp dark:prp-dark">{application.date}</span>,
         <div>
           {application.applicationStatus === 'assigned' ? (
-            <Box
-              sx={{
-                '.Mui-checked': {
-                  color: `${
-                    theme === 'dark' ? '#606166' : '#50ff7f'
-                  } !important;`,
-                },
-                '.MuiSwitch-track': {
-                  background: `${
-                    theme === 'dark' ? '#606166' : 'rgba(148, 233, 63, 0.4)'
-                  } !important;`,
-                },
-              }}
-            >
-              <Switch className="convert-switch" id="1" />
-            </Box>
+            // <Box
+            //   sx={{
+            //     '.Mui-checked': {
+            //       color: `${theme === 'dark' ? '' : '#50ff7f'} !important;`,
+            //     },
+            //     '.MuiSwitch-track': {
+            //       background: `${
+            //         theme === 'dark' ? '#606166' : 'rgba(148, 233, 63, 0.4)'
+            //       } !important;`,
+            //     },
+            //   }}
+            // >
+            //   <Switch className="convert-switch" id="1" />
+            // </Box>
+            <DecisionToggle
+              acceptFunction={() => {}}
+              rejectFunction={() => {}}
+              makeDecision={makeKYCDecision}
+            />
           ) : (
             <Box
               sx={{
                 '.Mui-checked': {
                   color: `${
-                    theme === 'dark' ? '#606166' : '#ff9800'
+                    theme === 'dark' ? '#606166' : '#50ff7f'
                   } !important;`,
                 },
                 '.MuiSwitch-track': {
@@ -243,16 +265,19 @@ function KYCApplication() {
           {application.applicationStatus === 'assigned' ? (
             <Button
               // onClick={() => popupHandle(myCoverPopup)}
+              disabled
               text="Submit"
               btnText="table-action"
               endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
               className={`${
                 theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
               } px-[19.5px] py-[11.5px] w-full`}
+              onClick={kycDecisionFuncion}
             />
           ) : (
             <Button
               // onClick={() => popupHandle(myCoverPopup)}
+              disabled
               onClick={async () => {
                 setAssignPopup(true)
               }}
@@ -317,7 +342,11 @@ function KYCApplication() {
                 } contained medium  font-medium px-8 w-full square button`}
                 onClick={async () => {
                   const signer = library.getSigner(account)
-                  await assignMembershipApplication(signer, application.address)
+                  await assignMembershipApplication(
+                    signer,
+                    application.address,
+                    application.region
+                  )
                   await createChatRoom('kyc', application.id, {
                     [application.address]: application.firstName,
                     [application.reviewer]: 'reviwer',
