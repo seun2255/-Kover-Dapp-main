@@ -12,9 +12,13 @@ import KYCPopup from '../../../components/common/KYC/KYC'
 
 interface StartKYCProps {
   verificationState: string
+  setUserVerificationState: any
 }
 
-function StartKYC({ verificationState }: StartKYCProps) {
+function StartKYC({
+  verificationState,
+  setUserVerificationState,
+}: StartKYCProps) {
   const [currentIcon, setcurrentIcon] = useState('')
   const [popup, setPopup] = useState(false)
   const { theme } = React.useContext(UserContext)
@@ -92,7 +96,10 @@ function StartKYC({ verificationState }: StartKYCProps) {
         <div className="kyc-popup">
           <div className="flex gap-5 mb-3.5">
             <div>
-              <KYCPopup onClose={togglePopup} />
+              <KYCPopup
+                onClose={togglePopup}
+                setUserVerificationState={setUserVerificationState}
+              />
             </div>
           </div>
         </div>

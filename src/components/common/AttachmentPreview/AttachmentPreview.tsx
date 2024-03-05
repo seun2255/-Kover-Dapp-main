@@ -44,13 +44,18 @@ function AttachmentPreview(
 
       <div
         id="style-1"
-        className="preview-section scrollbar-customise bg-opacity-20 bg-dark dark:box-border dark:borderLight-border dark:borderLightColor-color dark:text-dark-800 dark:text-primary-100 dark:bg-light-1100 box-border-2x-light dark:box-border-2x-dark"
+        className="scrollbar-customise bg-opacity-20 bg-dark dark:box-border dark:borderLight-border dark:borderLightColor-color dark:text-dark-800 dark:text-primary-100 dark:bg-light-1100 box-border-2x-light dark:box-border-2x-dark p-0"
       >
         <div className="force-overflow">
-          <div className="flex justify-between">
-            {/* <div className="flex gap-[10px] items-center">
-              <img src="/images/id_front.png" />
-            </div> */}
+          <div
+            className="flex justify-between"
+            style={{
+              width: '824px',
+              height: '787px',
+              padding: '20px 50px',
+              boxSizing: 'border-box',
+            }}
+          >
             <DocViewer
               documents={docs}
               config={{

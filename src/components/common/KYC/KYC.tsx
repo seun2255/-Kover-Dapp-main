@@ -44,13 +44,14 @@ import { useDispatch } from 'react-redux'
 
 interface popupProps {
   onClose?: () => void
+  setUserVerificationState: any
 }
 interface Document {
   link: string
   name: string
 }
 
-function KYC({ onClose }: popupProps, props: any) {
+function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
   const { theme } = React.useContext(UserContext)
   const [currentIcon, setcurrentIcon] = useState('')
   const { library, account } = useWeb3React()
@@ -83,6 +84,7 @@ function KYC({ onClose }: popupProps, props: any) {
     useState<VerificationState>('unverified')
   const [success, setSuccess] = useState(false)
   const [fileUploadInitated, setFileUploadInitiated] = useState(false)
+  const [emailRequiredMessage, setEmailRequiredMessage] = useState(false)
 
   type ProgressData = {
     total: number
@@ -174,7 +176,11 @@ function KYC({ onClose }: popupProps, props: any) {
     }))
     const formFilled = areAllValuesFilled(formState)
     setFormFilled(formFilled)
-    if (formFilled && verificationState === 'verified') {
+    // if (verificationState !== 'verified') {
+    //   setEmailRequiredMessage(true)
+    // }
+    // if (formFilled && verificationState === 'verified') {
+    if (formFilled) {
       fetch('https://ipinfo.io/json')
         .then((response) => response.json())
         .then(async (data) => {
@@ -207,7 +213,8 @@ function KYC({ onClose }: popupProps, props: any) {
           )
           setTimeout(() => {
             dispatch(closeAlert())
-          }, 3000)
+          }, 10000)
+          setUserVerificationState('verifying')
           if (onClose !== undefined) onClose()
         })
         .catch((error) => {
@@ -243,6 +250,7 @@ function KYC({ onClose }: popupProps, props: any) {
 
         // Delete the user account
         await deleteUser(updatedUser)
+        setEmailRequiredMessage(false)
         clearInterval(intervalID)
         clearTimeout(timeoutID)
       }
@@ -348,6 +356,11 @@ function KYC({ onClose }: popupProps, props: any) {
                       verificationState={verificationState}
                       startVerification={verifymail}
                     />
+                    {emailRequiredMessage && (
+                      <span style={{ color: 'red' }}>
+                        Email verification required!
+                      </span>
+                    )}
 
                     {/* <div className="sm:grid sm:grid-cols-[100px_auto]  max-[640px]:grid  max-[640px]:grid-cols-[100px_auto] sm:gap-5 gap-2.5">
                       <SelectField
@@ -573,7 +586,7 @@ function KYC({ onClose }: popupProps, props: any) {
                       onClick={() =>
                         setTimeout(() => {
                           setFileUploadInitiated(true)
-                        }, 5000)
+                        }, 10000)
                       }
                     >
                       <span className="flex items-center space-x-2">

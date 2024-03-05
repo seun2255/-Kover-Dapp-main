@@ -105,7 +105,10 @@ function Welcome() {
           )}
           {!verified && (
             <div className="mt-[24px]">
-              <StartKYC verificationState={userVerificationState} />
+              <StartKYC
+                verificationState={userVerificationState}
+                setUserVerificationState={setUserVerificationState}
+              />
             </div>
           )}
         </div>

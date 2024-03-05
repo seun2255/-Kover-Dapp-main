@@ -291,7 +291,7 @@ function App() {
             <Route path="/routes" element={<RoutesList />} />
           </Routes>
           {displayAlert && (
-            <div style={{ position: 'absolute', right: 30, top: 30 }}>
+            <div style={{ position: 'fixed', right: 30, top: 30 }}>
               <AlertModal {...alertData} />
             </div>
           )}

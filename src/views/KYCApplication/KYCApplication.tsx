@@ -36,6 +36,7 @@ import { useDispatch } from 'react-redux'
 import { setKYCApplicants } from '../../redux/kyc'
 import { getUserDetails } from '../../database'
 import { createChatRoom } from '../../database'
+import { openAlert, closeAlert } from '../../redux/alerts'
 
 function KYCApplication() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
@@ -74,20 +75,18 @@ function KYCApplication() {
       fetch('https://ipinfo.io/json')
         .then((response) => response.json())
         .then(async (data) => {
+          console.log(data.country)
           const signer = library.getSigner(account)
           const applicants = await get_applications(signer, data.country)
-          console.log(applicants)
 
           console.log('Applicants: ', applicants)
           const axiosRequests = applicants.map(async (applicant) => {
             const response = await axios.get(applicant.data as string)
-            console.log('Applicant Details: ', response)
             const kyc_details = await getKycDetails(
               signer,
               response.data.address,
               data.country
             )
-            console.log('KYC Details: ', kyc_details)
             const result = addContractState(response.data, kyc_details)
             const userFirebaseDetails = await getUserDetails(
               response.data.address
@@ -223,20 +222,6 @@ function KYCApplication() {
         <span className="prp dark:prp-dark">{application.date}</span>,
         <div>
           {application.applicationStatus === 'assigned' ? (
-            // <Box
-            //   sx={{
-            //     '.Mui-checked': {
-            //       color: `${theme === 'dark' ? '' : '#50ff7f'} !important;`,
-            //     },
-            //     '.MuiSwitch-track': {
-            //       background: `${
-            //         theme === 'dark' ? '#606166' : 'rgba(148, 233, 63, 0.4)'
-            //       } !important;`,
-            //     },
-            //   }}
-            // >
-            //   <Switch className="convert-switch" id="1" />
-            // </Box>
             <DecisionToggle
               acceptFunction={() => {}}
               rejectFunction={() => {}}
@@ -265,7 +250,6 @@ function KYCApplication() {
           {application.applicationStatus === 'assigned' ? (
             <Button
               // onClick={() => popupHandle(myCoverPopup)}
-              disabled
               text="Submit"
               btnText="table-action"
               endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
@@ -277,9 +261,27 @@ function KYCApplication() {
           ) : (
             <Button
               // onClick={() => popupHandle(myCoverPopup)}
-              disabled
               onClick={async () => {
-                setAssignPopup(true)
+                if (application.address === account) {
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 2,
+                        variant: 'Failed',
+                        classname: 'text-black',
+                        title: 'Transaction Failed',
+                        tag1: "Can't self assign application",
+                        tag2: 'View on etherscan',
+                      },
+                    })
+                  )
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                } else {
+                  setAssignPopup(true)
+                }
               }}
               text="Assign"
               btnText="table-action"
@@ -352,6 +354,22 @@ function KYCApplication() {
                     [application.reviewer]: 'reviwer',
                   })
                   await getData()
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 1,
+                        variant: 'Successful',
+                        classname: 'text-black',
+                        title: 'Submission Successful',
+                        tag1: 'KYC application assigned to you',
+                        tag2: 'View on etherscan',
+                      },
+                    })
+                  )
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
                   setAssignPopup(false)
                 }}
               >
