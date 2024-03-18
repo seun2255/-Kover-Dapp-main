@@ -2,15 +2,21 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   connected: false,
-  user: {},
+  user: {
+    notifications: [],
+  },
 }
 
 interface LoginAction {
   payload: {
     verified: boolean
-    data: {
-      address: string | null | undefined
-    }
+    data: {}
+  }
+}
+
+interface UpdateAction {
+  payload: {
+    data: any
   }
 }
 
@@ -22,8 +28,8 @@ export const userSlice = createSlice({
       state.connected = true
       state.user = action.payload.data
     },
-    updateUser: (state: any, action: any) => {
-      state.user = action.payload
+    updateUser: (state: any, action: UpdateAction) => {
+      state.user = action.payload.data
     },
   },
 })

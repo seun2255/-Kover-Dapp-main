@@ -5,7 +5,7 @@ import Button from '../../common/Button'
 import InfoText from '../../common/InfoText'
 import UploadButton from '../../common/UploadButton'
 import useWindowDimensions from './useWindowDimensions'
-import { switchKYCModify } from '../../../database'
+import { switchKYCModify, switchKYCReviewerModify } from '../../../database'
 import { useWeb3React } from '@web3-react/core'
 
 interface UserInformProps {
@@ -20,6 +20,9 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
   const viewmoreHandler = () => {
     viewmore ? setViewmore(false) : setViewmore(true)
   }
+  const [canEdit, setCanEdit] = useState(
+    variant === 'personal' ? user.canModifyKYC : user.canModifyKYCReviewer
+  )
 
   const historyHandler = () => {
     history ? setHistory(false) : setHistory(true)
@@ -123,7 +126,7 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
           <div className="mt-[20px]">
             <Button
               className="w-full sm:min-w-[125px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
-              text={user.canModifyKYC ? 'Stop Edit' : 'grant Edit'}
+              text={canEdit ? 'Stop Edit' : 'grant Edit'}
             />
             {variant === 'personal' ? (
               ''
@@ -191,15 +194,34 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
             <div>
               <div>
                 <div className="self-center">
-                  <Button
-                    className="min-w-[125px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
-                    text={user.canModifyKYC ? 'Stop Edit' : 'Allow Edit'}
-                    onClick={() => {
-                      if (user.reviewer === account) {
-                        switchKYCModify(user.address)
-                      }
-                    }}
-                  />
+                  {variant === 'personal' ? (
+                    <Button
+                      className="min-w-[125px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
+                      text={canEdit ? 'Stop Edit' : 'Allow Edit'}
+                      onClick={() => {
+                        if (user.reviewer === account) {
+                          switchKYCModify(user.address).then(() => {
+                            setCanEdit(!canEdit)
+                          })
+                        }
+                      }}
+                    />
+                  ) : (
+                    <Button
+                      className="min-w-[125px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
+                      text={canEdit ? 'Stop Edit' : 'Allow Edit'}
+                      onClick={() => {
+                        if (
+                          account ===
+                          '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+                        ) {
+                          switchKYCReviewerModify(user.address).then(() => {
+                            setCanEdit(!canEdit)
+                          })
+                        }
+                      }}
+                    />
+                  )}
                   {variant === 'personal' ? (
                     ''
                   ) : (
@@ -228,7 +250,7 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
               </div>
             </div>
             <div>
-              <Link to={`/chat/kyc-${user.id}`}>
+              <Link to={`/chat/kyc-${user.region}-${user.id}`}>
                 <Button
                   className="min-w-[120px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
                   text="Contact User"
@@ -244,14 +266,14 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
               <div className="flex px-[10px] sm:px-[60px] py-[20px] gap-[20px]">
                 <div className="flex flex-col gap-[20px] basis-1/3 sm:basis-1/2">
                   <span className="font-normal infotext-span lg:font-medium fw-400 tab-text">
-                    {user.dob}
+                    Date of Birth
                   </span>
                   <span className="font-normal infotext-span lg:font-medium fw-400 tab-text">
                     Address
                   </span>
                 </div>
                 <div className="flex flex-col gap-[20px] basis-1/3 sm:basis-1/2">
-                  <span className="text-lg font-medium">26/01/1993</span>
+                  <span className="text-lg font-medium">{user.dob}</span>
                   <span className="text-lg font-medium">{user.address1}</span>
                 </div>
               </div>

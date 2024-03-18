@@ -28,16 +28,28 @@ import { useWeb3React } from '@web3-react/core'
 import {
   assignMembershipApplication,
   get_applications,
+  get_Reviewer_applications,
   getKycDetails,
+  getKycReveiwerDetails,
   submitApplicationReviewResult,
+  revertMembershipApplication,
+  concludeMembershipApplication,
+  modifyInsureProApplication,
+  concludeInsureproApplication,
 } from '../../api'
 import axios from 'axios'
-import { addContractState } from '../../utils/helpers'
+import { addContractState, addKycReviewerState } from '../../utils/helpers'
 import { useDispatch } from 'react-redux'
-import { setKYCApplicants } from '../../redux/kyc'
+import { setKYCApplicants, setKYCReviewerApplicants } from '../../redux/kyc'
 import { getUserDetails } from '../../database'
-import { createChatRoom } from '../../database'
+import {
+  createChatRoom,
+  updateVerificationState,
+  insureProVerificationDone,
+  updateInsureProVerificationState,
+} from '../../database'
 import { openAlert, closeAlert } from '../../redux/alerts'
+import CountdownTimer from '../../components/common/CountdownTimer'
 
 function KYCApplication() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
@@ -48,6 +60,7 @@ function KYCApplication() {
   const [membershipApplications, setMembershipApplications] = useState<any[]>(
     []
   )
+  const [reviewerApplications, setReviewerApplications] = useState<any[]>([])
   const [assignpopup, setAssignPopup] = useState(false)
   const { width } = useWindowDimensions()
   const toggleDrawer = () => {
@@ -67,11 +80,18 @@ function KYCApplication() {
     () => {}
   )
   const [kycDecisionMade, setKycDecisionMade] = useState(false)
+  const [kycReviewerDecisionMade, setKycReviewerDecisionMade] = useState(false)
   const [kycDecision, setKycDecision] = useState(true)
+  const [kycReviewerDecision, setKycReviewerDecision] = useState(true)
 
   const makeKYCDecision = (decision: boolean) => {
     setKycDecisionMade(true)
     setKycDecision(decision)
+  }
+
+  const makeKYCReviewerDecision = (decision: boolean) => {
+    setKycReviewerDecisionMade(true)
+    setKycReviewerDecision(decision)
   }
 
   const getData = async () => {
@@ -80,14 +100,12 @@ function KYCApplication() {
         .then((response) => response.json())
         .then(async (data) => {
           console.log(data.country)
-          const signer = library.getSigner(account)
-          const applicants = await get_applications(signer, data.country)
+          const applicants = await get_applications(data.country)
 
           console.log('Applicants: ', applicants)
           const axiosRequests = applicants.map(async (applicant) => {
             const response = await axios.get(applicant.data as string)
             const kyc_details = await getKycDetails(
-              signer,
               response.data.address,
               data.country
             )
@@ -97,7 +115,10 @@ function KYCApplication() {
             )
             result.id = applicant.id
             result.canModifyKYC = userFirebaseDetails.canModifyKYC
+            result.canModifyKYCReviewer =
+              userFirebaseDetails.canModifyKYCReviewer
             result.ipfsHash = applicant.data
+            result.kycReviewDone = userFirebaseDetails.kycReviewDone
             console.log('Result: ', result)
             return result
           })
@@ -106,6 +127,38 @@ function KYCApplication() {
           const membership_applications = await Promise.all(axiosRequests)
           dispatch(setKYCApplicants({ data: membership_applications }))
           setMembershipApplications(membership_applications)
+        })
+
+      fetch('https://ipinfo.io/json')
+        .then((response) => response.json())
+        .then(async (data) => {
+          const applicants = await get_Reviewer_applications(data.country)
+
+          console.log('Applicants: ', applicants)
+          const axiosRequests = applicants.map(async (applicant) => {
+            const response = await axios.get(applicant.data as string)
+            const kyc_details = await getKycReveiwerDetails(
+              response.data.address,
+              data.country
+            )
+            const result = addKycReviewerState(response.data, kyc_details)
+            const userFirebaseDetails = await getUserDetails(
+              response.data.address
+            )
+            result.id = applicant.id
+            result.canModifyKYCReviewer =
+              userFirebaseDetails.canModifyKYCReviewer
+            result.canModifyKYC = userFirebaseDetails.canModifyKYC
+            result.ipfsHash = applicant.data
+            result.kycReviewDone = userFirebaseDetails.kycReviewDone
+            console.log('Reviewer Result: ', result)
+            return result
+          })
+
+          // Wait for all axios requests to complete
+          const membership_applications = await Promise.all(axiosRequests)
+          dispatch(setKYCReviewerApplicants({ data: membership_applications }))
+          setReviewerApplications(membership_applications)
         })
     }
   }
@@ -181,12 +234,24 @@ function KYCApplication() {
     return inputString.charAt(0).toUpperCase() + inputString.slice(1)
   }
 
+  const revert = async (address: string, region: string) => {
+    const signer = library.getSigner(account)
+    await revertMembershipApplication(signer, region, address)
+    setTimeout(() => {
+      getData()
+    }, 10000)
+  }
+
+  function extractDate(timeString: string) {
+    return timeString.split(' ')[0] + ' '
+  }
+
   const kyc: TableProps = {
     title: 'kyc',
     data: membershipApplications,
     tabs: tabs,
     options: isAdmin
-      ? [{ name: 'Revert' }, { name: 'Cancel' }]
+      ? [{ name: 'Revert', action: revert }, { name: 'Cancel' }]
       : [{ name: 'Chat' }, { name: 'Profile' }],
     columns: [
       {
@@ -216,7 +281,15 @@ function KYCApplication() {
     ],
     rows: membershipApplications.map((application: any, index: any) => {
       return [
-        <Link to={`/kyc-user-profile/${application.id}`}>
+        <Link
+          to={
+            application.reviewer === account ||
+            application.address === account ||
+            isAdmin
+              ? `/kyc-user-profile/${application.id}`
+              : ''
+          }
+        >
           <span className="prp dark:prp-dark">{`${application.firstName} ${application.lastName}`}</span>
         </Link>,
         <span className="prp dark:prp-dark">{application.dob}</span>,
@@ -232,9 +305,27 @@ function KYCApplication() {
               : capitalizeFirstLetter(application.resultStatus)
           }
         />,
-        <span className="prp dark:prp-dark">{application.date}</span>,
-        <div>
+        <span className="prp dark:prp-dark">
           {application.applicationStatus === 'assigned' ? (
+            <>
+              {extractDate(application.date)}
+              <CountdownTimer
+                timeLeftInSeconds={application.submit_time_left}
+              />
+            </>
+          ) : (
+            application.date
+          )}
+        </span>,
+        <div>
+          {application.resultStatus === 'approved' ||
+          application.resultStatus === 'rejected' ? (
+            <DecisionToggle
+              makeDecision={makeKYCDecision}
+              completed={true}
+              decision={application.resultStatus === 'approved' ? true : false}
+            />
+          ) : application.applicationStatus === 'assigned' ? (
             <DecisionToggle makeDecision={makeKYCDecision} />
           ) : (
             <Box
@@ -256,12 +347,54 @@ function KYCApplication() {
           )}
         </div>,
         <div>
-          {application.resultStatus === 'approved' ||
-          application.resultStatus === 'rejected' ? (
+          {(application.resultStatus === 'approved' ||
+            application.resultStatus === 'rejected') &&
+          application.submit_time_left <= 0 ? (
+            <Button
+              disabled={
+                application.applicationStatus === 'concluded' ? true : false
+              }
+              text="Conclude"
+              btnText="table-action"
+              endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
+              className={`${
+                theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+              } px-[19.5px] py-[11.5px] w-full ${
+                application.applicationStatus === 'concluded'
+                  ? 'disabled:opacity-10 disabled:pointer-events-none'
+                  : ''
+              }`}
+              onClick={async () => {
+                await concludeMembershipApplication(
+                  application.address,
+                  application.region
+                )
+                await updateVerificationState(application.address, 'verified')
+                dispatch(
+                  openAlert({
+                    displayAlert: true,
+                    data: {
+                      id: 1,
+                      variant: 'Successful',
+                      classname: 'text-black',
+                      title: 'Submission Successful',
+                      tag1: 'KYC Review concluded',
+                      tag2: 'View on etherscan',
+                    },
+                  })
+                )
+                getData()
+                setTimeout(() => {
+                  dispatch(closeAlert())
+                }, 10000)
+              }}
+            />
+          ) : application.resultStatus === 'approved' ||
+            application.resultStatus === 'rejected' ? (
             <Button
               // onClick={() => popupHandle(myCoverPopup)}
               disabled
-              text="Assign"
+              text="Submit"
               btnText="table-action"
               endIcon={'/images/126.svg'}
               className={`${
@@ -280,9 +413,7 @@ function KYCApplication() {
               onClick={async () => {
                 console.log('Was clicked')
                 if (kycDecisionMade) {
-                  const signer = library.getSigner(account)
                   await submitApplicationReviewResult(
-                    signer,
                     application.address,
                     application.region,
                     application.ipfsHash,
@@ -301,6 +432,7 @@ function KYCApplication() {
                       },
                     })
                   )
+                  getData()
                   setTimeout(() => {
                     dispatch(closeAlert())
                   }, 10000)
@@ -415,11 +547,16 @@ function KYCApplication() {
                     application.address,
                     application.region
                   )
-                  await createChatRoom('kyc', application.id, {
-                    [application.address]: application.firstName,
-                    [application.reviewer]: 'reviwer',
-                  })
-                  await getData()
+                  await createChatRoom(
+                    'kyc',
+                    application.region,
+                    application.id,
+                    {
+                      [application.address]: application.firstName,
+                      [account as string]: 'reviewer',
+                    }
+                  )
+                  getData()
                   dispatch(
                     openAlert({
                       displayAlert: true,
@@ -451,6 +588,7 @@ function KYCApplication() {
 
   const insurePro: TableProps = {
     tabs: tabs,
+    data: reviewerApplications,
     options: [{ name: 'Deactivate' }, { name: 'Profile' }],
     columns: [
       {
@@ -478,119 +616,102 @@ function KYCApplication() {
         width: 'w-[9%]',
       },
     ],
-    rows: [
-      [
-        <Link to="/insure-pro-user-profile">
-          <span className="prp dark:prp-dark">Natacha Nilson</span>
+    rows: reviewerApplications.map((application: any, index: number) => {
+      return [
+        <Link
+          to={
+            application.address === account || isAdmin
+              ? `/insure-pro-user-profile/${application.id}`
+              : ''
+          }
+        >
+          <span className="prp dark:prp-dark">{`${application.firstName} ${application.lastName}`}</span>
         </Link>,
-        <span className="prp dark:prp-dark">Kyc Reviewer</span>,
-        <Status type="Withdrawn" text="Pending" />,
-        <span className="prp dark:prp-dark">2022/06/01</span>,
+        <span className="prp dark:prp-dark">{application.workArea}</span>,
+        <Status
+          type={
+            application.kycReviewDone
+              ? application.is_expert
+                ? 'Accepted'
+                : 'Declined'
+              : 'Pending'
+          }
+          text={
+            application.kycReviewDone
+              ? application.is_expert
+                ? 'Accepted'
+                : 'Declined'
+              : 'Pending'
+          }
+        />,
+        <span className="prp dark:prp-dark">
+          {application.date.split(' ')[0]}
+        </span>,
         <div>
-          <Box
-            sx={{
-              '.Mui-checked': {
-                color: `${
-                  theme === 'dark' ? '#606166' : '#ff9800'
-                } !important;`,
-              },
-              '.MuiSwitch-track': {
-                background: `${
-                  theme === 'dark' ? '#ff9800' : 'rgba(148, 233, 63, 0.4)'
-                } !important;`,
-              },
-            }}
-          >
-            <Switch className="convert-switch" id="1" defaultChecked />
-          </Box>
+          {application.kycReviewDone ? (
+            <DecisionToggle
+              makeDecision={makeKYCDecision}
+              completed={true}
+              decision={application.is_expert ? true : false}
+            />
+          ) : (
+            <DecisionToggle makeDecision={makeKYCReviewerDecision} />
+          )}
         </div>,
         <div>
-          <Button
-            // onClick={() => popupHandle(myCoverPopup)}
-            text="Submit"
-            btnText="table-action"
-            endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
-            className={`${
-              theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
-            } px-[19.5px] py-[11.5px] w-full`}
-          />
+          {application.kycReviewDone ? (
+            <Button
+              // onClick={() => popupHandle(myCoverPopup)}
+              disabled
+              text="Submit"
+              btnText="table-action"
+              endIcon={'/images/126.svg'}
+              className={`${
+                theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+              } px-[19.5px] py-[11.5px] w-full disabled:opacity-10 disabled:pointer-events-none`}
+            />
+          ) : (
+            <Button
+              onClick={async () => {
+                await concludeInsureproApplication(
+                  application.address,
+                  application.region,
+                  kycReviewerDecision
+                )
+                await updateInsureProVerificationState(
+                  application.address,
+                  'verified'
+                )
+                await insureProVerificationDone(application.address)
+                dispatch(
+                  openAlert({
+                    displayAlert: true,
+                    data: {
+                      id: 1,
+                      variant: 'Successful',
+                      classname: 'text-black',
+                      title: 'Submission Successful',
+                      tag1: 'KYC Reviewer Review concluded',
+                      tag2: 'View on etherscan',
+                    },
+                  })
+                )
+                getData()
+                setTimeout(() => {
+                  dispatch(closeAlert())
+                }, 10000)
+              }}
+              text="Submit"
+              btnText="table-action"
+              endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
+              className={`${
+                theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+              } px-[19.5px] py-[11.5px] w-full`}
+            />
+          )}
         </div>,
-      ],
-      [
-        <Link to="/insure-pro-user-profile">
-          <span className="prp dark:prp-dark">Natacha Nilson</span>
-        </Link>,
-        <span className="prp dark:prp-dark">Kyc Reviewer</span>,
-        <Status type="Accepted" text="Pending" />,
-        <span className="prp dark:prp-dark">2022/06/01</span>,
-        <div>
-          <Box
-            sx={{
-              '.Mui-checked': {
-                color: `${
-                  theme === 'dark' ? '#606166' : '#50ff7f'
-                } !important;`,
-              },
-              '.MuiSwitch-track': {
-                background: `${
-                  theme === 'dark' ? '#50ff7f' : 'rgba(148, 233, 63, 0.4)'
-                } !important;`,
-              },
-            }}
-          >
-            <Switch className="convert-switch" id="1" defaultChecked />
-          </Box>
-        </div>,
-        <div>
-          <Button
-            // onClick={() => popupHandle(myCoverPopup)}
-            text="Submit"
-            btnText="table-action"
-            endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
-            className={`${
-              theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
-            } px-[19.5px] py-[11.5px] w-full`}
-          />
-        </div>,
-      ],
-      [
-        <Link to="/insure-pro-user-profile">
-          <span className="prp dark:prp-dark">Natacha Nilson</span>
-        </Link>,
-        <span className="prp dark:prp-dark">Kyc Reviewer</span>,
-        <Status type="Declined" text="Pending" />,
-        <span className="prp dark:prp-dark">2022/06/01</span>,
-        <div>
-          <Box
-            sx={{
-              '.Mui-checked': {
-                color: `${
-                  theme === 'dark' ? '#606166' : '#d0021b'
-                } !important;`,
-              },
-              '.MuiSwitch-track': {
-                background: `${
-                  theme === 'dark' ? '#d0021b' : 'rgba(148, 233, 63, 0.4)'
-                } !important;`,
-              },
-            }}
-          >
-            <Switch className="convert-switch" id="1" defaultChecked />
-          </Box>
-        </div>,
-        <div>
-          <Button
-            // onClick={() => popupHandle(myCoverPopup)}
-            text="Submit"
-            btnText="table-action"
-            endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
-            className={`${
-              theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
-            } px-[19.5px] py-[11.5px] w-full`}
-          />
-        </div>,
-      ],
-    ],
+      ]
+    }),
   }
 
   const policies: TableProps = {

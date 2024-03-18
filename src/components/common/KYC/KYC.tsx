@@ -39,7 +39,7 @@ import {
 } from '../../../utils/encryption'
 import { uploadJsonData } from '../../../lighthouse'
 import { is_kyc_reviewer, apply_for_membership } from '../../../api'
-import { createUser } from '../../../database'
+import { createUser, updateVerificationState } from '../../../database'
 import { useDispatch } from 'react-redux'
 
 interface popupProps {
@@ -71,10 +71,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
     country: '',
     identityType: '',
     nationalID: '',
-    document: {
-      link: '',
-      name: '',
-    },
+    documents: [] as Document[],
   })
   const [formFilled, setFormFilled] = useState(true)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
@@ -100,7 +97,6 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
 
   //Uploads File to IPFS
   const uploadFile = async (file: any) => {
-    console.log(file)
     const output = await lighthouse.upload(
       file,
       process.env.REACT_APP_LIGHTHOUSE_API_KEY as string,
@@ -109,19 +105,21 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
       progressCallback
     )
     const link = 'https://gateway.lighthouse.storage/ipfs/' + output.data.Hash
+    const currentDocuments: Document[] = [...formState.documents]
+    currentDocuments.push({
+      link: link,
+      name: file[0].name,
+    })
     setFormState((prevState) => ({
       ...prevState,
-      document: {
-        link: link,
-        name: file[0].name,
-      },
+      documents: currentDocuments,
     }))
   }
 
   const handleFileChange = async (event: any) => {
     setFileUploadInitiated(true)
     const files = event.target.files
-    const updatedFiles = []
+    const updatedFiles = [...selectedFiles]
 
     for (let i = 0; i < files.length; i++) {
       updatedFiles.push(files[i])
@@ -196,8 +194,8 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
           const signer = library.getSigner(account)
           // const isReviwer = await is_kyc_reviewer(signer);
 
-          await apply_for_membership(signer, userData, data.country)
-          await createUser(account)
+          await apply_for_membership(userData, data.country)
+          await updateVerificationState(account, 'verifying')
           dispatch(
             openAlert({
               displayAlert: true,
@@ -614,7 +612,8 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                     <div className="my-[20px]">
                       <Rules padding="py-[20px] px-[20px]" space="ml-[20px]" />
                     </div>
-                    {((formState.document.link === '' && fileUploadInitated) ||
+                    {((formState.documents.length === 0 &&
+                      fileUploadInitated) ||
                       !formFilled) && (
                       <span style={{ color: 'red' }}>Document is required</span>
                     )}

@@ -98,7 +98,11 @@ function TableRows({
                 {claimSwitch.map((item, index) => (
                   <div className="flex items-center gap-6 py-5 rounded dark:box-border bg-dark-800 px-7 dark:text-dark-800 dark:text-primary-100 dark:bg-white general-box-border">
                     <div className="">
-                      <TableOptions options={options} />
+                      <TableOptions
+                        options={options}
+                        data={data[index]}
+                        index={data[index].id}
+                      />
                     </div>
 
                     <div className={columns[0].width}> {item.carInsurance}</div>
@@ -192,6 +196,7 @@ function TableRows({
                           <TableOptions
                             options={options}
                             title={title}
+                            data={data[index]}
                             index={data[index].id}
                           />
                         </>
@@ -228,7 +233,11 @@ function TableRows({
             className="items-center block gap-6 py-5 rounded bg-dark-800 px-7"
           >
             <div className="w-6 -mr-6 min-w-[1.5rem]">
-              <TableOptions options={options} />
+              <TableOptions
+                options={options}
+                data={data[index]}
+                index={data[index].id}
+              />
             </div>
           </div>
         ))}

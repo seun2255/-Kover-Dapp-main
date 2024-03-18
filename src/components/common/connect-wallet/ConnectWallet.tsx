@@ -8,9 +8,16 @@ import { createContext } from 'react'
 import Web3 from 'web3'
 import { EthereumProvider } from '@walletconnect/ethereum-provider'
 import { useSelector, useDispatch } from 'react-redux'
-import { login } from '../../../redux/user'
+import { login, updateUser } from '../../../redux/user'
 import { useNavigate } from 'react-router-dom'
 import { getUser } from '../../../tableland'
+import { doc, onSnapshot, getDocs, collection } from 'firebase/firestore'
+import {
+  getUserDetails,
+  db,
+  createUser,
+  checkIfUserExists,
+} from '../../../database'
 
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import {
@@ -44,6 +51,12 @@ interface NetworkDetails {
   }
   rpcUrls: string[]
   blockExplorerUrls: string[]
+}
+
+interface User {
+  canModifyKYC: boolean
+  kycVerificationState: string
+  notifications: Array<any>
 }
 
 // interface ConnectWalletProps {
@@ -290,6 +303,50 @@ function ConnectWallet(
     // }
   }, [active])
 
+  useEffect(() => {
+    if (account) {
+      checkIfUserExists(account).then(async (exists) => {
+        console.log(exists)
+        if (!exists) {
+          console.log('Started creating account: ', account)
+          await createUser(account)
+        }
+        getUserDetails(account).then((user) => {
+          user
+            ? dispatch(
+                login({
+                  verified: false,
+                  data: {
+                    address: account,
+                    ...user,
+                  },
+                })
+              )
+            : dispatch(
+                login({
+                  verified: false,
+                  data: {
+                    address: account,
+                  },
+                })
+              )
+        })
+
+        const unsub = onSnapshot(
+          doc(db, 'users', account.toLowerCase()),
+          (doc) => {
+            dispatch(
+              updateUser({
+                data: doc.data(),
+              })
+            )
+            console.log('Snapshot triggered')
+          }
+        )
+      })
+    }
+  }, [account])
+
   const handleButtonClick = (id: any, chainId: any) => {
     setActiveButtonId(id)
     switchToNewNetwork(chainId) // assuming this function is defined elsewhere
@@ -416,17 +473,7 @@ function ConnectWallet(
 
   async function walletConnect(currentConnector: any) {
     try {
-      console.log('Tried this')
       await activate(currentConnector.connector)
-      console.log('Reached here 2?')
-      dispatch(
-        login({
-          verified: false,
-          data: {
-            address: account,
-          },
-        })
-      )
     } catch (error) {
       console.log('Error Dey')
       console.error('Error connecting to wallet:', error)
@@ -440,14 +487,6 @@ function ConnectWallet(
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: newChainId }], // chainId must be in hexadecimal numbers
       })
-      dispatch(
-        login({
-          verified: false,
-          data: {
-            address: account,
-          },
-        })
-      )
     } catch (error: any) {
       if (error.code === 4902) {
         try {

@@ -93,10 +93,14 @@ function Conversition(props: ConversationProps) {
                 <TextDirection
                   right={message.sender.address === account ? true : false}
                 >
-                  <MessageThere
-                    message={message.message}
-                    sender={message.sender}
-                  />
+                  {message.sender.address === account ? (
+                    <MyMessage message={message.message} />
+                  ) : (
+                    <MessageThere
+                      message={message.message}
+                      sender={message.sender}
+                    />
+                  )}
                 </TextDirection>
               )
             })}

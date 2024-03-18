@@ -73,23 +73,26 @@ function StartKYC({
                 : 'Identity verification required through our KYC/AML process.'}
             </span>
           </div>
-          {verificationState !== 'verifying' && (
-            <div className="flex items-center">
-              <button
-                type="button"
-                className={`${
-                  theme === 'dark'
-                    ? 'dark:bg-light-1100 dark:box-border'
-                    : 'greenGradient'
-                } contained medium  font-medium px-8 w-full sm:w-fit square button`}
-                onClick={() => {
-                  setPopup(true)
-                }}
-              >
-                <span>Start KYC</span>
-              </button>
-            </div>
-          )}
+          <div className="flex items-center">
+            <button
+              disabled={verificationState === 'verifying'}
+              type="button"
+              className={`${
+                theme === 'dark'
+                  ? 'dark:bg-light-1100 dark:box-border'
+                  : 'greenGradient'
+              } contained medium  font-medium px-8 w-full sm:w-fit square button ${
+                verificationState === 'verifying'
+                  ? 'disabled:opacity-10 disabled:pointer-events-none'
+                  : ''
+              }`}
+              onClick={() => {
+                setPopup(true)
+              }}
+            >
+              <span>Start KYC</span>
+            </button>
+          </div>
         </div>
       </div>
       <Popup visible={popup} onClose={togglePopup}>

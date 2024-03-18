@@ -5,76 +5,37 @@ import Header from '../../components/common/header/Header'
 import Rewards from '../Dashboard/Rewards'
 import Score from '../Dashboard/Score'
 import StatusInfo from '../Welcome/StatusInfo'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
+import { convertLinkToText } from '../../utils/helpers'
+import { updateNotifications } from '../../database'
+import { useWeb3React } from '@web3-react/core'
+
 function Notification() {
   const { theme } = React.useContext(UserContext)
-  let navigate = useNavigate()
-  const data = [
-    {
-      ClaimNo: '1250',
-      Time: '1 day, 2hrs left',
-      photo: '/images/81.svg',
-      name: 'Virtual Assistant',
-      claimTag: '',
-      NotificationTime: '11:46 AM',
-      NotificationNo: '1',
-      Notification:
-        'A claim is submitted for approval, please vote to receive rewards.',
-      icon1: `${
-        theme === 'dark' ? '/images/delete-dark.svg' : '/images/delete.svg'
-      }`,
-      icon2: `${
-        theme === 'dark'
-          ? '/images/three-line-dark.svg'
-          : '/images/three-line.svg'
-      }`,
-      buttonText1: 'Decline',
-      buttonText2: 'View',
-    },
+  const { user } = useSelector((state: any) => state.user)
+  const { account } = useWeb3React()
 
-    {
-      ClaimNo: '1250',
-      Time: '1 day, 2hrs left',
-      photo: '/images/82.svg',
-      name: 'Jav',
-      claimTag: '0x95e441....',
-      NotificationTime: '11:46 AM',
-      NotificationNo: '2',
-      Notification:
-        'That works I was actually planning to get a smoothie anyways 👍',
-      icon1: `${
-        theme === 'dark' ? '/images/94.svg' : '/images/dsGroup 216.svg'
-      }`,
-      icon2: `${
-        theme === 'dark'
-          ? '/images/three-line-dark.svg'
-          : '/images/three-line.svg'
-      }`,
-      buttonText1: 'Files (x0)',
-      buttonText2: 'View',
-    },
-    {
-      ClaimNo: '1250',
-      Time: '1 day, 2hrs left',
-      photo: '/images/83.svg',
-      name: 'Jay',
-      claimTag: '0x95e441....',
-      NotificationTime: '11:46 AM',
-      NotificationNo: '5',
-      Notification:
-        'That works I was actually planning to get a smoothie anyways 👍',
-      icon1: `${
-        theme === 'dark' ? '/images/94.svg' : '/images/dsGroup 216.svg'
-      }`,
-      icon2: `${
-        theme === 'dark'
-          ? '/images/three-line-dark.svg'
-          : '/images/three-line.svg'
-      }`,
-      buttonText1: 'Files (x0)',
-      buttonText2: 'View',
-    },
-  ]
+  interface Document {
+    from: any
+    link: string
+    message: any
+  }
+
+  let navigate = useNavigate()
+
+  function removeItemsWithLink(array: Document[], linkToRemove: string) {
+    return array.filter((item) => item.link !== linkToRemove)
+  }
+
+  function truncateAddress(address: any) {
+    const prefixLength = 6
+    const suffixLength = 4
+    const truncated = `${address.slice(0, prefixLength)}...${address.slice(
+      -suffixLength
+    )}`
+    return truncated
+  }
 
   return (
     <div>
@@ -101,7 +62,7 @@ function Notification() {
       <div className="mb-10 lg:flex gap-[20px]">
         <div className="flex-grow">
           <div className="flex flex-col gap-5">
-            {data.map((value, index) => (
+            {user.notifications.map((notification: any, index: number) => (
               <>
                 <div
                   className={` rounded px-[70px] py-[20px] hidden md:flex md:flex-col  box-border-2x-light dark:box-border-2x-dark bg-dark-600 dark:bg-white`}
@@ -110,7 +71,8 @@ function Notification() {
                   <div className="flex gap-[18px] justify-between items-start">
                     <div className="flex gap-[18px]">
                       <div className="relative w-8 h-8">
-                        <img className="w-8 h-8" src={value.photo} alt="" />
+                        {/* <img className="w-8 h-8" src={value.photo} alt="" /> */}
+                        <img className="w-8 h-8" src="/images/83.svg" alt="" />
                         <img
                           className="absolute bottom-0 right-0"
                           src="/images/Group 223.svg"
@@ -119,22 +81,22 @@ function Notification() {
                       </div>
                       <div className="flex gap-[10px]">
                         <span className="notification-user-name">
-                          {value.name}
+                          {notification.from.name}
                           <span className=" ml-[10px] notification-comment">
-                            {value.claimTag}
+                            {truncateAddress(notification.from.address)}
                           </span>{' '}
                         </span>
                       </div>
                     </div>
                     <div className="flex justify-end">
                       <span className="date-time">
-                        {value.NotificationTime}
+                        {notification.message.time}
                       </span>
                     </div>
                   </div>
 
                   <div className="flex justify-between mt-[3px] ml-[50px]">
-                    <p className="basis-2/5">{value.Notification}</p>
+                    <p className="basis-2/5">{notification.message.text}</p>
                     <div className="flex items-end justify-end basis-2/5">
                       <span
                         className={`${
@@ -143,14 +105,14 @@ function Notification() {
                             : 'notification-No'
                         } h-[16px] w-[16px]`}
                       >
-                        {value.NotificationNo}
+                        {index + 1}
                       </span>
                     </div>
                   </div>
 
                   <div className="flex mt-[20px] justify-between ml-[50px]">
                     <div className="flex gap-7">
-                      <button
+                      {/* <button
                         className={`w-[120px] h-[35px] flex gap-[10px] items-center justify-center dark:bg-white bg-dark-600 dark:file-btn-dark ${
                           theme === 'dark'
                             ? `light-notification-btn`
@@ -165,9 +127,9 @@ function Notification() {
                         <span className="file-btn-text">
                           {value.buttonText1}
                         </span>
-                      </button>
+                      </button> */}
                       <button
-                        className={`w-[120px] h-[35px] photo-btn flex gap-[10px] items-center justify-center dark:bg-white  "bg-dark-600 dark:photo-btn-dark ${
+                        className={`w-[120px] h-[35px] flex gap-[10px] items-center justify-center dark:bg-white bg-dark-600 dark:file-btn-dark ${
                           theme === 'dark'
                             ? `light-notification-btn`
                             : `photo-btn`
@@ -175,20 +137,46 @@ function Notification() {
                       >
                         <img
                           className="w-[16.50px] h-[16.50px]"
-                          src={value.icon2}
+                          src="/images/delete.svg"
                           alt=""
                         />
-                        <span className="photo-btn-text">
-                          {value.buttonText2}
-                        </span>
+                        <span className="file-btn-text">Decline</span>
                       </button>
+                      <Link
+                        to={notification.link}
+                        onClick={() => {
+                          console.log('This triggered')
+                          var notifications = [...user.notifications]
+                          const newNotifications = removeItemsWithLink(
+                            notifications,
+                            notification.link
+                          )
+                          console.log(newNotifications)
+                          updateNotifications(account, newNotifications)
+                        }}
+                      >
+                        <button
+                          className={`w-[120px] h-[35px] photo-btn flex gap-[10px] items-center justify-center dark:bg-white  "bg-dark-600 dark:photo-btn-dark ${
+                            theme === 'dark'
+                              ? `light-notification-btn`
+                              : `photo-btn`
+                          }`}
+                        >
+                          <img
+                            className="w-[16.50px] h-[16.50px]"
+                            src="/images/three-line.svg"
+                            alt=""
+                          />
+                          <span className="photo-btn-text">View</span>
+                        </button>
+                      </Link>
                     </div>
 
                     <div className="flex flex-col justify-end items-end gap-[10px]">
                       <p className="notification-claim-title">
-                        Claim #{value.ClaimNo}
+                        {convertLinkToText(notification.link)}
                       </p>
-                      <p className="notification-claim-time"> {value.Time}</p>
+                      {/* <p className="notification-claim-time"> {value.Time}</p> */}
                     </div>
                   </div>
                 </div>
@@ -196,15 +184,15 @@ function Notification() {
                 <div
                   className={`flex md:hidden p-[15px] flex-col box-border-2x-light dark:box-border-2x-dark bg-dark-600 dark:bg-white`}
                 >
-                  <div className="flex justify-between">
+                  {/* <div className="flex justify-between">
                     <span className="notification-claim-title">
                       Claim #{value.ClaimNo}
                     </span>
-                    <span className="notification-claim-time">
+                    {/* <span className="notification-claim-time">
                       {value.Time}
-                    </span>
-                  </div>
-                  <div className="flex mt-[15px] gap-[18px]">
+                    </span> */}
+                  {/* </div> */}
+                  {/* <div className="flex mt-[15px] gap-[18px]">
                     <div className="flex justify-start">
                       <div className="relative w-8 h-8">
                         <img className="w-8 h-8" src={value.photo} alt="" />
@@ -230,9 +218,9 @@ function Notification() {
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
-                  <div className="flex gap-[18px] ">
+                  {/* <div className="flex gap-[18px] ">
                     <div className="mt-[16px] min-w-[32px] flex justify-center">
                       <span
                         className={`min-w-[16px] h-[16px] notification-no rounded-full dark:notification-no-dark ${
@@ -249,9 +237,9 @@ function Notification() {
                         {value.Notification}
                       </p>
                     </div>
-                  </div>
+                  </div> */}
 
-                  <div className="flex gap-[18px] mt-[20px] justify-end">
+                  {/* <div className="flex gap-[18px] mt-[20px] justify-end">
                     <button
                       className={`w-[120px] h-[35px] flex gap-[10px] items-center justify-center dark:bg-white bg-dark-600 dark:file-btn-dark ${
                         theme === 'dark'
@@ -274,7 +262,7 @@ function Notification() {
                         {value.buttonText2}
                       </span>
                     </button>
-                  </div>
+                  </div> */}
                 </div>
               </>
             ))}

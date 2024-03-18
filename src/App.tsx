@@ -45,6 +45,9 @@ import PolicyRiskUserPofile from './views/PolicyRiskUserPofile/PolicyRiskUserPof
 import RiskPoolMnagamentHome from './views/RiskMnagament/RiskPoolMnagamentHome'
 import Staking from './views/Staking/Staking'
 import AlertModal from './components/common/Alert'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+
 export const routes = [
   {
     id: 343,
@@ -204,7 +207,7 @@ export const routes = [
   },
   {
     id: 523650,
-    route: 'insure-pro-user-profile',
+    route: 'insure-pro-user-profile/:userId',
     el: <InsureProUserProfile />,
   },
   {
@@ -272,6 +275,16 @@ function App() {
     return <div style={{ ...thumbStyle }} />
   }
 
+  // const showToast = () => {
+  //   toast(<Alert {...alertData} />)
+  // }
+
+  // useEffect(() => {
+  //   if (displayAlert) {
+  //     showToast()
+  //   }
+  // }, [displayAlert])
+
   return (
     <UserContext.Provider
       value={{ handleThemeSwitch, theme, connectwallet, connectWalletHandle }}
@@ -295,6 +308,7 @@ function App() {
               <AlertModal {...alertData} />
             </div>
           )}
+          {/* <ToastContainer autoClose={false} draggablePercent={60} limit={1} /> */}
         </BrowserRouter>
       </Scrollbars>
     </UserContext.Provider>

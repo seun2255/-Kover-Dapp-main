@@ -101,7 +101,7 @@ function Chat() {
             />
           </div>
           <div className="rounded bg-dark-600 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
-            <InfoHeader />
+            <InfoHeader roomId={roomId} />
             <Conversition messages={chatRoom.messages} />
             <MessageType handleSend={handleSend} />
           </div>

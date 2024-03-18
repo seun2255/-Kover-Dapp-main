@@ -34,7 +34,10 @@ function MessageThere({ message, sender }: MessageThereProps) {
               {truncateAddress(sender.address)}
             </span>
           </div>
-          <div className="flex gap-[8px]">
+          <div
+            className="flex gap-[8px]"
+            style={{ justifyContent: 'space-between' }}
+          >
             <p className="text-dark-800 mb-3 leading-[20px] text-[13px] md:text-[14px]">
               {message.text}
             </p>

@@ -4,10 +4,16 @@ import { Box } from '@mui/material'
 
 interface DecisionToggleProps {
   makeDecision: (decison: any) => void
+  completed?: boolean
+  decision?: boolean
 }
-function DecisionToggle({ makeDecision }: DecisionToggleProps) {
-  const [accepted, setAccepted] = useState(true)
-  const [active, setActive] = useState(false)
+function DecisionToggle({
+  makeDecision,
+  completed,
+  decision,
+}: DecisionToggleProps) {
+  const [accepted, setAccepted] = useState(!decision ? decision : true)
+  const [active, setActive] = useState(completed)
 
   const handleClick = () => {
     makeDecision(!accepted)
@@ -36,7 +42,7 @@ function DecisionToggle({ makeDecision }: DecisionToggleProps) {
         checked={accepted}
         className="convert-switch"
         id="1"
-        onClick={handleClick}
+        onClick={!completed ? handleClick : () => null}
       />
     </Box>
   ) : (
@@ -53,6 +59,7 @@ function DecisionToggle({ makeDecision }: DecisionToggleProps) {
       <Switch
         onClick={() => {
           setActive(true)
+          setAccepted(true)
           makeDecision(true)
         }}
         className="convert-switch"

@@ -8,6 +8,7 @@ import {
 } from 'firebase/firestore'
 import { getCurrentTime } from './utils/dateTime'
 // import { timeStamp } from './utils/dateFunctions'
+import { Notification } from './types/database'
 
 const db = getFirestore(app)
 
@@ -34,7 +35,11 @@ const checkIfUserExists = async (user: any) => {
 const createUser = async (address: any) => {
   const user = {
     canModifyKYC: false,
-    kycVerificationState: 'verifying',
+    canModifyKYCReviewer: false,
+    kycReviewDone: false,
+    kycVerificationState: 'unverified',
+    insureProVerificationState: 'unverified',
+    notifications: [],
   }
   var data: any = {}
   const userData = await getDocs(collection(db, 'users'))
@@ -49,6 +54,45 @@ const createUser = async (address: any) => {
   }
 }
 
+const updateVerificationState = async (address: any, state: string) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  temp.kycVerificationState = state
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
+const updateInsureProVerificationState = async (
+  address: any,
+  state: string
+) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  temp.insureProVerificationState = state
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
+const insureProVerificationDone = async (address: any) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  temp.kycReviewDone = true
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
 const switchKYCModify = async (address: any) => {
   var data: any = {}
   const userData = await getDocs(collection(db, 'users'))
@@ -61,7 +105,24 @@ const switchKYCModify = async (address: any) => {
   await setDoc(doc(db, 'users', address.toLowerCase()), temp)
 }
 
-const createChatRoom = async (type: string, id: number, names: any) => {
+const switchKYCReviewerModify = async (address: any) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  temp.canModifyKYCReviewer = !temp.canModifyKYCReviewer
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
+const createChatRoom = async (
+  type: string,
+  region: string,
+  id: number,
+  names: any
+) => {
   const chatRoom = {
     messages: [],
     // typingStatus: {
@@ -76,10 +137,10 @@ const createChatRoom = async (type: string, id: number, names: any) => {
     // doc.data() is never undefined for query doc snapshots
     data[doc.id] = doc.data()
   })
-  if (data[`${type}-${id}`]) {
+  if (data[`${type}-${region}-${id}`]) {
     console.log('chat room already created')
   } else {
-    await setDoc(doc(db, 'chat-rooms', `${type}-${id}`), chatRoom)
+    await setDoc(doc(db, 'chat-rooms', `${type}-${region}-${id}`), chatRoom)
   }
 }
 
@@ -107,16 +168,51 @@ const sendMessage = async (roomId: string, sender: any, text: string) => {
       time: getCurrentTime(),
     },
   }
-  console.log(message)
   var data: any = {}
+  var data2: any = {}
   const chatRoomData = await getDocs(collection(db, 'chat-rooms'))
+  const userData = await getDocs(collection(db, 'users'))
+
   chatRoomData.forEach((doc) => {
     // doc.data() is never undefined for query doc snapshots
     data[doc.id] = doc.data()
   })
+
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data2[doc.id] = doc.data()
+  })
   var temp = data[roomId]
   temp.messages.push(message)
   await setDoc(doc(db, 'chat-rooms', roomId), temp)
+
+  const reciever = Object.keys(temp.names).find((key) => key !== sender.address)
+
+  if (reciever) {
+    var userTemp = data2[reciever.toLowerCase()]
+    let notification: Notification = {
+      message: {
+        text: text,
+        time: getCurrentTime(),
+      },
+      from: sender,
+      link: `/chat/${roomId}`,
+    }
+    userTemp.notifications.push(notification)
+    await setDoc(doc(db, 'users', reciever.toLowerCase()), userTemp)
+  }
+}
+
+const updateNotifications = async (address: any, newNotifications: any) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  temp.notifications = newNotifications
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
 }
 
 const getChatRoom = async (roomId: string) => {
@@ -172,9 +268,14 @@ export {
   getUserDetails,
   createUser,
   switchKYCModify,
+  switchKYCReviewerModify,
   createChatRoom,
   updateTypingStatus,
   getChatRoom,
   sendMessage,
+  updateVerificationState,
+  updateInsureProVerificationState,
+  insureProVerificationDone,
+  updateNotifications,
   db,
 }

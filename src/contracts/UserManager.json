@@ -59,6 +59,24 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        }
+      ],
+      "name": "conclude_membership_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "string",
           "name": "_region",
           "type": "string"
@@ -82,6 +100,34 @@
         }
       ],
       "name": "modify_membership_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "_should_conclude_application",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "_should_inactivate_kyc_reviewer",
+          "type": "bool"
+        }
+      ],
+      "name": "revert_membership_application_result",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -243,6 +289,29 @@
         }
       ],
       "name": "set_membership_fee_params",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_member_address",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "_status",
+          "type": "bool"
+        }
+      ],
+      "name": "set_membership_status",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

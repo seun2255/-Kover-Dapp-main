@@ -1,7 +1,13 @@
 import React from 'react'
 import HeadOptions from './HeadOptions'
+import { convertLinkToText } from '../../utils/helpers'
 
-function InfoHeader() {
+interface HeaderProps {
+  roomId: any
+}
+
+function InfoHeader({ roomId }: HeaderProps) {
+  const header = convertLinkToText(`/chat/${roomId}`)
   return (
     <div
       aria-label="chat header"
@@ -21,11 +27,11 @@ function InfoHeader() {
         </div>
       </div>
       <div className="flex flex-col justify-center gap-1 text-center ">
-        <span className="font-medium">🦄 Claim #1250</span>
-        <span className="text-lg">last seen 45 minutes ago</span>
+        <span className="font-medium">🦄 {header}</span>
+        <span className="text-lg"></span>
       </div>
       <div className="flex justify-end">
-        <HeadOptions />
+        <HeadOptions roomID={roomId} />
       </div>
     </div>
   )

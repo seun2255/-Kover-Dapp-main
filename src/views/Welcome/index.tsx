@@ -11,22 +11,25 @@ import Alert from '../../components/common/Alert'
 import { useSelector, useDispatch } from 'react-redux'
 import { getUserDetails } from '../../database'
 import { useWeb3React } from '@web3-react/core'
+import { useNavigate } from 'react-router-dom'
 
 function Welcome() {
   const { width } = useWindowDimensions()
-  const { connected, verified } = useSelector((state: any) => state.user)
+  const { connected, verified, user } = useSelector((state: any) => state.user)
   const { account } = useWeb3React()
   const [userVerificationState, setUserVerificationState] =
     useState('unverified')
+  const navigate = useNavigate()
 
   useEffect(() => {
-    console.log('Connected')
     if (account) {
       getUserDetails(account).then((user) => {
         if (user) {
           setUserVerificationState(user.kycVerificationState)
+          if (user.kycVerificationState === 'verified') {
+            navigate('/kyc-application')
+          }
         }
-        console.log(user)
       })
     }
   }, [account])
@@ -103,7 +106,7 @@ function Welcome() {
               <VerifyIdentity />
             </div>
           )}
-          {!verified && (
+          {user.kycVerificationState !== 'verified' && connected && (
             <div className="mt-[24px]">
               <StartKYC
                 verificationState={userVerificationState}

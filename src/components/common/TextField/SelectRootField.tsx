@@ -545,6 +545,15 @@ const identityTypes = [
   // 'National ID Number',
 ]
 
+const workFieldTypes = [
+  'Car insurance',
+  'Health Insurance',
+  'Life Insurance',
+  'Sport Insurance',
+]
+
+const workAreas = ['KYC Reviewer']
+
 function SelectRootField({
   borderRight,
   placeholder,
@@ -588,6 +597,10 @@ function SelectRootField({
     options = countries
   } else if (name === 'identityType') {
     options = identityTypes
+  } else if (name === 'workField') {
+    options = workFieldTypes
+  } else if (name === 'workArea') {
+    options = workAreas
   } else {
     console.log(name)
   }

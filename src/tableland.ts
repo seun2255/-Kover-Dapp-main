@@ -4,7 +4,7 @@ import { convertJsonStringToObject } from './utils/helpers'
 
 //Localhost
 // const usersTableName = ' kover_finance_31337_2'
-const usersTableName = 'kover_finance_421614_468'
+const usersTableName = 'kover_finance_421614_469'
 
 //mumbai
 // const usersTableName = "libra_80001_7661";
@@ -44,16 +44,15 @@ const get_membership_appliants = async (addresses: any[]) => {
   return results
 }
 
-const getUser = async (userAddress: string) => {
+const getUser = async (address: string) => {
   const db = new Database()
-  const address = userAddress.toLowerCase()
+  // const address = userAddress.toLowerCase()
   const { results } = await db
     .prepare(
       `SELECT * FROM ${usersTableName} WHERE address = "${address.toLowerCase()}";`
     )
     .all()
-  console.log(results)
-  return results
+  return results[0]
 }
 
 const createUser = async (userAddress: any, userData: string, signer: any) => {

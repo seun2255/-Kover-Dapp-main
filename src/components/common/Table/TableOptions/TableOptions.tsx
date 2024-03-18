@@ -4,11 +4,12 @@ import { Link } from 'react-router-dom'
 import { is_kyc_reviewer } from '../../../../api'
 
 export interface TableOptionsProps {
-  options: { name: string; action?: () => void }[]
+  options: { name: string; action?: Function }[]
   title?: string
+  data?: any
   index?: any
 }
-function TableOptions({ options, title, index }: TableOptionsProps) {
+function TableOptions({ options, title, data, index }: TableOptionsProps) {
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(false)
   const toggle = () => setOpen((v) => !v)
@@ -63,7 +64,8 @@ function TableOptions({ options, title, index }: TableOptionsProps) {
                     className="font-medium text-lg pl-2.5 py-2 pr-8 hover:text-dark-550 after: duration-100 w-full whitespace-nowrap text-left"
                     onClick={() => {
                       toggle()
-                      action?.()
+                      if (name === 'Revert')
+                        action?.(data.address, data.region, false, false)
                     }}
                   >
                     {name}
