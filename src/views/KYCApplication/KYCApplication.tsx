@@ -342,7 +342,7 @@ function KYCApplication() {
                 },
               }}
             >
-              <Switch className="convert-switch" id="1" />
+              <Switch className="convert-switch" id="1" disabled />
             </Box>
           )}
         </div>,

@@ -1,37 +1,82 @@
-import { Link, useLocation } from "react-router-dom";
-import React from "react";
-import pages from "./pages.json";
-import { UserContext } from "../../../../App";
-import useWindowDimensions from "../../../global/UserInform/useWindowDimensions";
+import { Link, useLocation } from 'react-router-dom'
+import React from 'react'
+import pages from './pages.json'
+import { UserContext } from '../../../../App'
+import useWindowDimensions from '../../../global/UserInform/useWindowDimensions'
+import { useSelector, useDispatch } from 'react-redux'
+import { displayKycModal } from '../../../../redux/app'
+import { useWeb3React } from '@web3-react/core'
 
 function Pages() {
-  const location = useLocation();
-  const path = location.pathname;
-  const { theme } = React.useContext(UserContext);
-  const { width } = useWindowDimensions();
+  const location = useLocation()
+  const path = location.pathname
+  const dispatch = useDispatch()
+  const { theme } = React.useContext(UserContext)
+  const { connected, user } = useSelector((state: any) => state.user)
+  const { width } = useWindowDimensions()
+  const { account } = useWeb3React()
+
   return (
-    <ul className={`list-none flex-col gap-[1px] flex ${width > 699 ? "mt-[85px]" : "mt-[35px]"}`}>
+    <ul
+      className={`list-none flex-col gap-[1px] flex ${
+        width > 699 ? 'mt-[85px]' : 'mt-[35px]'
+      }`}
+    >
       {pages.map(({ id, icon, url, name }, index) => {
-        const current = index === 0 ? url === path : path.indexOf(url) >= 0;
+        const current = index === 0 ? url === path : path.indexOf(url) >= 0
+        const activeLink = connected ? url : '/'
         return (
           <>
             <li key={id} className="">
-              <Link to={url}
+              <Link
+                to={activeLink}
+                onClick={() => {
+                  console.log(account)
+                  console.log(
+                    connected &&
+                      user.kycVerificationState === 'unverified' &&
+                      account !== '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+                  )
+                  connected &&
+                  user.kycVerificationState === 'unverified' &&
+                  account !== '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+                    ? dispatch(displayKycModal({ display: true }))
+                    : dispatch(displayKycModal({ display: false }))
+                }}
                 className={`flex py-[18px] px-[40px] hover:no-underline items-center gap-3.5
                 group uppercase dark:hover:side-selected-tab-light hover:side-selected-tab-dark
-                ${current ? `${theme === 'dark' ? "dark:side-selected-tab-light " : "side-selected-tab-dark"}` : "menu-tag"}`}>
-
-                {current === false &&
-                  <img src={theme === "dark" ? icon[1] : icon[1]} className="group-hover:hidden" alt="" />}
-                  <img src={theme === "dark" ? icon[0] : icon[0]} className={`svg-light-grey group-hover:block ${current ? "block" : "hidden "}`} alt="" /> 
+                ${
+                  current
+                    ? `${
+                        theme === 'dark'
+                          ? 'dark:side-selected-tab-light '
+                          : 'side-selected-tab-dark'
+                      }`
+                    : 'menu-tag'
+                }`}
+              >
+                {current === false && (
+                  <img
+                    src={theme === 'dark' ? icon[1] : icon[1]}
+                    className="group-hover:hidden"
+                    alt=""
+                  />
+                )}
+                <img
+                  src={theme === 'dark' ? icon[0] : icon[0]}
+                  className={`svg-light-grey group-hover:block ${
+                    current ? 'block' : 'hidden '
+                  }`}
+                  alt=""
+                />
 
                 {name}
               </Link>
             </li>
           </>
-        );
+        )
       })}
     </ul>
-  );
+  )
 }
-export default Pages;
+export default Pages

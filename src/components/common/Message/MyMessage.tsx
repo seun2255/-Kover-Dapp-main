@@ -33,7 +33,9 @@ function MyMessage({ message }: MyMessageProps) {
                   src={
                     theme === 'dark'
                       ? '/images/dark-readed.svg'
-                      : '/images/msg_read.svg'
+                      : message.read
+                      ? '/images/msg_read.svg'
+                      : '/images/msg_not_read.svg'
                   }
                   className="w-[16px]"
                   alt=""

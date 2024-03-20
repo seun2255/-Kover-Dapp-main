@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { UserContext } from '../../App'
+import { useDispatch } from 'react-redux'
+import { closeAlert } from '../../redux/alerts'
 interface AlertProps {
   id: Number
   variant: String
@@ -23,6 +25,7 @@ function Alert({
   const { theme } = React.useContext(UserContext)
   let color
   let icon
+  const dispatch = useDispatch()
 
   switch (variant) {
     case 'Successful':
@@ -51,7 +54,12 @@ function Alert({
       >
         <img src={`/images/${icon}.svg`} alt="" />
         <span className="font-medium flex-grow alert-title">{title}</span>
-        <span onClick={onClose}>
+        <span
+          onClick={() => {
+            dispatch(closeAlert())
+          }}
+          style={{ cursor: 'pointer' }}
+        >
           <img src="/images/alert-close.svg" alt="" />
         </span>
       </div>

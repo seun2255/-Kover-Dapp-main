@@ -31,6 +31,9 @@ import { getCurrentDateTime } from '../../../utils/dateTime'
 import app from '../../../firebaseConfig/firebaseApp'
 import Alert from '../Alert'
 import { openAlert, closeAlert } from '../../../redux/alerts'
+import { updateUser } from '../../../redux/user'
+import { useSelector, useDispatch } from 'react-redux'
+import { displayKycModal } from '../../../redux/app'
 
 import {
   encryptAndHandleFile,
@@ -38,9 +41,12 @@ import {
   decryptAndHandleFile,
 } from '../../../utils/encryption'
 import { uploadJsonData } from '../../../lighthouse'
-import { is_kyc_reviewer, apply_for_membership } from '../../../api'
+import {
+  is_kyc_reviewer,
+  apply_for_membership,
+  getUserData,
+} from '../../../api'
 import { createUser, updateVerificationState } from '../../../database'
-import { useDispatch } from 'react-redux'
 
 interface popupProps {
   onClose?: () => void
@@ -55,6 +61,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
   const { theme } = React.useContext(UserContext)
   const [currentIcon, setcurrentIcon] = useState('')
   const { library, account } = useWeb3React()
+  const { kycModal } = useSelector((state: any) => state.app)
   const dispatch = useDispatch()
   const [formState, setFormState] = useState({
     email: '',
@@ -213,6 +220,12 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
             dispatch(closeAlert())
           }, 10000)
           setUserVerificationState('verifying')
+          const updatedData = await getUserData(account)
+          console.log('User Data: ', updatedData)
+          dispatch(updateUser({ data: updatedData }))
+          if (kycModal) {
+            dispatch(displayKycModal({ display: false }))
+          }
           if (onClose !== undefined) onClose()
         })
         .catch((error) => {

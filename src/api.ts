@@ -248,7 +248,9 @@ const getUserData = async (address: any) => {
   const applicant: any = await getUser(address)
   const response = await axios.get(applicant.data as string)
   const kyc_details = await getKycDetails(response.data.address, country)
-  const result = addContractState(response.data, kyc_details)
+  var result = addContractState(response.data, kyc_details)
+  const userFirebaseDetails = await getUserDetails(address)
+  result = { ...result, ...userFirebaseDetails }
   return result
 }
 

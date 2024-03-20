@@ -39,55 +39,6 @@ function Conversition(props: ConversationProps) {
           className="px-[15px] md:px-16 py-1 dark:bg-white"
         >
           <div className="flex flex-col gap-5 dark:bg-white">
-            {/* <TextDirection>
-              <MessageThere text="I'm down! Any ideas??" />
-            </TextDirection>
-
-            <TextDirection right>
-              <MyMessage text="Hi team 👋" />
-              <MyMessage text="Anyone on for launch today ?" />
-            </TextDirection>
-
-            <TextDirection>
-              <MessageThere text="That works- I was actually planning to get a smoothie anyways 👍" />
-            </TextDirection>
-
-            <TextDirection right>
-              <MyMessage text="I am down for whatever!" />
-            </TextDirection>
-
-            <TextDirection>
-              <MessageThere text="On for 12:30 PM then ?" />
-            </TextDirection>
-
-            <TextDirection right>
-              <MyMessage text="Ok for me !" />
-            </TextDirection>
-
-            <TextDirection>
-              <MessageThere text="On for 12:30 PM then ?" />
-            </TextDirection>
-
-            <TextDirection right>
-              <MyMessage text="Ok for me !" />
-            </TextDirection>
-
-            <TextDirection>
-              <MessageThere text="On for 12:30 PM then ?" />
-            </TextDirection>
-
-            <TextDirection right>
-              <MyMessage text="Ok for me !" />
-            </TextDirection>
-
-            <TextDirection>
-              <MessageThere text="On for 12:30 PM then ?" />
-            </TextDirection>
-
-            <TextDirection right>
-              <MyMessage text="Ok for me !" />
-            </TextDirection> */}
-
             {messages.map((message, index) => {
               return (
                 <TextDirection

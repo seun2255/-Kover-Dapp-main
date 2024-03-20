@@ -51,8 +51,8 @@ import 'react-toastify/dist/ReactToastify.css'
 export const routes = [
   {
     id: 343,
-    route: 'welcome',
-    el: <Welcome />,
+    route: 'dashboard',
+    el: <Dashboard />,
   },
   {
     id: 765,
@@ -296,7 +296,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Layout />}>
-              <Route index element={<Dashboard />} />
+              <Route index element={<Welcome />} />
               {routes.map(({ route, el, id }) => (
                 <Route key={id} path={route} element={el} />
               ))}

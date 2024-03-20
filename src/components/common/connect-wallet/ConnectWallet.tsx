@@ -18,6 +18,7 @@ import {
   createUser,
   checkIfUserExists,
 } from '../../../database'
+import { getUserData } from '../../../api'
 
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import {
@@ -311,14 +312,19 @@ function ConnectWallet(
           console.log('Started creating account: ', account)
           await createUser(account)
         }
-        getUserDetails(account).then((user) => {
+        getUserDetails(account).then(async (user) => {
+          var data = { ...user }
+          if (user.kycVerificationState !== 'unverified') {
+            const apiData = await getUserData(account)
+            data = { ...apiData, ...data }
+          }
           user
             ? dispatch(
                 login({
                   verified: false,
                   data: {
                     address: account,
-                    ...user,
+                    ...data,
                   },
                 })
               )
@@ -330,19 +336,18 @@ function ConnectWallet(
                   },
                 })
               )
-        })
 
-        const unsub = onSnapshot(
-          doc(db, 'users', account.toLowerCase()),
-          (doc) => {
-            dispatch(
-              updateUser({
-                data: doc.data(),
-              })
-            )
-            console.log('Snapshot triggered')
-          }
-        )
+          const unsub = onSnapshot(
+            doc(db, 'users', account.toLowerCase()),
+            (doc) => {
+              dispatch(
+                updateUser({
+                  data: { ...data, ...doc.data() },
+                })
+              )
+            }
+          )
+        })
       })
     }
   }, [account])

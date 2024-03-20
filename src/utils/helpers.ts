@@ -43,10 +43,10 @@ const addContractState = (application: any, kyc_details: any) => {
   const submit_result_time = toNumber(kyc_details.result.stake_wait_time)
   const result_wait_time = toNumber(kyc_details.result.result_wait_time)
   const assign_timestamp = toNumber(kyc_details.result.assign_timestamp)
-  const submit_time_left =
-    assign_timestamp + 0 - unixTimestamp >= 0
-      ? assign_timestamp + 0 - unixTimestamp
-      : 0
+  const submit_time_left = 0
+  // assign_timestamp + 0 - unixTimestamp >= 0
+  //   ? assign_timestamp + 0 - unixTimestamp
+  //   : 0
 
   application.applicationStatus = applicationStatus
   application.resultStatus = resultStatus

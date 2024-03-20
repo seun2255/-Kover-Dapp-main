@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../../../components/common/Button'
 import Header from '../../../components/common/header/Header'
@@ -56,17 +56,27 @@ function InsureProCommunity(
   const [formState, setFormState] = useState({
     workArea: '',
     workField: '',
+    pool: '',
     reviewerDocuments: [] as Document[],
   })
   const [formFilled, setFormFilled] = useState(true)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
   const [fileUploadInitated, setFileUploadInitiated] = useState(false)
+  const [showPools, setShowPools] = useState(false)
 
   type ProgressData = {
     total: number
     uploaded: number
   }
+
+  useEffect(() => {
+    if (formState.workField !== 'KYC Reviewer' && formState.workField !== '') {
+      setShowPools(true)
+    } else {
+      setShowPools(false)
+    }
+  }, [formState.workField])
 
   const progressCallback = (progressData: ProgressData) => {
     let percentageDone = Math.round(
@@ -259,6 +269,16 @@ function InsureProCommunity(
                       placeholder="Domain"
                       name="workField"
                     />
+                    {showPools && (
+                      <SelectField
+                        labelIcon={false}
+                        handleChange={handleChange}
+                        filled={formFilled}
+                        label="Pool"
+                        placeholder="Please select"
+                        name="pool"
+                      />
+                    )}
                   </div>
                 </div>
                 <hr className="my-[24px]" />

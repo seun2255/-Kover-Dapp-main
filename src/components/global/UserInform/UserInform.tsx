@@ -1,16 +1,23 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { UserContext } from '../../../App'
 import Button from '../../common/Button'
 import InfoText from '../../common/InfoText'
 import UploadButton from '../../common/UploadButton'
 import useWindowDimensions from './useWindowDimensions'
+import { useSelector } from 'react-redux'
+import lighthouse from '@lighthouse-web3/sdk'
+import { updateDp } from '../../../database'
+import { useWeb3React } from '@web3-react/core'
 
 interface UserInformProps {
   variant?: 'customer' | 'personal'
+  userData: any
 }
-function UserInform({ variant }: UserInformProps) {
+function UserInform({ variant, userData }: UserInformProps) {
   const [viewmore, setViewmore] = useState(false)
   const [history, setHistory] = useState(false)
+  const { user } = useSelector((state: any) => state.user)
+  const { account, library } = useWeb3React()
   const { theme } = React.useContext(UserContext)
   const viewmoreHandler = () => {
     viewmore ? setViewmore(false) : setViewmore(true)
@@ -18,6 +25,33 @@ function UserInform({ variant }: UserInformProps) {
 
   const historyHandler = () => {
     history ? setHistory(false) : setHistory(true)
+  }
+  const [picture, setPicture] = useState(user.dp)
+
+  const progressCallback = () => {}
+
+  const uploadPicture = async (file: any) => {
+    const output = await lighthouse.upload(
+      file,
+      process.env.REACT_APP_LIGHTHOUSE_API_KEY as string,
+      false,
+      undefined,
+      progressCallback
+    )
+    const link = 'https://gateway.lighthouse.storage/ipfs/' + output.data.Hash
+    updateDp(account, link)
+    setPicture(link)
+  }
+
+  const handlePictureChange = async (event: any) => {
+    const files = event.target.files
+    const updatedFiles = []
+
+    for (let i = 0; i < files.length; i++) {
+      updatedFiles.push(files[i])
+    }
+
+    uploadPicture(files)
   }
 
   return (
@@ -30,23 +64,23 @@ function UserInform({ variant }: UserInformProps) {
                 <img
                   width={50}
                   height={50}
-                  src="/images/profile-photo.jpg"
+                  src={picture}
                   alt=""
                   className="rounded-full"
                 />
               </div>
               <div className="ml-[20px]">
                 <span className="text-md block mb-2.5 fw-400">
-                  User ID <span className="font-medium">525432</span>
+                  User ID <span className="font-medium">{userData.id}</span>
                 </span>
                 <strong
                   role="button"
                   className="font-medium text-3xl fs-400 mb-[5px] nderline block user-name"
                 >
-                  Sandra Adams
+                  {`${userData.firstName} ${userData.lastName}`}
                 </strong>
               </div>
-              <div className="">sandra.adams@gmail.com</div>
+              <div className="">{userData.email}</div>
             </div>
             <div className="flex flex-row-reverse justify-end">
               <div className="flex gap-1.5">
@@ -150,7 +184,7 @@ function UserInform({ variant }: UserInformProps) {
                     <img
                       width={50}
                       height={50}
-                      src="/images/profile-photo.jpg"
+                      src={picture}
                       alt=""
                       className="rounded-full"
                     />
@@ -158,26 +192,28 @@ function UserInform({ variant }: UserInformProps) {
 
                   <div className="w-max">
                     <span className="text-md block mb-2.5 fw-400 ">
-                      User ID <span className="font-medium">525432</span>
+                      User ID <span className="font-medium">{userData.id}</span>
                     </span>
                     <strong
                       role="button"
                       className="font-medium text-3xl mb-[5px] hover:underline block user-name"
                     >
-                      Sandra Adams
+                      {`${userData.firstName} ${userData.lastName}`}
                     </strong>
                     <span
                       role="button"
                       className="block mb-4 text-dark-650 hover:underline"
                     >
-                      sandra.adams@gmail.com
+                      {userData.email}
                     </span>
-                    <div className="flex justify-end max-[640px]:items-center">
-                      <div className="items-center flex gap-1.5">
-                        <img src="/images/Group 219 (1).svg" alt="" />
-                        <span className="font-medium text-md">Verified</span>
+                    {userData.kycVerificationState === 'verified' && (
+                      <div className="flex justify-end max-[640px]:items-center">
+                        <div className="items-center flex gap-1.5">
+                          <img src="/images/Group 219 (1).svg" alt="" />
+                          <span className="font-medium text-md">Verified</span>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -256,7 +292,25 @@ function UserInform({ variant }: UserInformProps) {
             <div>
               {variant === 'personal' ? (
                 <>
-                  <UploadButton />
+                  {/* <UploadButton /> */}
+                  <label className={`upload-btn-wrapper`}>
+                    <span className="px-[22px] py-[9px] flex gap-[10px] items-center dark:bg-light-1100 dark:border-[#E9E9E9] upload-btn">
+                      <img
+                        className="w-[14px] h-[16px]"
+                        src="/images/uploadAeroBlack.svg"
+                        alt=""
+                      />
+                      <span className="upload-text dark:text-dark-800">
+                        Upload
+                      </span>
+                    </span>
+                    <input
+                      type="file"
+                      name="file_upload"
+                      className="hidden"
+                      onChange={handlePictureChange}
+                    />
+                  </label>
                 </>
               ) : (
                 <>

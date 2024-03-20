@@ -73,16 +73,16 @@ function UploadingFile({ progress, file }: UploadingFileProps) {
             ) : (
               <>
                 <div className="flex items-center justify-between gap-5">
-                  <div className="w-[100px]">
+                  <div className="w-[60px]">
                     <span className="dark:text-dark-600 text-primary-700 font-medium text-lg">
                       Uploaded
                     </span>
                   </div>
                   <button
-                    title="upload"
+                    title="upload   "
                     type="button"
                     className="w-[100px] ml-1"
-                  >
+                  > 
                     <img
                       src={
                         theme === 'dark'

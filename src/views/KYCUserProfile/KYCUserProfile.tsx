@@ -26,7 +26,7 @@ import {
   isLinkPresent,
 } from '../../utils/helpers'
 import { uploadJsonData } from '../../lighthouse'
-import { openAlert, closeAlert } from '../..//redux/alerts'
+import { openAlert, closeAlert } from '../../redux/alerts'
 import { modifyMembershipApplication } from '../../api'
 import lighthouse from '@lighthouse-web3/sdk'
 import UploadingFile from '../../components/common/FileUpload/UploadingFile'

@@ -39,7 +39,7 @@ function CustomerProfile() {
 
       <div className="mb-10 lg:flex gap-[60px]">
         <div className="flex-grow mb-[50px]">
-          <UserInform variant="customer" />
+          <UserInform variant="customer" userData={{}} />
           <div className="lg:grid lg:grid-cols-2 mt-[20px]">
             <div>
               <b className="font-normal text-3xl mb-2.5 block">

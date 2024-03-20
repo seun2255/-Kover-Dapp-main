@@ -11,7 +11,12 @@ import Conversition from './Conversition'
 import InfoHeader from './InfoHeader'
 import MessageType from './MessageType'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getChatRoom, sendMessage, db } from '../../database'
+import {
+  getChatRoom,
+  sendMessage,
+  db,
+  markAllMessagesAsRead,
+} from '../../database'
 import { useWeb3React } from '@web3-react/core'
 import { doc, onSnapshot } from 'firebase/firestore'
 
@@ -32,6 +37,7 @@ function Chat() {
     names: {},
   })
   let { roomId } = useParams()
+  markAllMessagesAsRead(roomId as string, account)
   const fileList = ['Id_back.png', 'Id_front.png', 'img 001.png', 'doc 002.pdf']
   const options = [
     {

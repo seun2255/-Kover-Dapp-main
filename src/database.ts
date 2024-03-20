@@ -40,6 +40,7 @@ const createUser = async (address: any) => {
     kycVerificationState: 'unverified',
     insureProVerificationState: 'unverified',
     notifications: [],
+    dp: 'https://gateway.lighthouse.storage/ipfs/QmeJvjHYykzkvv69QyJtBz1eY52MLungf2RVcBo2xPpMx1',
   }
   var data: any = {}
   const userData = await getDocs(collection(db, 'users'))
@@ -63,6 +64,18 @@ const updateVerificationState = async (address: any, state: string) => {
   })
   var temp = data[address.toLowerCase()]
   temp.kycVerificationState = state
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
+const updateDp = async (address: any, pic: string) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  temp.dp = pic
   await setDoc(doc(db, 'users', address.toLowerCase()), temp)
 }
 
@@ -166,6 +179,7 @@ const sendMessage = async (roomId: string, sender: any, text: string) => {
     message: {
       text: text,
       time: getCurrentTime(),
+      read: false,
     },
   }
   var data: any = {}
@@ -201,6 +215,24 @@ const sendMessage = async (roomId: string, sender: any, text: string) => {
     userTemp.notifications.push(notification)
     await setDoc(doc(db, 'users', reciever.toLowerCase()), userTemp)
   }
+}
+
+const markAllMessagesAsRead = async (roomId: string, address: any) => {
+  var data: any = {}
+  const chatRoomData = await getDocs(collection(db, 'chat-rooms'))
+
+  chatRoomData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+
+  var temp = data[roomId]
+  temp.messages.forEach((item: any) => {
+    if (item.sender.address !== address) {
+      item.message.read = true
+    }
+  })
+  await setDoc(doc(db, 'chat-rooms', roomId), temp)
 }
 
 const updateNotifications = async (address: any, newNotifications: any) => {
@@ -277,5 +309,7 @@ export {
   updateInsureProVerificationState,
   insureProVerificationDone,
   updateNotifications,
+  markAllMessagesAsRead,
+  updateDp,
   db,
 }

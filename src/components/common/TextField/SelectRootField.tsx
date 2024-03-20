@@ -545,14 +545,14 @@ const identityTypes = [
   // 'National ID Number',
 ]
 
-const workFieldTypes = [
+const policyTypes = [
   'Car insurance',
   'Health Insurance',
   'Life Insurance',
   'Sport Insurance',
 ]
 
-const workAreas = ['KYC Reviewer']
+const workFields = ['KYC Reviewer', 'Policy Reviewer', 'Adjustor']
 
 function SelectRootField({
   borderRight,
@@ -593,14 +593,14 @@ function SelectRootField({
     options = yearOptions
   } else if (name === 'countryCode') {
     options = phoneCodes
-  } else if (name === 'country') {
+  } else if (name === 'country' || name === 'workArea') {
     options = countries
   } else if (name === 'identityType') {
     options = identityTypes
   } else if (name === 'workField') {
-    options = workFieldTypes
-  } else if (name === 'workArea') {
-    options = workAreas
+    options = workFields
+  } else if (name === 'pool') {
+    options = policyTypes
   } else {
     console.log(name)
   }

@@ -34,13 +34,6 @@ function MessageType(props: any) {
           <IconButton
             icon={
               theme === 'dark'
-                ? '/images/dark-pin.svg'
-                : '/images/Frame 2901.svg'
-            }
-          />
-          <IconButton
-            icon={
-              theme === 'dark'
                 ? '/images/dark-send.svg'
                 : '/images/paper-airplane.svg'
             }

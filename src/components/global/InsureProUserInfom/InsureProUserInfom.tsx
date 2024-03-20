@@ -7,6 +7,8 @@ import UploadButton from '../../common/UploadButton'
 import useWindowDimensions from './useWindowDimensions'
 import { switchKYCModify, switchKYCReviewerModify } from '../../../database'
 import { useWeb3React } from '@web3-react/core'
+import { useDispatch } from 'react-redux'
+import { openAlert, closeAlert } from '../../../redux/alerts'
 
 interface UserInformProps {
   variant?: 'customer' | 'personal'
@@ -17,6 +19,7 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
   const [history, setHistory] = useState(false)
   const { theme } = React.useContext(UserContext)
   const { account } = useWeb3React()
+  const dispatch = useDispatch()
   const viewmoreHandler = () => {
     viewmore ? setViewmore(false) : setViewmore(true)
   }
@@ -181,12 +184,14 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
                     >
                       {user.email}
                     </span>
-                    <div className="flex justify-end max-[640px]:items-center">
-                      <div className="items-center flex gap-1.5">
-                        <img src="/images/Group 219 (1).svg" alt="" />
-                        <span className="font-medium text-md">Verified</span>
+                    {user.kycVerificationState === 'verified' && (
+                      <div className="flex justify-end max-[640px]:items-center">
+                        <div className="items-center flex gap-1.5">
+                          <img src="/images/Group 219 (1).svg" alt="" />
+                          <span className="font-medium text-md">Verified</span>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -203,6 +208,23 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
                           switchKYCModify(user.address).then(() => {
                             setCanEdit(!canEdit)
                           })
+                        } else {
+                          dispatch(
+                            openAlert({
+                              displayAlert: true,
+                              data: {
+                                id: 2,
+                                variant: 'Failed',
+                                classname: 'text-black',
+                                title: 'Transaction Failed',
+                                tag1: 'Assign application first',
+                                tag2: 'application not assigned to you',
+                              },
+                            })
+                          )
+                          setTimeout(() => {
+                            dispatch(closeAlert())
+                          }, 10000)
                         }
                       }}
                     />
@@ -218,6 +240,23 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
                           switchKYCReviewerModify(user.address).then(() => {
                             setCanEdit(!canEdit)
                           })
+                        } else {
+                          dispatch(
+                            openAlert({
+                              displayAlert: true,
+                              data: {
+                                id: 2,
+                                variant: 'Failed',
+                                classname: 'text-black',
+                                title: 'Transaction Failed',
+                                tag1: 'Only Admin can grant access',
+                                tag2: 'cant allow edit',
+                              },
+                            })
+                          )
+                          setTimeout(() => {
+                            dispatch(closeAlert())
+                          }, 10000)
                         }
                       }}
                     />
@@ -250,10 +289,36 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
               </div>
             </div>
             <div>
-              <Link to={`/chat/kyc-${user.region}-${user.id}`}>
+              <Link
+                to={
+                  user.reviewer === account || user.address === account
+                    ? `/chat/kyc-${user.region}-${user.id}`
+                    : ''
+                }
+              >
                 <Button
                   className="min-w-[120px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
                   text="Contact User"
+                  onClick={() => {
+                    if (user.reviewer !== account || user.address !== account) {
+                      dispatch(
+                        openAlert({
+                          displayAlert: true,
+                          data: {
+                            id: 2,
+                            variant: 'Failed',
+                            classname: 'text-black',
+                            title: 'Transaction Failed',
+                            tag1: 'You dont have access',
+                            tag2: 'cant access the chat',
+                          },
+                        })
+                      )
+                      setTimeout(() => {
+                        dispatch(closeAlert())
+                      }, 10000)
+                    }
+                  }}
                 />
               </Link>
             </div>
@@ -274,7 +339,7 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
                 </div>
                 <div className="flex flex-col gap-[20px] basis-1/3 sm:basis-1/2">
                   <span className="text-lg font-medium">{user.dob}</span>
-                  <span className="text-lg font-medium">{user.address1}</span>
+                  <span className="text-lg font-medium">{`${user.address1} ${user.address2} ${user.city}`}</span>
                 </div>
               </div>
             </div>
