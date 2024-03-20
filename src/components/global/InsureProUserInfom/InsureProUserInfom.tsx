@@ -235,7 +235,7 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
                       onClick={() => {
                         if (
                           account ===
-                          '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+                          '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD'
                         ) {
                           switchKYCReviewerModify(user.address).then(() => {
                             setCanEdit(!canEdit)
