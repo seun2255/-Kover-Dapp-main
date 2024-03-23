@@ -16,6 +16,7 @@ import TextFieldS from '../../components/common/TextFieldS'
 import { createDateString } from '../../utils/dateTime'
 import { useWeb3React } from '@web3-react/core'
 import { findObjectById } from '../../utils/helpers'
+import { Tooltip as ReactTooltip } from 'react-tooltip'
 import { getCurrentDateTime } from '../../utils/dateTime'
 import {
   convertJsonToString,
@@ -58,6 +59,7 @@ function Profile() {
   const [documentsDisplayed, setDocumentsDisplayed] = useState(
     applicant.documents
   )
+  const originalFilesLength = applicant.documents.length
 
   const handleDobChange = (value: any) => {
     const dateString = createDateString(value)
@@ -126,6 +128,20 @@ function Profile() {
       documents: newArray,
     }))
     setDocumentsDisplayed(newArray)
+  }
+
+  const handleFileRemove = (index: number) => {
+    const newArray = removeItemFromArray(
+      formState.documents,
+      formState.documents[originalFilesLength + index].link
+    )
+    setFormState((prevState: any) => ({
+      ...prevState,
+      documents: newArray,
+    }))
+    var newFiles = [...selectedFiles]
+    newFiles.splice(index, 1)
+    setSelectedFiles(newFiles)
   }
 
   const handleFileChange = async (event: any) => {
@@ -403,6 +419,80 @@ function Profile() {
               </div>
             </div>
             <hr className="my-[24px]" />
+            <div className="lg:grid lg:grid-cols-2">
+              <div className="sm:w-[60%]">
+                <div className="flex gap-[5px] items-center mb-[10px] ">
+                  <b className="font-normal text-3xl mb-2.5 block">
+                    Identity Details
+                  </b>
+
+                  <img
+                    src={`${
+                      currentIcon === 'kyc-Identity-Details'
+                        ? '/images/info-green-icon.svg'
+                        : '/images/Maskd (2).svg'
+                    }`}
+                    alt=""
+                    width={14}
+                    height={14}
+                    id="kyc-Identity-Details"
+                    className="mb-2.5"
+                    onMouseEnter={() => {
+                      setcurrentIcon('kyc-Identity-Details')
+                    }}
+                    onMouseLeave={() => {
+                      setcurrentIcon('')
+                    }}
+                  />
+                  {/* <img className="w-[14px] h-[14px]" src="/images/Mask (11).svg" alt="" /> */}
+                  <ReactTooltip
+                    className="my-tool-tip z-500"
+                    anchorId={'kyc-Identity-Details'}
+                    place="bottom"
+                    content="This is the total amount available for  you to borrow. You can borrow based on your 		collateral and until the borrowcap is reached."
+                  />
+                </div>
+                <p className="text-lg text-dark-650 ">
+                  Your identity is never shared with other users.
+                </p>
+              </div>
+              <div className="flex flex-col gap-5 sm:pt-2 max-[640px]:pt-6">
+                <SelectField
+                  handleChange={handleChange}
+                  filled={formFilled}
+                  label="Issuing Country/Region"
+                  initialValue={applicant.country}
+                  disabled={!canModify}
+                  labelIcon={false}
+                  name="country"
+                  placeholder="Please Select"
+                />
+
+                <SelectField
+                  handleChange={handleChange}
+                  filled={formFilled}
+                  label="Identity Type"
+                  initialValue={applicant.identityType}
+                  disabled={!canModify}
+                  labelIcon={true}
+                  name="identityType"
+                  placeholder="Please Select"
+                />
+
+                <TextField
+                  handleChange={handleChange}
+                  filled={formFilled}
+                  label="National ID Number"
+                  name="nationalID"
+                  labelIcon={false}
+                  initialValue={applicant.nationalID}
+                  disabled={!canModify}
+                  placeholder="e.g. 5589855455"
+                  classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                />
+              </div>
+            </div>
+            <hr className="my-[24px]" />
             <div className="flex justify-end">
               <Button
                 className={`${
@@ -547,7 +637,11 @@ function Profile() {
                     </label>
                     {selectedFiles.map((file, index) => (
                       <div className="mb-[5px]" key={index}>
-                        <UploadingFile progress={uploadProgress} file={file} />
+                        <UploadingFile
+                          progress={uploadProgress}
+                          file={file}
+                          handleRemove={() => handleFileRemove(index)}
+                        />
                       </div>
                     ))}
                     <div className="my-[20px]">

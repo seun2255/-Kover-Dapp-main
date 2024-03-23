@@ -347,8 +347,22 @@ function ConnectWallet(
               )
             }
           )
+          if (
+            account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD' ||
+            user.insureProVerificationState === 'verified'
+          ) {
+            navigate('/kyc-application')
+          }
         })
       })
+      if (window.ethereum) {
+        const ethereum = window.ethereum
+
+        // Listen for wallet change events
+        ethereum.on('accountsChanged', function (accounts: any) {
+          window.location.href = '/'
+        })
+      }
     }
   }, [account])
 

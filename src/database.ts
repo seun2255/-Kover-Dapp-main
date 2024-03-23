@@ -40,7 +40,7 @@ const createUser = async (address: any) => {
     kycVerificationState: 'unverified',
     insureProVerificationState: 'unverified',
     notifications: [],
-    dp: 'https://gateway.lighthouse.storage/ipfs/QmeJvjHYykzkvv69QyJtBz1eY52MLungf2RVcBo2xPpMx1',
+    dp: 'default',
   }
   var data: any = {}
   const userData = await getDocs(collection(db, 'users'))

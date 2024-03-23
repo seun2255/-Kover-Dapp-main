@@ -28,9 +28,11 @@ import {
 import { uploadJsonData } from '../../lighthouse'
 import { openAlert, closeAlert } from '../../redux/alerts'
 import { modifyMembershipApplication } from '../../api'
+import { switchKYCModify } from '../../database'
 import lighthouse from '@lighthouse-web3/sdk'
 import UploadingFile from '../../components/common/FileUpload/UploadingFile'
 import Rules from '../../components/common/FileUpload/Rules'
+import { setKYCApplicants } from '../../redux/kyc'
 
 interface Document {
   link: string
@@ -62,6 +64,7 @@ function KYCUserProfile() {
   const [documentsDisplayed, setDocumentsDisplayed] = useState(
     applicant.documents
   )
+  const originalFilesLength = applicant.documents.length
 
   const handleDobChange = (value: any) => {
     const dateString = createDateString(value)
@@ -132,6 +135,20 @@ function KYCUserProfile() {
     setDocumentsDisplayed(newArray)
   }
 
+  const handleFileRemove = (index: number) => {
+    const newArray = removeItemFromArray(
+      formState.documents,
+      formState.documents[originalFilesLength + index].link
+    )
+    setFormState((prevState: any) => ({
+      ...prevState,
+      documents: newArray,
+    }))
+    var newFiles = [...selectedFiles]
+    newFiles.splice(index, 1)
+    setSelectedFiles(newFiles)
+  }
+
   const handleFileChange = async (event: any) => {
     const files = event.target.files
     const updatedFiles = [...selectedFiles]
@@ -195,6 +212,22 @@ function KYCUserProfile() {
             dispatch(closeAlert())
           }, 10000)
           setApplicant(formData)
+          switchKYCModify(user.address).then(() => {
+            var temp = [...kycApplicants]
+            var placeholder = {}
+            for (var i = 0; i < temp.length; i++) {
+              if (temp[i].id === user.id) {
+                placeholder = {
+                  ...temp[i],
+                  canModifyKYC: !temp[i].canModifyKYC,
+                }
+                temp.splice(i, 1)
+                i--
+              }
+            }
+            temp.push(placeholder)
+            dispatch(setKYCApplicants({ data: temp }))
+          })
         })
         .catch((error) => {
           console.log('Error fetching IP address information: ', error)
@@ -203,14 +236,14 @@ function KYCUserProfile() {
   }
 
   useEffect(() => {
-    if (applicant.canModifyKYC && applicant.address === account) {
+    const temp = findObjectById(kycApplicants, userId)
+    setApplicant(temp)
+    if (temp.canModifyKYC && temp.address === account) {
       setCanModify(true)
+    } else {
+      setCanModify(false)
     }
-  }, [])
-
-  useEffect(() => {
-    setCanModify(user.canModifyKYC)
-  }, [user.canModifyKYC])
+  }, [kycApplicants])
 
   return (
     <>
@@ -533,7 +566,11 @@ function KYCUserProfile() {
                   </label>
                   {selectedFiles.map((file, index) => (
                     <div className="mb-[5px]" key={index}>
-                      <UploadingFile progress={uploadProgress} file={file} />
+                      <UploadingFile
+                        progress={uploadProgress}
+                        file={file}
+                        handleRemove={() => handleFileRemove(index)}
+                      />
                     </div>
                   ))}
                   <div className="my-[20px]">

@@ -28,6 +28,12 @@ function MessageType(props: any) {
             placeholder="Start typing..."
             onChange={(e) => setText(e.target.value)}
             value={text}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSend(text)
+                setText('')
+              }
+            }}
           />
         </div>
         <div className="flex items-center">

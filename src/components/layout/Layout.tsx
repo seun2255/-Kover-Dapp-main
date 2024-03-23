@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Navbar from './navbar/Navbar'
 import { Scrollbars } from 'react-custom-scrollbars-2'
@@ -6,12 +6,26 @@ import { useSelector } from 'react-redux'
 import StartKYC from '../../views/Welcome/membership/StartKYC'
 import MarketStatus from '../../views/Welcome/market-status/MarketStatus'
 import useWindowDimensions from '../../components/global/UserInform/useWindowDimensions'
+import { useNavigate } from 'react-router-dom'
+import TermOfUsePopup from '../global/TermOfUsePopup'
+import Popup from '../templates/Popup'
 
 function Layout() {
   const { width } = useWindowDimensions()
   const { kycModal } = useSelector((state: any) => state.app)
   const [userVerificationState, setUserVerificationState] =
     useState('unverified')
+  const navigate = useNavigate()
+  const [terms, setTerms] = useState<boolean>(true)
+  const toggleTerms = () => setTerms((v) => !v)
+
+  useEffect(() => {
+    var agreed = localStorage.getItem('agreed')
+    if (agreed && agreed === 'true') {
+      setTerms(false)
+    }
+    navigate('/')
+  }, [])
 
   return (
     <>
@@ -57,6 +71,15 @@ function Layout() {
           </div>
         </div>
       </div>
+
+      <Popup
+        onClose={toggleTerms}
+        visible={terms}
+        width="w-[641px]"
+        height="h-[616px]"
+      >
+        <TermOfUsePopup accept={toggleTerms} decline={toggleTerms} />
+      </Popup>
     </>
   )
 }

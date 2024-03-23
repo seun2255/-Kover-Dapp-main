@@ -47,6 +47,7 @@ import {
   getUserData,
 } from '../../../api'
 import { createUser, updateVerificationState } from '../../../database'
+import { removeItemFromArray } from '../../../utils/helpers'
 
 interface popupProps {
   onClose?: () => void
@@ -141,6 +142,20 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
     uploadFile(files)
   }
 
+  const removeFile = (index: number) => {
+    const newArray = removeItemFromArray(
+      formState.documents,
+      formState.documents[index].link
+    )
+    setFormState((prevState: any) => ({
+      ...prevState,
+      documents: newArray,
+    }))
+    var newFiles = [...selectedFiles]
+    newFiles.splice(index, 1)
+    setSelectedFiles(newFiles)
+  }
+
   const handleDobChange = (value: any) => {
     const dateString = createDateString(value)
     setFormState((prevState) => ({
@@ -169,6 +184,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
 
   // Handle form submission
   const handleSubmit = async () => {
+    console.log('Button was clicked')
     setFileUploadInitiated(true)
     const date = getCurrentDateTime()
     setFormState((prevState) => ({
@@ -181,9 +197,44 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
     }))
     const formFilled = areAllValuesFilled(formState)
     setFormFilled(formFilled)
-    // if (verificationState !== 'verified') {
-    //   setEmailRequiredMessage(true)
-    // }
+
+    if (verificationState !== 'verified') {
+      setEmailRequiredMessage(true)
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 2,
+            variant: 'Failed',
+            classname: 'text-black',
+            title: 'Transaction Failed',
+            tag1: 'Email not verified!',
+            tag2: 'please verify your mail first',
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+    } else if (!formFilled) {
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 2,
+            variant: 'Failed',
+            classname: 'text-black',
+            title: 'Transaction Failed',
+            tag1: 'Some fields not filled!',
+            tag2: 'please fill all fields',
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+    }
+
     // if (formFilled && verificationState === 'verified') {
     if (formFilled) {
       fetch('https://ipinfo.io/json')
@@ -220,9 +271,8 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
             dispatch(closeAlert())
           }, 10000)
           setUserVerificationState('verifying')
-          const updatedData = await getUserData(account)
-          console.log('User Data: ', updatedData)
-          dispatch(updateUser({ data: updatedData }))
+          // const updatedData = await getUserData(account)
+          // dispatch(updateUser({ data: updatedData }))
           if (kycModal) {
             dispatch(displayKycModal({ display: false }))
           }
@@ -366,8 +416,9 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                       verify={true}
                       verificationState={verificationState}
                       startVerification={verifymail}
+                      disabled={!emailRequiredMessage}
                     />
-                    {emailRequiredMessage && (
+                    {emailRequiredMessage && !formFilled && (
                       <span style={{ color: 'red' }}>
                         Email verification required!
                       </span>
@@ -619,7 +670,11 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                     </label>
                     {selectedFiles.map((file, index) => (
                       <div className="mb-[5px]" key={index}>
-                        <UploadingFile progress={uploadProgress} file={file} />
+                        <UploadingFile
+                          progress={uploadProgress}
+                          file={file}
+                          handleRemove={() => removeFile(index)}
+                        />
                       </div>
                     ))}
                     <div className="my-[20px]">

@@ -68,7 +68,7 @@ function TextField(props: TextFieldProps) {
   const ErrorMessage = () => {
     return (
       <span style={{ color: 'red' }}>
-        {filled && value !== ''
+        {filled && value !== '' && name !== 'email'
           ? 'Error, Please enter a valid value'
           : 'This filed is required'}
       </span>

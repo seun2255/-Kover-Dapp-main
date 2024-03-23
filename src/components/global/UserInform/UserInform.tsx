@@ -4,10 +4,13 @@ import Button from '../../common/Button'
 import InfoText from '../../common/InfoText'
 import UploadButton from '../../common/UploadButton'
 import useWindowDimensions from './useWindowDimensions'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import lighthouse from '@lighthouse-web3/sdk'
 import { updateDp } from '../../../database'
 import { useWeb3React } from '@web3-react/core'
+import Blockies from 'react-blockies'
+import { UseDispatch } from 'react-redux'
+import { openAlert, closeAlert } from '../../../redux/alerts'
 
 interface UserInformProps {
   variant?: 'customer' | 'personal'
@@ -17,7 +20,8 @@ function UserInform({ variant, userData }: UserInformProps) {
   const [viewmore, setViewmore] = useState(false)
   const [history, setHistory] = useState(false)
   const { user } = useSelector((state: any) => state.user)
-  const { account, library } = useWeb3React()
+  const { account } = useWeb3React()
+  const dispatch = useDispatch()
   const { theme } = React.useContext(UserContext)
   const viewmoreHandler = () => {
     viewmore ? setViewmore(false) : setViewmore(true)
@@ -41,6 +45,22 @@ function UserInform({ variant, userData }: UserInformProps) {
     const link = 'https://gateway.lighthouse.storage/ipfs/' + output.data.Hash
     updateDp(account, link)
     setPicture(link)
+    dispatch(
+      openAlert({
+        displayAlert: true,
+        data: {
+          id: 1,
+          variant: 'Successful',
+          classname: 'text-black',
+          title: 'Picture Changed!',
+          tag1: 'Profile picture Modified',
+          tag2: 'modfifications made',
+        },
+      })
+    )
+    setTimeout(() => {
+      dispatch(closeAlert())
+    }, 10000)
   }
 
   const handlePictureChange = async (event: any) => {
@@ -61,13 +81,22 @@ function UserInform({ variant, userData }: UserInformProps) {
           <div className="flex flex-row justify-between">
             <div className="flex flex-row justify-between">
               <div className="flex gap-8 w-[88px] h-[88px] bg-[#2A2B31] dark:bg-light-1200 items-center justify-center">
-                <img
-                  width={50}
-                  height={50}
-                  src={picture}
-                  alt=""
-                  className="rounded-full"
-                />
+                {picture === 'default' ? (
+                  <Blockies
+                    seed={(account as string).toLowerCase()}
+                    size={13}
+                    scale={4}
+                    className="identicon wallet-icon"
+                  />
+                ) : (
+                  <img
+                    width={50}
+                    height={50}
+                    src={picture}
+                    alt=""
+                    className="rounded-full"
+                  />
+                )}
               </div>
               <div className="ml-[20px]">
                 <span className="text-md block mb-2.5 fw-400">
@@ -181,13 +210,22 @@ function UserInform({ variant, userData }: UserInformProps) {
               <div>
                 <div className="flex gap-8">
                   <div className="flex gap-8 w-[88px] h-[88px] bg-[#2A2B31] dark:bg-light-1200 items-center justify-center ">
-                    <img
-                      width={50}
-                      height={50}
-                      src={picture}
-                      alt=""
-                      className="rounded-full"
-                    />
+                    {picture === 'default' ? (
+                      <Blockies
+                        seed={(account as string).toLowerCase()}
+                        size={13}
+                        scale={4}
+                        className="identicon wallet-icon"
+                      />
+                    ) : (
+                      <img
+                        width={50}
+                        height={50}
+                        src={picture}
+                        alt=""
+                        className="rounded-full"
+                      />
+                    )}
                   </div>
 
                   <div className="w-max">

@@ -10,7 +10,7 @@ import { useSelector, useDispatch } from 'react-redux'
 
 function Navbar() {
   const { theme } = React.useContext(UserContext)
-  const { user } = useSelector((state: any) => state.user)
+  const { user, connected } = useSelector((state: any) => state.user)
 
   return (
     <React.Fragment>
@@ -30,7 +30,7 @@ function Navbar() {
                 <Pages />
               </div>
             </div>
-            <Link to={'/notification'}>
+            <Link to={connected ? '/notification' : '/'}>
               <div className="flex justify-center p-9">
                 <IconButton
                   badge={user.notifications.length}

@@ -62,6 +62,22 @@ function Notification() {
       <div className="mb-10 lg:flex gap-[20px]">
         <div className="flex-grow">
           <div className="flex flex-col gap-5">
+            {user.notifications.length === 0 && (
+              <>
+                <div className="flex flex-col items-center justify-center">
+                  <img
+                    src="/images/box_empty.svg"
+                    width={137}
+                    height={107}
+                    alt=""
+                    className="mt-[30px]"
+                  />
+                  <span className="text-dark-500 text-3xl font-amaranth mt-[15px]">
+                    Oops ! No results found
+                  </span>
+                </div>
+              </>
+            )}
             {user.notifications.map((notification: any, index: number) => (
               <>
                 <div

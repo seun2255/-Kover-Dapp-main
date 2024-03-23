@@ -4,9 +4,10 @@ import { UserContext } from '../../../App'
 interface UploadingFileProps {
   progress: number
   file?: File
+  handleRemove?: any
 }
 
-function UploadingFile({ progress, file }: UploadingFileProps) {
+function UploadingFile({ progress, file, handleRemove }: UploadingFileProps) {
   const { theme } = React.useContext(UserContext)
   return (
     <>
@@ -72,8 +73,8 @@ function UploadingFile({ progress, file }: UploadingFileProps) {
               </>
             ) : (
               <>
-                <div className="flex items-center justify-between gap-5">
-                  <div className="w-[60px]">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="w-[52 px]">
                     <span className="dark:text-dark-600 text-primary-700 font-medium text-lg">
                       Uploaded
                     </span>
@@ -81,8 +82,8 @@ function UploadingFile({ progress, file }: UploadingFileProps) {
                   <button
                     title="upload   "
                     type="button"
-                    className="w-[100px] ml-1"
-                  > 
+                    className="w-[15px] ml-1"
+                  >
                     <img
                       src={
                         theme === 'dark'
@@ -91,6 +92,14 @@ function UploadingFile({ progress, file }: UploadingFileProps) {
                       }
                       alt=""
                     />
+                  </button>
+                  <button
+                    title="upload"
+                    type="button"
+                    className="w-[15px] ml-1"
+                    onClick={handleRemove}
+                  >
+                    <img src="/images/Remove (2).svg" alt="" />
                   </button>
                 </div>
               </>

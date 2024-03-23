@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { UserContext } from '../../../App'
 import { Link } from 'react-router-dom'
 import Button from '../../common/Button'
@@ -7,8 +7,9 @@ import UploadButton from '../../common/UploadButton'
 import useWindowDimensions from './useWindowDimensions'
 import { switchKYCModify, switchKYCReviewerModify } from '../../../database'
 import { useWeb3React } from '@web3-react/core'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { openAlert, closeAlert } from '../../../redux/alerts'
+import { setKYCApplicants } from '../../../redux/kyc'
 
 interface UserInformProps {
   variant?: 'customer' | 'personal'
@@ -17,6 +18,7 @@ interface UserInformProps {
 function InsureProUserInform({ variant, user }: UserInformProps) {
   const [viewmore, setViewmore] = useState(false)
   const [history, setHistory] = useState(false)
+  const { kycApplicants } = useSelector((state: any) => state.kyc)
   const { theme } = React.useContext(UserContext)
   const { account } = useWeb3React()
   const dispatch = useDispatch()
@@ -30,6 +32,12 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
   const historyHandler = () => {
     history ? setHistory(false) : setHistory(true)
   }
+
+  useEffect(() => {
+    setCanEdit(
+      variant === 'personal' ? user.canModifyKYC : user.canModifyKYCReviewer
+    )
+  }, [user])
 
   return (
     <>
@@ -207,6 +215,20 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
                         if (user.reviewer === account) {
                           switchKYCModify(user.address).then(() => {
                             setCanEdit(!canEdit)
+                            var temp = [...kycApplicants]
+                            var placeholder = {}
+                            for (var i = 0; i < temp.length; i++) {
+                              if (temp[i].id === user.id) {
+                                placeholder = {
+                                  ...temp[i],
+                                  canModifyKYC: !temp[i].canModifyKYC,
+                                }
+                                temp.splice(i, 1)
+                                i--
+                              }
+                            }
+                            temp.push(placeholder)
+                            dispatch(setKYCApplicants({ data: temp }))
                           })
                         } else {
                           dispatch(
@@ -239,6 +261,10 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
                         ) {
                           switchKYCReviewerModify(user.address).then(() => {
                             setCanEdit(!canEdit)
+                            const temp = { ...user }
+                            // temp.canModifyKYCReviewer =
+                            //   !temp.canModifyKYCReviewer
+                            // setApplicant(temp)
                           })
                         } else {
                           dispatch(
@@ -300,7 +326,7 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
                   className="min-w-[120px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
                   text="Contact User"
                   onClick={() => {
-                    if (user.reviewer !== account || user.address !== account) {
+                    if (user.reviewer !== account && user.address !== account) {
                       dispatch(
                         openAlert({
                           displayAlert: true,
@@ -308,7 +334,7 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
                             id: 2,
                             variant: 'Failed',
                             classname: 'text-black',
-                            title: 'Transaction Failed',
+                            title: 'Access Denied!',
                             tag1: 'You dont have access',
                             tag2: 'cant access the chat',
                           },

@@ -7,6 +7,7 @@ import { getUser, get_membership_appliants } from './tableland'
 import axios from 'axios'
 import { getUserDetails } from './database'
 import { addContractState } from './utils/helpers'
+import { toNumber } from 'ethers'
 
 /**
  * Blockchain Integration
@@ -251,6 +252,7 @@ const getUserData = async (address: any) => {
   var result = addContractState(response.data, kyc_details)
   const userFirebaseDetails = await getUserDetails(address)
   result = { ...result, ...userFirebaseDetails }
+  result.id = applicant.id
   return result
 }
 

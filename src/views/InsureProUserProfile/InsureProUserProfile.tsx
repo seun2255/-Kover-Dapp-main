@@ -24,9 +24,11 @@ import { convertJsonToString } from '../../utils/helpers'
 import { uploadJsonData } from '../../lighthouse'
 import { openAlert, closeAlert } from '../..//redux/alerts'
 import { getUserData, modifyInsureProApplication } from '../../api'
+import { switchKYCReviewerModify } from '../../database'
 import lighthouse from '@lighthouse-web3/sdk'
 import UploadingFile from '../../components/common/FileUpload/UploadingFile'
 import Rules from '../../components/common/FileUpload/Rules'
+import { setKYCReviewerApplicants } from '../../redux/kyc'
 
 interface Document {
   link: string
@@ -35,7 +37,8 @@ interface Document {
 
 function InsureProUserProfile() {
   const { theme } = React.useContext(UserContext)
-  const { kycApplicants } = useSelector((state: any) => state.kyc)
+  const { kycReviewerApplicants } = useSelector((state: any) => state.kyc)
+  const { user } = useSelector((state: any) => state.user)
   const { account, library } = useWeb3React()
   const [currentIcon, setcurrentIcon] = useState('')
   const [popup, setPopup] = useState(false)
@@ -43,7 +46,7 @@ function InsureProUserProfile() {
   let { userId } = useParams()
   let navigate = useNavigate()
   const [applicant, setApplicant] = useState(
-    findObjectById(kycApplicants, userId)
+    findObjectById(kycReviewerApplicants, userId)
   )
   const [canModify, setCanModify] = useState(false)
   const [formState, setFormState] = useState(applicant)
@@ -58,6 +61,7 @@ function InsureProUserProfile() {
   const [documentsDisplayed, setDocumentsDisplayed] = useState(
     applicant.reviewerDocuments
   )
+  const originalFilesLength = applicant.documents.length
 
   const handleDobChange = (value: any) => {
     const dateString = createDateString(value)
@@ -133,6 +137,20 @@ function InsureProUserProfile() {
     setDocumentsDisplayed(newArray)
   }
 
+  const handleFileRemove = (index: number) => {
+    const newArray = removeItemFromArray(
+      formState.documents,
+      formState.documents[originalFilesLength + index].link
+    )
+    setFormState((prevState: any) => ({
+      ...prevState,
+      documents: newArray,
+    }))
+    var newFiles = [...selectedFiles]
+    newFiles.splice(index, 1)
+    setSelectedFiles(newFiles)
+  }
+
   const handleFileChange = async (event: any) => {
     const files = event.target.files
     const updatedFiles = [...selectedFiles]
@@ -197,6 +215,22 @@ function InsureProUserProfile() {
             dispatch(closeAlert())
           }, 10000)
           setApplicant(formData)
+          switchKYCReviewerModify(applicant.address).then(() => {
+            var temp = [...kycReviewerApplicants]
+            var placeholder = {}
+            for (var i = 0; i < temp.length; i++) {
+              if (temp[i].id === user.id) {
+                placeholder = {
+                  ...temp[i],
+                  canModifyKYC: !temp[i].canModifyKYC,
+                }
+                temp.splice(i, 1)
+                i--
+              }
+            }
+            temp.push(placeholder)
+            dispatch(setKYCReviewerApplicants({ data: temp }))
+          })
         })
         .catch((error) => {
           console.log('Error fetching IP address information: ', error)
@@ -204,13 +238,23 @@ function InsureProUserProfile() {
     }
   }
 
+  // useEffect(() => {
+  //   console.log(applicant)
+  //   if (applicant.canModifyKYCReviewer && applicant.address === account) {
+  //     console.log('Correct!!')
+  //     setCanModify(true)
+  //   }
+  // }, [])
+
   useEffect(() => {
-    console.log(applicant)
-    if (applicant.canModifyKYCReviewer && applicant.address === account) {
-      console.log('Correct!!')
+    const temp = findObjectById(kycReviewerApplicants, userId)
+    setApplicant(temp)
+    if (temp.canModifyKYCReviewer && temp.address === account) {
       setCanModify(true)
+    } else {
+      setCanModify(false)
     }
-  }, [])
+  }, [kycReviewerApplicants])
 
   return (
     <>
@@ -357,7 +401,11 @@ function InsureProUserProfile() {
                   </label>
                   {selectedFiles.map((file, index) => (
                     <div className="mb-[5px]" key={index}>
-                      <UploadingFile progress={uploadProgress} file={file} />
+                      <UploadingFile
+                        progress={uploadProgress}
+                        file={file}
+                        handleRemove={() => handleFileRemove(index)}
+                      />
                     </div>
                   ))}
                   <div className="my-[20px]">

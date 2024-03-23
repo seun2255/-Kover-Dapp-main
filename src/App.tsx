@@ -47,6 +47,17 @@ import Staking from './views/Staking/Staking'
 import AlertModal from './components/common/Alert'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import {
+  get_applications,
+  get_Reviewer_applications,
+  getKycDetails,
+  getKycReveiwerDetails,
+} from './api'
+import axios from 'axios'
+import { addContractState, addKycReviewerState } from './utils/helpers'
+import { setKYCApplicants, setKYCReviewerApplicants } from './redux/kyc'
+import { getUserDetails } from './database'
+import { useNavigate } from 'react-router-dom'
 
 export const routes = [
   {
@@ -238,6 +249,8 @@ function App() {
   const [theme, setTheme] = useState('')
   const [connectwallet, setConnectWallet] = useState('')
   const { displayAlert, alertData } = useSelector((state: any) => state.alerts)
+  const { user } = useSelector((state: any) => state.user)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -254,6 +267,67 @@ function App() {
       document.documentElement.classList.remove('dark')
     }
   }, [theme])
+
+  useEffect(() => {
+    console.log('User changed somehow')
+    fetch('https://ipinfo.io/json')
+      .then((response) => response.json())
+      .then(async (data) => {
+        const applicants = await get_applications(data.country)
+
+        const axiosRequests = applicants.map(async (applicant) => {
+          const response = await axios.get(applicant.data as string)
+          const kyc_details = await getKycDetails(
+            response.data.address,
+            data.country
+          )
+          const result = addContractState(response.data, kyc_details)
+          const userFirebaseDetails = await getUserDetails(
+            response.data.address
+          )
+          result.id = applicant.id
+          result.canModifyKYC = userFirebaseDetails.canModifyKYC
+          result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
+          result.ipfsHash = applicant.data
+          result.kycReviewDone = userFirebaseDetails.kycReviewDone
+          return result
+        })
+
+        // Wait for all axios requests to complete
+        const membership_applications = await Promise.all(axiosRequests)
+        dispatch(setKYCApplicants({ data: membership_applications }))
+        // setMembershipApplications(membership_applications)
+      })
+
+    fetch('https://ipinfo.io/json')
+      .then((response) => response.json())
+      .then(async (data) => {
+        const applicants = await get_Reviewer_applications(data.country)
+
+        const axiosRequests = applicants.map(async (applicant) => {
+          const response = await axios.get(applicant.data as string)
+          const kyc_details = await getKycReveiwerDetails(
+            response.data.address,
+            data.country
+          )
+          const result = addKycReviewerState(response.data, kyc_details)
+          const userFirebaseDetails = await getUserDetails(
+            response.data.address
+          )
+          result.id = applicant.id
+          result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
+          result.canModifyKYC = userFirebaseDetails.canModifyKYC
+          result.ipfsHash = applicant.data
+          result.kycReviewDone = userFirebaseDetails.kycReviewDone
+          return result
+        })
+
+        // Wait for all axios requests to complete
+        const membership_applications = await Promise.all(axiosRequests)
+        dispatch(setKYCReviewerApplicants({ data: membership_applications }))
+        // setReviewerApplications(membership_applications)
+      })
+  }, [user])
 
   const handleThemeSwitch = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark')
@@ -304,7 +378,9 @@ function App() {
             <Route path="/routes" element={<RoutesList />} />
           </Routes>
           {displayAlert && (
-            <div style={{ position: 'fixed', right: 30, top: 30 }}>
+            <div
+              style={{ position: 'fixed', right: 30, top: 30, zIndex: 10000 }}
+            >
               <AlertModal {...alertData} />
             </div>
           )}
