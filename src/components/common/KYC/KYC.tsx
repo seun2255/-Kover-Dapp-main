@@ -235,8 +235,8 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
       }, 10000)
     }
 
-    // if (formFilled && verificationState === 'verified') {
-    if (formFilled) {
+    if (formFilled && verificationState === 'verified') {
+      // if (formFilled) {
       fetch('https://ipinfo.io/json')
         .then((response) => response.json())
         .then(async (data) => {
