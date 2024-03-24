@@ -222,7 +222,7 @@ function InsureProUserProfile() {
               if (temp[i].id === user.id) {
                 placeholder = {
                   ...temp[i],
-                  canModifyKYC: !temp[i].canModifyKYC,
+                  canModifyKYCReviewer: !temp[i].canModifyKYCReviewer,
                 }
                 temp.splice(i, 1)
                 i--

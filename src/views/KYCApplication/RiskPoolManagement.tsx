@@ -12,19 +12,25 @@ import DownloadBox from '../../components/common/DownloadBox'
 import UploadingFile from '../../components/common/FileUpload/UploadingFile'
 import Rules from '../../components/common/FileUpload/Rules'
 import FormAgreament from '../../components/common/FormAgreament'
-import { Tooltip as ReactTooltip } from "react-tooltip";
+import { Tooltip as ReactTooltip } from 'react-tooltip'
 
 function RiskPoolMnagament() {
   const { theme } = React.useContext(UserContext)
-  const [currentIcon, setcurrentIcon] = useState("");
+  const [currentIcon, setcurrentIcon] = useState('')
   return (
     <div>
-     <div className="scrollbar-customise bg-opacity-20 mt-[45px] mb-[45px]" id="style-1">
+      <div
+        className="scrollbar-customise bg-opacity-20 mt-[45px] mb-[45px]"
+        id="style-1"
+      >
         <div className="force-overflow">
-          <div className='kyc-popup-form mb-5'>
+          <div className="kyc-popup-form mb-5">
             <div className="flex items-center justify-between mb-5">
               <span className="text-dark-300">SafeDrive Insurance</span>
-              <Link to="/" className="hidden how-it-work text-brand-300 sm:block">
+              <Link
+                to="/"
+                className="hidden how-it-work text-brand-300 sm:block"
+              >
                 Risk Pool Details
               </Link>
             </div>
@@ -38,7 +44,8 @@ function RiskPoolMnagament() {
                       </b>
                     </div>
                     <p className="form-section-subtitle">
-                      Your personal information is never shared with other users.
+                      Your personal information is never shared with other
+                      users.
                     </p>
                   </div>
                   <div className="flex flex-col gap-6 pt-5 lg:pt-2">
@@ -50,10 +57,11 @@ function RiskPoolMnagament() {
                         outline={true}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                       />
-                      <SelectField 
-                      labelIcon={true} 
-                      label="Status" 
-                      placeholder="Please select" />
+                      <SelectField
+                        labelIcon={true}
+                        label="Status"
+                        placeholder="Please select"
+                      />
                     </div>
                     <SelectField
                       labelIcon={true}
@@ -79,7 +87,8 @@ function RiskPoolMnagament() {
                       </b>
                     </div>
                     <p className="form-section-subtitle">
-                      Your personal information is never shared with other users.
+                      Your personal information is never shared with other
+                      users.
                     </p>
                   </div>
                   <div className="flex flex-col gap-6 pt-5 lg:pt-2">
@@ -152,25 +161,29 @@ function RiskPoolMnagament() {
                       </div>
                     </div>
                     <div className="grid grid-cols-2 sm:gap-6 gap-2.5">
-                      <SelectField 
-                      labelIcon={true}
-                      label="Policy Days Allowed " 
-                      placeholder="Please select" />
+                      <SelectField
+                        labelIcon={true}
+                        label="Policy Days Allowed "
+                        placeholder="Please select"
+                      />
 
-                      <SelectField 
-                      labelIcon={true}
-                      label="Withdrawal Parameters" 
-                      placeholder="Please select" />
+                      <SelectField
+                        labelIcon={true}
+                        label="Withdrawal Parameters"
+                        placeholder="Please select"
+                      />
                     </div>
-                    <SelectField 
-                    labelIcon={true}
-                    label="Enable Policy Duration" 
-                    placeholder="Please select" />
+                    <SelectField
+                      labelIcon={true}
+                      label="Enable Policy Duration"
+                      placeholder="Please select"
+                    />
 
-                    <SelectField 
-                    labelIcon={true}
-                    label="Rolling Average" 
-                    placeholder="Please select" />
+                    <SelectField
+                      labelIcon={true}
+                      label="Rolling Average"
+                      placeholder="Please select"
+                    />
                     <div className="grid grid-cols-2 sm:gap-6 gap-2.5">
                       <TextField
                         labelIcon={true}
@@ -223,8 +236,6 @@ function RiskPoolMnagament() {
                         />
                       </div>
                     </div>
-
-
                   </div>
                 </div>
                 <div className="block lg:hidden">
@@ -238,28 +249,38 @@ function RiskPoolMnagament() {
                 </div>
                 <hr className="my-[24px]" />
 
-
                 <div className="lg:grid lg:grid-cols-2">
                   <div className="sm:w-[60%] w-full">
                     <div className="flex gap-[5px] items-center mb-[10px] ">
                       <div className="flex gap-[5px] items-center">
-                        <b className="block form-section-title dark:form-section-title-dark">Terms & Conditions</b>
-                        <img src={`${currentIcon === "kyc-Identity-Details" ? "/images/info-green-icon.svg" : "/images/Maskd (2).svg"}`}  alt="" width={14} height={14}
-                                  id="kyc-Identity-Details"
-                                  className='mb-2.5'
-                                  onMouseEnter={()=>{ 
-                                      setcurrentIcon("kyc-Identity-Details");
-                                  }} onMouseLeave={()=>{
-                                      setcurrentIcon("");
-                                  }}
-                              />
-                              {/* <img className="w-[14px] h-[14px]" src="/images/Mask (11).svg" alt="" /> */}
-                              <ReactTooltip   
-                              className="my-tool-tip z-500"
-                              anchorId={"kyc-Identity-Details"}
-                              place="bottom"
-                              content="This is the total amount available for  you to borrow. You can borrow based on your 		collateral and until the borrowcap is reached."
-                          />
+                        <b className="block form-section-title dark:form-section-title-dark">
+                          Terms & Conditions
+                        </b>
+                        <img
+                          src={`${
+                            currentIcon === 'kyc-Identity-Details'
+                              ? '/images/info-green-icon.svg'
+                              : '/images/Maskd (2).svg'
+                          }`}
+                          alt=""
+                          width={14}
+                          height={14}
+                          id="kyc-Identity-Details"
+                          className="mb-2.5"
+                          onMouseEnter={() => {
+                            setcurrentIcon('kyc-Identity-Details')
+                          }}
+                          onMouseLeave={() => {
+                            setcurrentIcon('')
+                          }}
+                        />
+                        {/* <img className="w-[14px] h-[14px]" src="/images/Mask (11).svg" alt="" /> */}
+                        <ReactTooltip
+                          className="my-tool-tip z-500"
+                          anchorId={'kyc-Identity-Details'}
+                          place="bottom"
+                          content="This is the total amount available for  you to borrow. You can borrow based on your 		collateral and until the borrowcap is reached."
+                        />
                       </div>
                     </div>
                     <p className="form-section-subtitle">
@@ -267,18 +288,19 @@ function RiskPoolMnagament() {
                     </p>
                   </div>
                   <div className="flex flex-col gap-5 pt-5 lg:pt-2">
+                    <SelectField
+                      label="Enable Policy Duration"
+                      placeholder="Please select"
+                    />
 
-                    <SelectField 
-                    label="Enable Policy Duration" 
-                    placeholder="Please select" />
-
-                    <SelectField 
-                    label="Rolling Average" 
-                    placeholder="Please select" />
+                    <SelectField
+                      label="Rolling Average"
+                      placeholder="Please select"
+                    />
 
                     <div className="flex sm:justify-center">
                       <div className="flex flex-col gap-5 sm:max-w-[285px] min-w-[100%] pt-8">
-                      <DragAndDropFile
+                        <DragAndDropFile
                           className="hidden lg:block"
                           size="w-full h-[80px]"
                           id={2}
@@ -289,7 +311,7 @@ function RiskPoolMnagament() {
                             <UploadingFile progress={80} />
                           </div>
                         </div>
-                      
+
                         <Rules className="hidden lg:block" space="10px" />
                       </div>
                     </div>
@@ -305,7 +327,6 @@ function RiskPoolMnagament() {
                   <Rules className="mt-[20px]" />
                 </div> */}
                 <hr className="my-[24px]" />
-
 
                 <div className="lg:grid lg:grid-cols-2">
                   <div></div>
@@ -323,7 +344,6 @@ function RiskPoolMnagament() {
                   </div>
                 </div>
               </div>
-            
             </div>
           </div>
         </div>

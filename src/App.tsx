@@ -56,8 +56,11 @@ import {
 import axios from 'axios'
 import { addContractState, addKycReviewerState } from './utils/helpers'
 import { setKYCApplicants, setKYCReviewerApplicants } from './redux/kyc'
+import { updateUser } from './redux/user'
 import { getUserDetails } from './database'
 import { useNavigate } from 'react-router-dom'
+import { useWeb3React } from '@web3-react/core'
+import { getUserData } from './api'
 
 export const routes = [
   {
@@ -250,6 +253,7 @@ function App() {
   const [connectwallet, setConnectWallet] = useState('')
   const { displayAlert, alertData } = useSelector((state: any) => state.alerts)
   const { user } = useSelector((state: any) => state.user)
+  const { account } = useWeb3React()
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -327,7 +331,7 @@ function App() {
         dispatch(setKYCReviewerApplicants({ data: membership_applications }))
         // setReviewerApplications(membership_applications)
       })
-  }, [user])
+  }, [dispatch, user])
 
   const handleThemeSwitch = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark')

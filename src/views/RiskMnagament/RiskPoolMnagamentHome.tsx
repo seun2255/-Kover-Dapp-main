@@ -143,11 +143,23 @@ function RiskPoolMnagamentHome() {
                 </div>
               </div>
               <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
-                <SelectField label="Policy Days Allowed " placeholder="Please select" />
-                <SelectField label="Withdrawal Parameters" placeholder="Please select" />
+                <SelectField
+                  label="Policy Days Allowed "
+                  placeholder="Please select"
+                />
+                <SelectField
+                  label="Withdrawal Parameters"
+                  placeholder="Please select"
+                />
               </div>
-              <SelectField label="Enable Policy Duration" placeholder="Please select" />
-              <SelectField label="Rolling Average" placeholder="Please select" />
+              <SelectField
+                label="Enable Policy Duration"
+                placeholder="Please select"
+              />
+              <SelectField
+                label="Rolling Average"
+                placeholder="Please select"
+              />
               <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
                 <TextField
                   labelIcon={false}
@@ -200,8 +212,6 @@ function RiskPoolMnagamentHome() {
                   />
                 </div>
               </div>
-
-
             </div>
           </div>
           <div className="block lg:hidden">
@@ -215,7 +225,6 @@ function RiskPoolMnagamentHome() {
           </div>
           <hr className="my-[24px]" />
 
-
           <div className="lg:grid lg:grid-cols-2">
             <div className="sm:w-[60%] w-full">
               <div className="flex gap-[5px] items-center mb-[10px] ">
@@ -228,13 +237,18 @@ function RiskPoolMnagamentHome() {
               </p>
             </div>
             <div className="flex flex-col gap-5 pt-5 lg:pt-2">
-
-              <SelectField label="Enable Policy Duration" placeholder="Please select" />
-              <SelectField label="Rolling Average" placeholder="Please select" />
+              <SelectField
+                label="Enable Policy Duration"
+                placeholder="Please select"
+              />
+              <SelectField
+                label="Rolling Average"
+                placeholder="Please select"
+              />
 
               <div className="flex sm:justify-center">
                 <div className="flex flex-col gap-5 sm:max-w-[285px] min-w-[100%] pt-8">
-                <DragAndDropFile
+                  <DragAndDropFile
                     className="hidden lg:block"
                     size="w-full h-[80px]"
                     id={2}
@@ -245,7 +259,7 @@ function RiskPoolMnagamentHome() {
                       <UploadingFile progress={80} />
                     </div>
                   </div>
-                 
+
                   <Rules className="hidden lg:block" space="10px" />
                 </div>
               </div>
@@ -261,7 +275,6 @@ function RiskPoolMnagamentHome() {
             <Rules className="mt-[20px]" />
           </div> */}
           <hr className="my-[24px]" />
-
 
           <div className="lg:grid lg:grid-cols-2">
             <div></div>
@@ -281,7 +294,6 @@ function RiskPoolMnagamentHome() {
         </div>
         <div className="flex sm:justify-center">
           <div className="flex flex-col gap-5 sm:max-w-[285px] min-w-[100%] pt-8">
-
             {/* <div className="hidden lg:block">
               <div className="flex gap-[12px] flex-col">
                 <UploadingFile progress={100} />

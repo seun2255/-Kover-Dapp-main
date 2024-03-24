@@ -318,7 +318,9 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
               <Link
                 to={
                   user.reviewer === account || user.address === account
-                    ? `/chat/kyc-${user.region}-${user.id}`
+                    ? `/chat/${variant === 'personal' ? 'kyc' : 'insure-pro'}-${
+                        user.region
+                      }-${user.id}`
                     : ''
                 }
               >

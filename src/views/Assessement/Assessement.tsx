@@ -488,7 +488,7 @@ function Assessement() {
 
   const overfiewCards: AdminCardProps[] = [
     {
-      key: 45,
+      key: 40,
       name: 'TOTAL SCR',
       score: '180,948,020',
       chart: [
@@ -512,7 +512,7 @@ function Assessement() {
       status: 'up',
     },
     {
-      key: 45,
+      key: 42,
       name: 'Total CLAIMS',
       score: 19748,
       chart: [10, 20, 20, 40, 15, 15, 50, 45, 50, 20, 15, 30, 40, 5],
@@ -521,7 +521,7 @@ function Assessement() {
       status: 'down',
     },
     {
-      key: 45,
+      key: 43,
       name: 'PREMIUMS',
       score: '19,948,000',
       chart: [20, 10, 14, 18, 24, 26, 26, 30, 30, 40, 35, 38],

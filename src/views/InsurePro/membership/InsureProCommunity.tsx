@@ -34,6 +34,7 @@ import {
   createChatRoom,
 } from '../../../database'
 import { getUser } from '../../../tableland'
+import { removeItemFromArray } from '../../../utils/helpers'
 
 interface popupProps {
   onClose?: () => void
@@ -56,7 +57,7 @@ function InsureProCommunity(
   const [formState, setFormState] = useState({
     workArea: '',
     workField: '',
-    pool: '',
+    pool: 'Car Insurance',
     reviewerDocuments: [] as Document[],
   })
   const [formFilled, setFormFilled] = useState(true)
@@ -124,6 +125,20 @@ function InsureProCommunity(
     uploadFile(files)
   }
 
+  const removeFile = (index: number) => {
+    const newArray = removeItemFromArray(
+      formState.reviewerDocuments,
+      formState.reviewerDocuments[index].link
+    )
+    setFormState((prevState: any) => ({
+      ...prevState,
+      reviewerDocuments: newArray,
+    }))
+    var newFiles = [...selectedFiles]
+    newFiles.splice(index, 1)
+    setSelectedFiles(newFiles)
+  }
+
   // Generic change handler for all inputs
   const handleChange = (e: any) => {
     const { name, value } = e.target
@@ -150,9 +165,6 @@ function InsureProCommunity(
     setFormState((prevState) => ({
       ...prevState,
       date: date,
-    }))
-    setFormState((prevState) => ({
-      ...prevState,
       address: account,
     }))
     const formFilled = areAllValuesFilled(formState)
@@ -180,7 +192,7 @@ function InsureProCommunity(
           const userInfo = await getUser(account as string)
           const userId = userInfo.id
 
-          await createChatRoom('reviewer', data.country, userId as number, {
+          await createChatRoom('insure-pro', data.country, userId as number, {
             [account as string]: formData.firstName,
             // eslint-disable-next-line no-useless-computed-key
             ['0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD']: 'Admin',
@@ -342,7 +354,11 @@ function InsureProCommunity(
                     </label>
                     {selectedFiles.map((file, index) => (
                       <div className="mb-[5px]" key={index}>
-                        <UploadingFile progress={uploadProgress} file={file} />
+                        <UploadingFile
+                          progress={uploadProgress}
+                          file={file}
+                          handleRemove={() => removeFile(index)}
+                        />
                       </div>
                     ))}
                     <div className="my-[20px]">

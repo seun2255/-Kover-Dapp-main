@@ -307,7 +307,6 @@ function ConnectWallet(
   useEffect(() => {
     if (account) {
       checkIfUserExists(account).then(async (exists) => {
-        console.log(exists)
         if (!exists) {
           console.log('Started creating account: ', account)
           await createUser(account)

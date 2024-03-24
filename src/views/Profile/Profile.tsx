@@ -31,6 +31,11 @@ import UploadingFile from '../../components/common/FileUpload/UploadingFile'
 import Rules from '../../components/common/FileUpload/Rules'
 import Popup from '../../components/templates/Popup'
 import AttachmentPreview from '../../components/common/AttachmentPreview/AttachmentPreview'
+import { setKYCApplicants } from '../../redux/kyc'
+import { switchKYCModify } from '../../database'
+import { getUserData } from '../../api'
+import { getUserDetails } from '../../database'
+import { updateUser } from '../../redux/user'
 
 interface Document {
   link: string
@@ -40,7 +45,8 @@ interface Document {
 function Profile() {
   const { theme } = React.useContext(UserContext)
   let navigate = useNavigate()
-  const { connected, user } = useSelector((state: any) => state.user)
+  const { user } = useSelector((state: any) => state.user)
+  const { kycApplicants } = useSelector((state: any) => state.kyc)
   const [applicant, setApplicant] = useState(user)
   const [popup, setPopup] = useState(false)
   const togglePopup = () => setPopup((v) => !v)
@@ -68,6 +74,13 @@ function Profile() {
       dob: dateString,
     }))
   }
+
+  useEffect(() => {
+    console.log('User got updated, Value: ', user)
+    setApplicant(user)
+    setDocumentsDisplayed(user.documents)
+    setSelectedFiles([])
+  }, [user])
 
   // Generic change handler for all inputs
   const handleChange = (e: any) => {
@@ -207,6 +220,34 @@ function Profile() {
             dispatch(closeAlert())
           }, 10000)
           setApplicant(formData)
+          switchKYCModify(user.address).then(() => {
+            var temp = [...kycApplicants]
+            var placeholder = {}
+            for (var i = 0; i < temp.length; i++) {
+              if (temp[i].id === user.id) {
+                placeholder = {
+                  ...temp[i],
+                  canModifyKYC: !temp[i].canModifyKYC,
+                }
+                temp.splice(i, 1)
+                i--
+              }
+            }
+            temp.push(placeholder)
+            dispatch(setKYCApplicants({ data: temp }))
+            getUserDetails(account).then(async (user) => {
+              var data = { ...user }
+              if (user.kycVerificationState !== 'unverified') {
+                const apiData = await getUserData(account)
+                data = { ...apiData, ...data }
+              }
+              dispatch(
+                updateUser({
+                  data: data,
+                })
+              )
+            })
+          })
         })
         .catch((error) => {
           console.log('Error fetching IP address information: ', error)

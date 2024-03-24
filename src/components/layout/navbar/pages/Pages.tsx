@@ -26,7 +26,7 @@ function Pages() {
         const current = index === 0 ? url === path : path.indexOf(url) >= 0
         const activeLink = connected ? url : '/'
         return (
-          <>
+          <div key={index}>
             <li key={id} className="">
               <Link
                 to={activeLink}
@@ -73,7 +73,7 @@ function Pages() {
                 {name}
               </Link>
             </li>
-          </>
+          </div>
         )
       })}
     </ul>
