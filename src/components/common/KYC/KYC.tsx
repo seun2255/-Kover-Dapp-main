@@ -416,7 +416,6 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                       verify={true}
                       verificationState={verificationState}
                       startVerification={verifymail}
-                      disabled={!emailRequiredMessage}
                     />
                     {emailRequiredMessage && !formFilled && (
                       <span style={{ color: 'red' }}>
