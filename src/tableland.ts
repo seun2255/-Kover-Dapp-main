@@ -3,8 +3,11 @@ import { ethers } from 'ethers'
 import { convertJsonStringToObject } from './utils/helpers'
 
 //Localhost
-// const usersTableName = ' kover_finance_31337_2'
-const usersTableName = 'kover_finance_421614_473'
+const usersTableName = ' kover_finance_31337_2'
+const coversTableName = 'kover_finance_31337_3'
+const claimsTableName = 'kover_finance_31337_4'
+
+// const usersTableName = 'kover_finance_421614_473'
 
 //mumbai
 // const usersTableName = "libra_80001_7661";
@@ -31,6 +34,22 @@ const getAllUsers = async () => {
   return results
 }
 
+const getAllCovers = async () => {
+  const db = new Database()
+  const { results } = await db
+    .prepare(`SELECT * FROM ${coversTableName};`)
+    .all()
+  return results
+}
+
+const getAllClaims = async () => {
+  const db = new Database()
+  const { results } = await db
+    .prepare(`SELECT * FROM ${claimsTableName};`)
+    .all()
+  return results
+}
+
 const get_membership_appliants = async (addresses: any[]) => {
   const db = new Database()
   // const address = userAddress.toLowerCase()
@@ -51,6 +70,36 @@ const getUser = async (address: string) => {
     .prepare(
       `SELECT * FROM ${usersTableName} WHERE address = "${address.toLowerCase()}";`
     )
+    .all()
+  return results[0]
+}
+
+const getCover = async (address: any, poolName: string) => {
+  const db = new Database()
+  // const address = userAddress.toLowerCase()
+  const { results } = await db
+    .prepare(
+      `SELECT * FROM ${coversTableName} WHERE address = '${address.toLowerCase()}' AND poolName = '${poolName}';`
+    )
+    .all()
+  return results[0]
+}
+
+const getClaim = async (address: any, poolName: string) => {
+  const db = new Database()
+  // const address = userAddress.toLowerCase()
+  const { results } = await db
+    .prepare(
+      `SELECT * FROM ${claimsTableName} WHERE address = '${address.toLowerCase()}' AND poolName = '${poolName}';`
+    )
+    .all()
+  return results[0]
+}
+
+const getClaimById = async (claimId: number) => {
+  const db = new Database()
+  const { results } = await db
+    .prepare(`SELECT * FROM ${claimsTableName} WHERE id = '${claimId}';`)
     .all()
   return results[0]
 }
@@ -112,4 +161,9 @@ export {
   createUser,
   createTable,
   get_membership_appliants,
+  getCover,
+  getClaim,
+  getAllCovers,
+  getAllClaims,
+  getClaimById,
 }

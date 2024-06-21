@@ -21,6 +21,11 @@
           "type": "address"
         },
         {
+          "internalType": "address",
+          "name": "_protocol_manager",
+          "type": "address"
+        },
+        {
           "components": [
             {
               "internalType": "uint256",
@@ -92,6 +97,66 @@
     {
       "inputs": [
         {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_credentials_application_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "apply_for_adjustor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_credentials_application_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "apply_for_policy_reviewer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "components": [
             {
               "internalType": "string",
@@ -139,6 +204,52 @@
         }
       ],
       "name": "conclude_KYC_reviewer_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_adjustor_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_approved",
+          "type": "bool"
+        }
+      ],
+      "name": "conclude_adjustor_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policy_reviewer_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_approved",
+          "type": "bool"
+        }
+      ],
+      "name": "conclude_policy_reviewer_application",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -235,6 +346,66 @@
         }
       ],
       "name": "modify_KYC_reviewer_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_credentials_application_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "modify_adjustor_application",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_credentials_application_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "modify_policy_reviewer_application",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -538,6 +709,29 @@
     {
       "inputs": [
         {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_adjustor_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_status",
+          "type": "bool"
+        }
+      ],
+      "name": "set_adjustor_status",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "bool",
           "name": "_can_apply_for_kyc_reviewer_application",
           "type": "bool"
@@ -574,6 +768,29 @@
         }
       ],
       "name": "set_kyc_reviewer_application_fee_params",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_policy_reviewer_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_status",
+          "type": "bool"
+        }
+      ],
+      "name": "set_policy_reviewer_status",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

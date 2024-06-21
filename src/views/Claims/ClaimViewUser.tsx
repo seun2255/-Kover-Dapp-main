@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Tooltip as ReactTooltip } from 'react-tooltip'
 import { UserContext } from '../../App'
@@ -16,14 +16,23 @@ import WeightRow from '../../components/common/WeightRow'
 import WeightTitle from '../../components/common/WeightTitle'
 import CastYourVote from '../../components/global/CastYourVote'
 import useWindowDimensions from '../../components/global/UserInform/useWindowDimensions'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { getClaimDataById } from '../../api'
+import { extractHash } from '../../utils/helpers'
+import CastAssesment from '../Welcome/membership/CastAssesment'
+
 function ClaimViewUser() {
   let navigate = useNavigate()
   const { theme } = React.useContext(UserContext)
   const [open, setOpen] = useState<boolean>(false)
   const [hoverIcon, sethoverIcon] = useState('')
+  let { claimId } = useParams()
+  const [claimdetails, setClaimdetails] = useState<any>({})
+  const [loading, setLoading] = useState(true)
   const toggle = () => setOpen((v) => !v)
   const fileList = ['Id_back.png', 'Id_front.png', 'img 001.png', 'doc 002.pdf']
+  const [isYes, setIsYes] = useState(false)
+  const [icon, setIcon] = useState('')
 
   const options = [
     {
@@ -35,6 +44,26 @@ function ClaimViewUser() {
       text: 'Chat',
     },
   ]
+
+  useEffect(() => {
+    const getData = async () => {
+      const data = await getClaimDataById(claimId as string)
+      console.log('Data: ', data)
+      setClaimdetails(data)
+      setLoading(false)
+    }
+    getData()
+  }, [])
+
+  const getRecommendation = (status: string) => {
+    if (status === 'approved') {
+      return 'Approve'
+    } else if (status === 'rejected') {
+      return 'reject'
+    } else {
+      return 'Pending'
+    }
+  }
 
   const [currentIcon, setcurrentIcon] = useState(-1)
   const [zero, serZero] = useState(false)
@@ -49,10 +78,14 @@ function ClaimViewUser() {
     }
   }
 
+  const handleSubmit = async () => {}
+
   const titleClassName = 'fw-400 fs-13 lh-15 text-light-800 dark:text-dark-600'
   const textClassName = 'fw-500 fs-13 lh-15 text-light-800 dark:text-dark-600'
 
-  return (
+  return loading ? (
+    <></>
+  ) : (
     <>
       <div>
         <Header name="Claim #1250" showBackAero={true} overview={true} />
@@ -77,10 +110,10 @@ function ClaimViewUser() {
                   <span className="fw-500 fs-16 lh-19 text-[#F1F1F1] dark:text-dark-600 block mb-5">
                     Incident Details
                   </span>
-                  <IncidentCard />
+                  <IncidentCard data={claimdetails} />
                 </div>
-                <IncidentDetails />
-                <div>
+                <IncidentDetails data={claimdetails} />
+                {/* <div>
                   <AddMoreDocuments subtext={true} />
                   <FormAgreament
                     agreeURL="/"
@@ -91,8 +124,124 @@ function ClaimViewUser() {
                     item1Class="w-fit flex gap-[11px] items-center"
                     item2Class="w-fit"
                     btn="w-fit"
+                    handleSubmit={handleSubmit}
                   />
+                </div> */}
+
+                <div className="mt-[20px] bg-dark-600  dark:bg-white box-border-2x-light dark:box-border-2x-dark">
+                  <InfoText
+                    variant="large"
+                    text="Investigation Report"
+                    color={theme === 'dark' ? 'dark' : 'white'}
+                    className="pt-[30px] px-[20px] flex gap-[5px] text-[#F1F1F1] dark:text-dark-600 fw-500 fs-16 lh-19"
+                    textClassName="text-[#F1F1F1] dark:text-dark-600 fw-500 fs-16 lh-19 ls-35"
+                  />
+
+                  <div className="pt-[20px] px-[20px] pb-[30px] bg-dark-600 rounded dark:bg-white">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex w-full">
+                        <div className="flex w-[177px]">
+                          <span className="text-dark-200 investigation-item-title-sm">
+                            Asessor Report
+                          </span>
+                        </div>
+                        <div className="flex w-[60%]">
+                          <div className="flex items-center">
+                            <Attachment
+                              className="file-name investigation-item-value-sm"
+                              icon={
+                                theme === 'dark'
+                                  ? '/images/backFile.svg'
+                                  : '/images/Group 218.svg'
+                              }
+                              name={claimdetails.report.name}
+                              status={
+                                theme === 'dark'
+                                  ? '/images/downloadblack.svg'
+                                  : '/images/Group 219.svg'
+                              }
+                              height={19}
+                              width={19}
+                              gap={2}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="min-w-full">
+                        <img
+                          className="min-w-full"
+                          src="/images/line-2.svg"
+                          alt=""
+                        />
+                      </div>
+
+                      <div className="flex w-full">
+                        <div className="flex w-[177px]">
+                          <span className="text-dark-200 investigation-item-title-sm">
+                            File Hash
+                          </span>
+                        </div>
+                        <div className="flex w-[60%]">
+                          <span className="investigation-item-value-sm">
+                            {extractHash(claimdetails.report.link)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="min-w-full">
+                        <img
+                          className="min-w-full"
+                          src="/images/line-2.svg"
+                          alt=""
+                        />
+                      </div>
+
+                      <div className="flex w-full">
+                        <div className="flex w-[177px] gap-[8px]">
+                          <span className="text-dark-200 investigation-item-title-sm">
+                            Recommandation
+                          </span>
+                          <img
+                            width={8}
+                            id={`recommandation`}
+                            src={`${
+                              icon === 'recommandation'
+                                ? '/images/info-green-icon.svg'
+                                : '/images/Maskd (2).svg'
+                            }`}
+                            alt=""
+                            onMouseEnter={() => {
+                              setIcon('recommandation')
+                            }}
+                            onMouseLeave={() => {
+                              setIcon('')
+                            }}
+                          />
+                          <ReactTooltip
+                            className="my-tool-tip z-500"
+                            anchorId={'recommandation'}
+                            place="bottom"
+                            content="This is the total amount available for  you to borrow. You can borrow based on your collateral and until the borrowcap is reached."
+                          />
+                        </div>
+                        <div className="flex w-[60%]">
+                          <span
+                            className={`text-[${
+                              claimdetails.resultStatus === 'approved'
+                                ? '#50ff7f'
+                                : '#DA0A0A'
+                            }] investigation-item-value-sm`}
+                          >
+                            {getRecommendation(claimdetails.resultStatus)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                <CastAssesment claimDetails={claimdetails} />
               </div>
 
               <div className="flex flex-col w-full gap-5 sm:flex claim-side-data">
@@ -440,9 +589,9 @@ function ClaimViewUser() {
                 <span className="fw-500 fs-16 lh-19 text-[#F1F1F1] dark:text-dark-600 block mb-5">
                   Incident Details
                 </span>
-                <IncidentCard />
+                <IncidentCard data={claimdetails} />
               </div>
-              <IncidentDetails />
+              <IncidentDetails data={claimdetails} />
               <div>
                 <AddMoreDocuments subtext={true} />
                 <FormAgreament

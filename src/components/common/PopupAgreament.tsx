@@ -5,19 +5,33 @@ import TermOfUsePopup from '../global/TermOfUsePopup'
 import Popup from '../templates/Popup'
 import SelectionField from './SelectionField'
 import { UserContext } from '../../App'
+import { acceptPolicy } from '../../api'
+import { openAlert, closeAlert } from '../..//redux/alerts'
+import { useDispatch } from 'react-redux'
+import { depositIntoPolicy, stake } from '../../api'
 
 export interface PopupAgreamentProps {
   mainClass?: String
   classname?: String
   agree: string
   agreeURL: string
+  setId: any
+  id: number
+  setStage: any
   textClasss?: string
+  active: boolean
+  amountApproved: boolean
   text?: string
   variety?: string
   checked?: boolean
   bntText?: string
   item1Class?: String
   item2Class?: String
+  coverDetails?: any
+  depositAmount?: any
+  setTransferring?: any
+  isStake?: boolean
+  handleStake?: any
 }
 
 function PopupAgreament({
@@ -32,6 +46,16 @@ function PopupAgreament({
   bntText,
   item1Class,
   item2Class,
+  setId,
+  id,
+  coverDetails,
+  depositAmount,
+  setStage,
+  active,
+  setTransferring,
+  amountApproved,
+  isStake,
+  handleStake,
 }: PopupAgreamentProps) {
   const [value, setValue] = useState(checked)
   const [checkbox, setCheckbox] = useState(true)
@@ -40,6 +64,69 @@ function PopupAgreament({
   const toggleTerms = () => setTerms((v) => !v)
   const popupTerms = ['Terms of Use']
   const { theme } = React.useContext(UserContext)
+  const dispatch = useDispatch()
+
+  const handleClick = async () => {
+    if (depositAmount === 0 || amountApproved) {
+      if (isStake) {
+        handleStake()
+      } else if (active) {
+        setTransferring(true)
+        await depositIntoPolicy(coverDetails.poolName, depositAmount)
+        setStage(2)
+        setTimeout(() => {
+          setStage(3)
+          dispatch(
+            openAlert({
+              displayAlert: true,
+              data: {
+                id: 1,
+                variant: 'Successful',
+                classname: 'text-black',
+                title: 'Deposit Succesful',
+                tag1: 'policy deposit process completetd',
+                tag2: 'cover balance toped up',
+              },
+            })
+          )
+          setTimeout(() => {
+            dispatch(closeAlert())
+          }, 10000)
+        }, 1000)
+      } else {
+        if (id === 1) {
+          await acceptPolicy(
+            coverDetails.poolName,
+            coverDetails.data,
+            coverDetails.address,
+            depositAmount
+          )
+          setStage(2)
+          setTimeout(() => {
+            setStage(3)
+            dispatch(
+              openAlert({
+                displayAlert: true,
+                data: {
+                  id: 1,
+                  variant: 'Successful',
+                  classname: 'text-black',
+                  title: 'Policy Accepted',
+                  tag1: 'policy purchase process completetd',
+                  tag2: 'cover bought',
+                },
+              })
+            )
+            setTimeout(() => {
+              dispatch(closeAlert())
+            }, 10000)
+          }, 1000)
+        } else if (id === 6) {
+          setId(1)
+        }
+      }
+    }
+  }
 
   var model = []
   if (theme === 'dark') {
@@ -60,7 +147,9 @@ function PopupAgreament({
           <div
             className=""
             onClick={() => {
-              checkbox ? setCheckbox(false) : setCheckbox(true)
+              if (id === 6) {
+                checkbox ? setCheckbox(false) : setCheckbox(true)
+              }
             }}
           >
             {checkbox ? (
@@ -109,20 +198,19 @@ function PopupAgreament({
           }`}
         >
           {checkbox ? (
-            <>
-              <button
-                type="button"
-                disabled
-                className={`${
-                  theme === 'dark'
-                    ? 'dark:bg-light-1100 dark:box-border'
-                    : 'form-submit-btn'
-                } contained medium  font-medium px-8 w-full square button`}
-              >
-                <span>{bntText || 'Confirm'}</span>
-                <img className="duration-150 " src="/images/126.svg" alt="" />
-              </button>
-            </>
+            <button
+              type="button"
+              disabled
+              className={`${
+                theme === 'dark'
+                  ? 'dark:bg-light-1100 dark:box-border'
+                  : 'form-submit-btn'
+              } contained medium  font-medium px-8 w-full square button`}
+              onClick={handleClick}
+            >
+              <span>{bntText || 'Confirm'}</span>
+              <img className="duration-150 " src="/images/126.svg" alt="" />
+            </button>
           ) : (
             <button
               type="button"
@@ -131,6 +219,7 @@ function PopupAgreament({
                   ? 'dark:white dark:box-border '
                   : 'greenGradient'
               } contained medium  font-medium px-8 w-full square button`}
+              onClick={handleClick}
             >
               <span>{bntText || 'Confirm'}</span>
               <img className="duration-150 " src="/images/125.svg" alt="" />

@@ -15,6 +15,22 @@ import Timepicker from '../Timepicker/Timepicker'
 import Popup from '../../components/templates/Popup'
 import FormAgreament from '../../components/common/FormAgreament'
 import { useNavigate } from 'react-router-dom'
+import { createDateString } from '../../utils/dateTime'
+import { useWeb3React } from '@web3-react/core'
+import lighthouse from '@lighthouse-web3/sdk'
+import { convertJsonToString } from '../../utils/helpers'
+import { getCurrentDateTime } from '../../utils/dateTime'
+import { openAlert, closeAlert } from '../../redux/alerts'
+import { useSelector, useDispatch } from 'react-redux'
+import { removeItemFromArray } from '../../utils/helpers'
+import { uploadJsonData } from '../../lighthouse'
+import { raiseClaim } from '../../api'
+import { updateCoverClaimState } from '../../database'
+
+interface Document {
+  link: string
+  name: string
+}
 
 function NewClaim() {
   const { theme } = React.useContext(UserContext)
@@ -26,6 +42,200 @@ function NewClaim() {
     setPopup(true)
   }
   let navigate = useNavigate()
+  const { library, account } = useWeb3React()
+  const dispatch = useDispatch()
+  const [formState, setFormState] = useState({
+    claimType: '',
+    eventType: '',
+    eventDate: '',
+    eventTime: '',
+    timezone: '',
+    estimatedLossAmount: '',
+    incidentDescription: '',
+    documents: [] as Document[],
+  })
+  const [formFilled, setFormFilled] = useState(true)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
+  const [fileUploadInitated, setFileUploadInitiated] = useState(false)
+
+  type ProgressData = {
+    total: number
+    uploaded: number
+  }
+
+  const progressCallback = (progressData: ProgressData) => {
+    let percentageDone = Math.round(
+      (progressData?.uploaded / progressData?.total) * 100
+    )
+    setUploadProgress(percentageDone)
+  }
+
+  //Uploads File to IPFS
+  const uploadFile = async (file: any) => {
+    const output = await lighthouse.upload(
+      file,
+      process.env.REACT_APP_LIGHTHOUSE_API_KEY as string,
+      false,
+      undefined,
+      progressCallback
+    )
+    const link = 'https://gateway.lighthouse.storage/ipfs/' + output.data.Hash
+    const currentDocuments: Document[] = [...formState.documents]
+    currentDocuments.push({
+      link: link,
+      name: file[0].name,
+    })
+    setFormState((prevState) => ({
+      ...prevState,
+      documents: currentDocuments,
+    }))
+  }
+
+  const handleFileChange = async (event: any) => {
+    setFileUploadInitiated(true)
+    const files = event.target.files
+    const updatedFiles = [...selectedFiles]
+
+    for (let i = 0; i < files.length; i++) {
+      updatedFiles.push(files[i])
+    }
+
+    // const encryptedFile = await encryptAndHandleFile(files[0])
+    // console.log(encryptedFile)
+    // const decryptedFile = await decryptAndHandleFile(encryptedFile)
+    // console.log(decryptedFile)
+
+    setSelectedFiles(updatedFiles)
+    uploadFile(files)
+  }
+
+  const removeFile = (index: number) => {
+    const newArray = removeItemFromArray(
+      formState.documents,
+      formState.documents[index].link
+    )
+    setFormState((prevState: any) => ({
+      ...prevState,
+      documents: newArray,
+    }))
+    var newFiles = [...selectedFiles]
+    newFiles.splice(index, 1)
+    setSelectedFiles(newFiles)
+  }
+
+  // Generic change handler for all inputs
+  const handleChange = (e: any) => {
+    const { name, value } = e.target
+    setFormState((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }))
+  }
+
+  const handleTimeChange = (value: any) => {
+    setFormState((prevState) => ({
+      ...prevState,
+      eventTime: value,
+    }))
+  }
+
+  const handleEventDateChange = (value: any) => {
+    const dateString = createDateString(value)
+    setFormState((prevState) => ({
+      ...prevState,
+      eventDate: dateString,
+    }))
+  }
+
+  function areAllValuesFilled(obj: any) {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key) && obj[key] === '') {
+        return false // If any value is not an empty string, return false
+      }
+    }
+    return true // All values are empty strings
+  }
+
+  // Handle form submission
+  const handleSubmit = async () => {
+    console.log('Button was clicked')
+    setFileUploadInitiated(true)
+    const date = getCurrentDateTime()
+    setFormState((prevState) => ({
+      ...prevState,
+      date: date,
+    }))
+    setFormState((prevState) => ({
+      ...prevState,
+      address: account,
+    }))
+    const formFilled = areAllValuesFilled(formState)
+    setFormFilled(formFilled)
+    if (!formFilled) {
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 2,
+            variant: 'Failed',
+            classname: 'text-black',
+            title: 'Transaction Failed',
+            tag1: 'Some fields not filled!',
+            tag2: 'please fill all fields',
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+    }
+
+    if (formFilled) {
+      fetch('https://ipinfo.io/json')
+        .then((response) => response.json())
+        .then(async (data) => {
+          const poolName = localStorage.getItem('claimPoolName')
+          const formData = {
+            ...formState,
+            date: date,
+            address: account,
+            region: data.country,
+            poolName: poolName,
+          }
+          const dataString = convertJsonToString(formData)
+          const userData = await uploadJsonData(dataString)
+          await raiseClaim(poolName as string, userData)
+          await updateCoverClaimState(
+            account,
+            poolName as string,
+            'in progress'
+          )
+          dispatch(
+            openAlert({
+              displayAlert: true,
+              data: {
+                id: 1,
+                variant: 'Successful',
+                classname: 'text-black',
+                title: 'Submission Successful',
+                tag1: 'Claim application submitted',
+                tag2: 'View on etherscan',
+              },
+            })
+          )
+          setTimeout(() => {
+            dispatch(closeAlert())
+          }, 10000)
+          localStorage.removeItem('claimPoolName')
+          navigate(-1)
+        })
+        .catch((error) => {
+          console.log('Error fetching IP address information: ', error)
+        })
+    }
+  }
+
   return (
     <>
       <div>
@@ -57,15 +267,27 @@ function NewClaim() {
                 </p>
               </div>
               <div className="flex flex-col gap-5 pt-5 lg:pt-2">
-                <TextField label="Claim Type" placeholder="Please Select" />
+                <TextField
+                  label="Claim Type"
+                  placeholder="Please Select"
+                  handleChange={handleChange}
+                  filled={formFilled}
+                  name="claimType"
+                />
                 <TextField
                   label="Event Type"
                   placeholder="Please Select"
                   borderRight="border-r border-r-primary-700"
+                  handleChange={handleChange}
+                  filled={formFilled}
+                  name="eventType"
                 />
                 <TextField
                   label="Event Date"
                   placeholder={['Month', 'Day', 'Year']}
+                  handleDobChange={handleEventDateChange}
+                  filled={formFilled}
+                  name="eventDate"
                 />
                 <div className="grid grid-cols-2 sm:gap-5 gap-2.5 ">
                   <div className="flex gap-2.5 flex-col">
@@ -105,7 +327,7 @@ function NewClaim() {
                         type="text"
                         placeholder="Set Time"
                         className="w-full selectTime"
-                        value={timeValue}
+                        value={formState.eventTime}
                         onClick={() => popManager()}
                       />
                       <img src="/images/clock-icon.svg" alt="" />
@@ -115,6 +337,9 @@ function NewClaim() {
                     label="Time Zone"
                     placeholder="Please Select "
                     borderRight="border-r border-r-brand-100"
+                    handleChange={handleChange}
+                    filled={formFilled}
+                    name="timezone"
                   />
                 </div>
 
@@ -158,6 +383,8 @@ function NewClaim() {
                       type="text"
                       placeholder="e.g. 5000"
                       className="w-full placeholder:text-dark-650 placeholder:text dark:bg-light-800"
+                      name="estimatedLossAmount"
+                      onChange={handleChange}
                     />
                   </div>
                 </div>
@@ -186,6 +413,8 @@ function NewClaim() {
                   }
                   `}
                   placeholder="Type here ..."
+                  onChange={handleChange}
+                  name="incidentDescription"
                 />
               </div>
             </div>
@@ -205,6 +434,10 @@ function NewClaim() {
               <div>
                 <label
                   className={`mb-[20px] mt-[15px] flex justify-center w-full  transition border-2 border-gray-300 dark:dark-light-box-border dark:border-dashed border-dashed appearance-none cursor-pointer hover:border-gray-400 focus:outline-none border-color w-full h-[40px]`}
+                  onClick={(e) => {
+                    console.log('Clicked')
+                  }}
+                  htmlFor="file_upload"
                 >
                   <span className="flex items-center space-x-2">
                     <img
@@ -216,17 +449,33 @@ function NewClaim() {
                       Upload
                     </span>
                   </span>
-                  <input type="file" name="file_upload" className="hidden" />
+                  <input
+                    id="file_upload"
+                    type="file"
+                    name="file_upload"
+                    className="hidden"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                    }}
+                    onChange={handleFileChange}
+                  />
                 </label>
-                <div className="mb-[5px]">
-                  <UploadingFile progress={100} />
-                </div>
-                <div className="mb-[5px]">
-                  <UploadingFile progress={45} />
-                </div>
+                {selectedFiles.map((file, index) => (
+                  <div className="mb-[5px]" key={index}>
+                    <UploadingFile
+                      progress={uploadProgress}
+                      file={file}
+                      handleRemove={() => removeFile(index)}
+                    />
+                  </div>
+                ))}
                 <div className="my-[20px]">
                   <Rules padding="py-[20px] px-[20px]" space="ml-[20px]" />
                 </div>
+                {((formState.documents.length === 0 && fileUploadInitated) ||
+                  !formFilled) && (
+                  <span style={{ color: 'red' }}>Document is required</span>
+                )}
               </div>
             </div>
             <hr className="my-[24px]" />
@@ -242,6 +491,7 @@ function NewClaim() {
                   item1Class="w-full flex gap-[12px] items-center"
                   item2Class="w-full mt-[10px] flex justify-end"
                   btn="sm:w-fit w-full"
+                  handleSubmit={handleSubmit}
                 />
               </div>
             </div>
@@ -267,7 +517,10 @@ function NewClaim() {
             setPopup(false)
           }}
         >
-          <Timepicker />
+          <Timepicker
+            onClose={() => setPopup(false)}
+            setTime={handleTimeChange}
+          />
         </Popup>
       </div>
     </>

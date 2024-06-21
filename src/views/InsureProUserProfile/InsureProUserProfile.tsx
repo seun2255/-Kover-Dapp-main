@@ -50,7 +50,6 @@ function InsureProUserProfile() {
   )
   const [canModify, setCanModify] = useState(false)
   const [formState, setFormState] = useState(applicant)
-  console.log(applicant)
   const [formFilled, setFormFilled] = useState(true)
   const dispatch = useDispatch()
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
@@ -196,7 +195,12 @@ function InsureProUserProfile() {
           }
           const dataString = convertJsonToString(formData)
           const userData = await uploadJsonData(dataString)
-          await modifyInsureProApplication(data.country, userData)
+          await modifyInsureProApplication(
+            data.country,
+            userData,
+            data.workField,
+            data.pool
+          )
 
           dispatch(
             openAlert({

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import CoverCard from '../../components/common/cards/StatusCard/StatusCard'
 import FilterTabs from '../../components/common/FilterTabs'
@@ -12,13 +12,33 @@ import { UserContext } from '../../App'
 import useWindowDimensions from '../../../src/components/global/UserInform/useWindowDimensions'
 import Drawer from 'react-modern-drawer'
 import Card from '../../components/common/cards/StatusCard/Card'
+import { getPools } from '../../api'
+import CarInsurance from '../../components/common/PolicyRiskForms/carRisk'
+import { useSelector } from 'react-redux'
 
 function Insurance() {
   const { theme } = React.useContext(UserContext)
   const { width } = useWindowDimensions()
+  const { user } = useSelector((state: any) => state.user)
   const [selectItem, setselectItem] = useState()
+  const [riskForm, setRiskForm] = useState(false)
+  const [pools, setPools] = useState<any[]>([])
   const handlerLink = (item: any) => {
     setselectItem(item)
+  }
+
+  useEffect(() => {
+    const getData = async () => {
+      const poolnames = await getPools()
+      setPools(poolnames)
+    }
+
+    getData()
+  }, [])
+
+  //placeholder
+  const setPolicyProcessState = () => {
+    console.log('Set')
   }
 
   const coverCard = {
@@ -85,29 +105,6 @@ function Insurance() {
       totalPolicies: '4551',
       totalPoliciesName: 'Total Policies',
     },
-    table: {
-      rows: [
-        {
-          text: 'Pool status',
-          icon: true,
-        },
-        {
-          text: 'UR',
-          icon: true,
-        },
-        {
-          text: 'Cover Details',
-          icon: false,
-        },
-      ],
-      columns: [
-        'Active',
-        '80%',
-        <Link to="/" className="dark:text-dark-600">
-          Learn more
-        </Link>,
-      ],
-    },
     prpInput: {
       infoText: {
         text: 'PRP',
@@ -119,11 +116,10 @@ function Insurance() {
         to: '/risk-mnagament-home',
       },
     },
-    
+
     disclaimer:
       'Please ensure that the information you provide is correct, as any inaccurate or incomplete information may invalidate the policy and result in your claims being rejected or not paid in full',
   }
-
 
   const insuranceData = [
     {
@@ -148,11 +144,40 @@ function Insurance() {
 
   const [status, setStatus] = React.useState<number>(0)
   const [select, setSelect] = useState(false)
+  const [selectedPool, setSelectedPool] = useState('')
   const toggleSelect = () => setSelect((v) => !v)
+  const toggleForm = () => setRiskForm((v) => !v)
   const [isOpen, setIsOpen] = React.useState(false)
   const [bondPopup, serbondPopup] = useState(false)
   const toggleDrawer = () => {
     setIsOpen((prevState) => !prevState)
+  }
+  const [selectedCover, setSelectedCover] = useState(6)
+
+  // Function to check if the text matches any poolName
+  function checkIfPoolNameExists(array: any, text: string) {
+    for (let i = 0; i < array.length; i++) {
+      if (array[i].poolName === text) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  const handleCoverClick = (coverName: string) => {
+    const hasCover = checkIfPoolNameExists(user.covers, coverName)
+    if (hasCover) {
+      user.covers.map((cover: any) => {
+        if (coverName === cover.poolName) {
+          setSelectedCover(cover)
+        }
+      })
+      setSelect(!select)
+    } else {
+      setSelectedPool(coverName)
+      setRiskForm(!riskForm)
+    }
   }
 
   return (
@@ -185,32 +210,16 @@ function Insurance() {
           width > 1199 && width > 1302 ? 'grid-cols-2' : 'grid:cols-1'
         }`}
       >
-        
-          <Card
-            index={0}
-            coverName="Car Cover"
-            data={insuranceData}
-            selectButton={{ onClick: toggleSelect }}
-          />
-          <Card
-            index={1}
-            coverName="Motor Bike Cover"
-            data={insuranceData}
-            selectButton={{ onClick: toggleSelect }}
-          />
-          <Card
-            index={2}
-            coverName="Home Cover"
-            data={insuranceData}
-            selectButton={{ onClick: toggleSelect }}
-          />
-          <Card
-            index={3}
-            coverName="Pet Cover"
-            data={insuranceData}
-            selectButton={{ onClick: toggleSelect }}
-          />
-       
+        {pools.map((pool, index) => {
+          return (
+            <Card
+              index={index}
+              coverName={`${pool} Cover`}
+              data={insuranceData}
+              selectButton={{ onClick: () => handleCoverClick(pool) }}
+            />
+          )
+        })}
 
         <div className="border-dark-800 border-dashed rounded flex items-center justify-center text-center border-2">
           <button
@@ -247,9 +256,9 @@ function Insurance() {
             Filter Options
           </span>
           <div className="mt-[40px]">
-            {['All', 'Active'].map((item: any) => {
+            {['All', 'Active'].map((item: any, index: number) => {
               return (
-                <>
+                <div key={index}>
                   <div
                     className="flex justify-between drawer-item dark:drawer-item-dark"
                     onClick={() => handlerLink(item)}
@@ -312,7 +321,7 @@ function Insurance() {
                       borderColor: '#43444B',
                     }}
                   />
-                </>
+                </div>
               )
             })}
           </div>
@@ -320,9 +329,26 @@ function Insurance() {
       </Drawer>
 
       <Popup onClose={toggleSelect} visible={select} maxWidth="max-w-[860px]">
-        <PopConfirm onClose={toggleSelect} {...selectInsurance} />
+        <PopConfirm
+          onClose={toggleSelect}
+          {...selectInsurance}
+          coverDetails={selectedCover}
+        />
       </Popup>
-      
+
+      <Popup visible={riskForm} onClose={toggleForm}>
+        <div className="kyc-popup">
+          <div className="flex gap-5 mb-3.5">
+            <div>
+              <CarInsurance
+                onClose={toggleForm}
+                setPolicyProcessState={setPolicyProcessState}
+                poolName={selectedPool}
+              />
+            </div>
+          </div>
+        </div>
+      </Popup>
     </div>
   )
 }

@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Agreament from '../Agreament'
 import Button, { ButtonProps } from '../Button'
 import StatusCardContent, {
@@ -12,8 +13,16 @@ import useWindowDimensions from '../../global/UserInform/useWindowDimensions'
 import PopupAgreament from '../PopupAgreament'
 import Scrollbars from 'react-custom-scrollbars-2'
 import RiskPoolManagement from '../../../views/KYCApplication/RiskPoolManagement'
+import RiskPolicyUserProfile from '../../../views/PolicyRiskUserPofile/PolicyRiskUserPofile'
+import RiskMnagamentCar from '../../../views/RiskMnagament/RiskMnagamentCar'
+import RiskMnagamentMotorbike from '../../../views/RiskMnagament/RiskMnagamentMotorbike'
 import WeightRow from '../WeightRow'
 import WeightTitle from '../WeightTitle'
+import moment from 'moment'
+import { getPolicyData } from '../../../api'
+import { useWeb3React } from '@web3-react/core'
+import TransactionProgress from '../TransactionProgress'
+import DepositModal from '../DepositModal'
 
 interface CommonPopConfirmProps {
   id?: Number
@@ -21,6 +30,7 @@ interface CommonPopConfirmProps {
   balance?: string
   onClose?: () => void
   defaultTab?: number
+  coverDetails?: any
   data?: string
 }
 
@@ -31,6 +41,14 @@ interface GlobalProps {
   disclaimer?: string
   prpInput?: InputProps
   inputMax?: InputMaxProps
+}
+
+let durations: { [key: string]: any } = {
+  '2 weeks': moment.duration(2, 'weeks'),
+  '30 days': moment.duration(30, 'days'),
+  '90 days': moment.duration(90, 'days'),
+  '180 days': moment.duration(180, 'days'),
+  '365 days': moment.duration(365, 'days'),
 }
 
 interface TabProps {
@@ -53,32 +71,62 @@ type NormalProps = GlobalProps &
     datam?: never
   }
 
+const table = {
+  rows: [
+    {
+      text: 'Pool status',
+      icon: true,
+    },
+    {
+      text: 'UR',
+      icon: true,
+    },
+    {
+      text: 'Cover Details',
+      icon: false,
+    },
+  ],
+  columns: [
+    'Active',
+    '80%',
+    <Link to="/" className="dark:text-dark-600">
+      Learn more
+    </Link>,
+  ],
+}
+
 export type PopConfirmProps = CommonPopConfirmProps & (NormalProps | TabProps)
 function PopConfirm(props: PopConfirmProps) {
   const { theme } = React.useContext(UserContext)
-  var { datam, title, onClose, defaultTab, id } = props
+  var { datam, title, onClose, defaultTab, coverDetails } = props
+  const [id, setId] = useState(6)
   const [tab, setTab] = useState<number>(defaultTab || 0)
   const titleClassNameDark = 'summary-dark-title'
   const textClassNameDark = 'summary-dark-text'
   const titleClassNameLight = 'summary-light-title'
   const textClassNameLight = 'summary-light-text'
 
-
   const [day, setDay] = useState(1)
-  const {
-    warning,
-    table,
-    dayTab,
-    cover,
-    prpInput,
-    inputMax,
-    balance,
-    disclaimer,
-  } = datam?.data?.[tab] || props
+  const { warning, dayTab, cover, prpInput, inputMax, balance, disclaimer } =
+    datam?.data?.[tab] || props
   const { width } = useWindowDimensions()
   const changeDay = (index: number) => {
     setDay(index)
   }
+  const { account } = useWeb3React()
+  let now = moment()
+  const [fields, setFields] = useState({
+    date: '-',
+    premium: '-',
+    fees: '-',
+    discount: '-',
+    cost: '-',
+  })
+  const [depositAmount, setDepositAmount] = useState(0)
+  const [policyData, setPolicyData] = useState<any>()
+  const [stage, setStage] = useState(1)
+  const [policyActive, setPolicyActive] = useState(false)
+  const [amountApproved, setAmountApproved] = useState(false)
 
   const renderThumb = () => {
     const thumbStyle = {
@@ -89,7 +137,45 @@ function PopConfirm(props: PopConfirmProps) {
     return <div style={{ ...thumbStyle }} />
   }
 
-  return (
+  useEffect(() => {
+    const getData = async () => {
+      if (coverDetails.status !== 'in review' && account) {
+        const policyDetails = await getPolicyData(
+          account,
+          coverDetails.poolName
+        )
+        setPolicyData(policyDetails)
+        if (policyDetails.policyStatus === 'active') {
+          setPolicyActive(true)
+        }
+        setFields({
+          date: now
+            .add(durations[policyDetails.coverDuration as string])
+            .format('DD/MM/YYYY'),
+          premium: policyDetails.premiumQuote,
+          fees: policyDetails.fee,
+          discount: '-',
+          cost: policyDetails.premiumQuote,
+        })
+      }
+    }
+    getData()
+  }, [])
+
+  return policyActive ? (
+    <DepositModal
+      warning={warning}
+      dayTab={dayTab}
+      cover={cover}
+      prpInput={prpInput}
+      inputMax={inputMax}
+      balance={balance}
+      disclaimer={disclaimer}
+      title={title}
+      onClose={onClose}
+      coverDetails={coverDetails}
+    />
+  ) : (
     <>
       <div className={`sm:popup-3 mx-[15px] my-[20px] ${id === 4 ? '' : ''}`}>
         <div className="flex items-center justify-between mb-5">
@@ -114,8 +200,9 @@ function PopConfirm(props: PopConfirmProps) {
         </div>
         {/* id 20 used for risk pool management form */}
         {id === 20 ? (
-          <RiskPoolManagement/>
-        ):(
+          // <RiskPoolManagement/>
+          <RiskMnagamentMotorbike />
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 max-h-[600px] overflow-auto no-scrollbar">
             <div className="flex flex-col gap-5 md:cover-popup-right-content">
               <div className="dark:box-border  border border-dark-75 coverbox-padding md:w-[360px]">
@@ -158,16 +245,16 @@ function PopConfirm(props: PopConfirmProps) {
                         {width > 900 ? (
                           <>
                             {/* <div className="my-[25px] flex justify-center ">
-                              <img
-                                src={
-                                  theme === 'dark'
-                                    ? '/images/012.svg'
-                                    : '/images/hr_svg.svg'
-                                }
-                                alt=""
-                              />
-                            </div> */}
-                             <hr className="mt-[25px] mb-[25px]" />
+                            <img
+                              src={
+                                theme === 'dark'
+                                  ? '/images/012.svg'
+                                  : '/images/hr_svg.svg'
+                              }
+                              alt=""
+                            />
+                          </div> */}
+                            <hr className="mt-[25px] mb-[25px]" />
                           </>
                         ) : (
                           <></>
@@ -272,12 +359,14 @@ function PopConfirm(props: PopConfirmProps) {
               {prpInput && (
                 <Input
                   {...prpInput}
-                  className={id === 1 || id === 3 || id === 5 ? 'input-border' : ''}
+                  className={
+                    id === 1 || id === 3 || id === 5 ? 'input-border' : ''
+                  }
                 />
               )}
             </div>
             <div className="md:cover-popup-left-content md:cover-center-border md:mt-0 mt-[20px] top-border">
-              <div className='dark:box-border  border border-dark-75 coverbox-padding'>
+              <div className="dark:box-border  border border-dark-75 coverbox-padding">
                 <div>
                   {datam ? (
                     <>
@@ -309,7 +398,7 @@ function PopConfirm(props: PopConfirmProps) {
                     </>
                   ) : (
                     <>
-                      { id === 6 ? (
+                      {id === 6 ? (
                         <InfoText
                           className="mb-[20px] margin-top"
                           variant="large"
@@ -322,52 +411,56 @@ function PopConfirm(props: PopConfirmProps) {
                           className="mb-[20px] margin-top"
                           variant="large"
                           color={theme === 'dark' ? 'dark' : 'white'}
-                          text={ id === 5 ? "Reinsurance" : "Deposit"}
+                          text={id === 5 ? 'Reinsurance' : 'Deposit'}
                           icon={true}
                         />
-                      ) }
+                      )}
                     </>
                   )}
                 </div>
                 {id === 6 ? (
                   <>
-                  <WeightRow
-                    name="Expiration Date"
-                    value="-"
-                    titleclassname={titleClassNameDark}
-                    textclassname={textClassNameDark}
-                  />
-                  <WeightRow
-                    name="Estimated Premium"
-                    value="-"
-                    titleclassname={titleClassNameDark}
-                    textclassname={textClassNameDark}
-                  />
-                  <WeightRow
-                    name="Policy Fees"
-                    value="-"
-                    titleclassname={titleClassNameDark}
-                    textclassname={textClassNameDark}
-                  />
-                  <WeightRow
-                    name="Estimated Discount"
-                    value="-"
-                    titleclassname={titleClassNameDark}
-                    textclassname={textClassNameDark}
-                  />
-                  <WeightRow
-                    name="Estimated Cost"
-                    value="-"
-                    titleclassname={titleClassNameLight}
-                    textclassname={textClassNameLight}
-                  />
+                    <WeightRow
+                      name="Expiration Date"
+                      value={fields.date}
+                      titleclassname={titleClassNameDark}
+                      textclassname={textClassNameDark}
+                    />
+                    <WeightRow
+                      name="Estimated Premium"
+                      value={fields.premium}
+                      titleclassname={titleClassNameDark}
+                      textclassname={textClassNameDark}
+                    />
+                    <WeightRow
+                      name="Policy Fees"
+                      value={fields.fees}
+                      titleclassname={titleClassNameDark}
+                      textclassname={textClassNameDark}
+                    />
+                    <WeightRow
+                      name="Estimated Discount"
+                      value={fields.discount}
+                      titleclassname={titleClassNameDark}
+                      textclassname={textClassNameDark}
+                    />
+                    <WeightRow
+                      name="Estimated Cost"
+                      value={fields.cost + fields.fees}
+                      titleclassname={titleClassNameLight}
+                      textclassname={textClassNameLight}
+                    />
                   </>
                 ) : (
-                  <InputMax {...inputMax} />
+                  <InputMax
+                    setDepositAmount={setDepositAmount}
+                    {...inputMax}
+                    action={true}
+                    setAmountApproved={setAmountApproved}
+                    poolName={coverDetails.poolName}
+                  />
                 )}
-                
 
-                
                 <div className="flex flex-col mt-[15px]">
                   <div className="flex justify-between font-poppins">
                     <span className="balance-text">Balance</span>
@@ -397,27 +490,31 @@ function PopConfirm(props: PopConfirmProps) {
                     <span />
                   )}
 
-                  <div
-                    className={`text-center mt-[35px] mb-[30px] ${
-                      id === 1 || id === 3 ? 'mt-[35px]' : ''
-                    } `}
-                  >
-                    <span className="disclaimer-title">Disclaimer</span>
-                    {/* <div className="my-2.5 flex justify-center">
-                      <img
-                        src={
-                          theme === 'dark'
-                            ? '/images/012.svg'
-                            : '/images/hr_svg.svg'
-                        }
-                        alt=""
-                      />
-                    </div> */}
-                    <hr className="my-[10px]" />
-                    <div className="mx-4 sm:mx-2">
-                      <p className="disclaimer-text">{disclaimer}</p>
+                  {id === 1 ? (
+                    <TransactionProgress stage={stage} />
+                  ) : (
+                    <div
+                      className={`text-center mt-[35px] mb-[30px] ${
+                        id === 1 || id === 3 ? 'mt-[35px]' : ''
+                      } `}
+                    >
+                      <span className="disclaimer-title">Disclaimer</span>
+                      {/* <div className="my-2.5 flex justify-center">
+                    <img
+                      src={
+                        theme === 'dark'
+                          ? '/images/012.svg'
+                          : '/images/hr_svg.svg'
+                      }
+                      alt=""
+                    />
+                  </div> */}
+                      <hr className="my-[10px]" />
+                      <div className="mx-4 sm:mx-2">
+                        <p className="disclaimer-text">{disclaimer}</p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 <div>
@@ -426,6 +523,13 @@ function PopConfirm(props: PopConfirmProps) {
                     variety="checkbox"
                     agree="Terms of Use"
                     bntText="Confirm"
+                    setId={setId}
+                    id={id}
+                    coverDetails={policyData}
+                    depositAmount={depositAmount}
+                    setStage={setStage}
+                    active={false}
+                    amountApproved={amountApproved}
                   />
                 </div>
               </div>

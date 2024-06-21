@@ -6,13 +6,21 @@ import SelectionField from '../common/SelectionField'
 import FormAgreament from '../common/FormAgreament'
 import { UserContext } from '../../App'
 interface CastYourVoteProps {
+  setIsYes: any
+  handleSubmit: any
   headline?: boolean
   class?: String
   view?: string
   firsttext?: string
 }
 
-function CastYourVote({ headline, view, firsttext }: CastYourVoteProps) {
+function CastYourVote({
+  headline,
+  view,
+  firsttext,
+  setIsYes,
+  handleSubmit,
+}: CastYourVoteProps) {
   const [confirm, setConfirm] = useState(false)
   const [agreamentChecked, setAgreamentChecked] = useState(false)
 
@@ -31,13 +39,21 @@ function CastYourVote({ headline, view, firsttext }: CastYourVoteProps) {
               theme === 'dark' ? 'dark-field-border' : 'field-border'
             }`}
           >
-            <SelectionField checked name="cast-vote" />
+            <SelectionField
+              name="cast-vote"
+              setIsYes={setIsYes}
+              action={true}
+            />
             <span className="text-light-800 dark:text-dark-600 fw-500 fs-14 lh-16 ls-35">
               Yes, I accept
             </span>
           </div>
           <div className="flex items-center gap-5 py-4 px-7 dark:bg-white dark:bg-light-800">
-            <SelectionField name="cast-vote" />
+            <SelectionField
+              name="cast-vote"
+              setIsYes={setIsYes}
+              action={false}
+            />
             <span className="text-light-800 dark:text-dark-600 fw-500 fs-14 lh-16 ls-35">
               No, I don't
             </span>
@@ -52,6 +68,7 @@ function CastYourVote({ headline, view, firsttext }: CastYourVoteProps) {
             variety="checkbox"
             agree="Terms of Use"
             bntText="Submit Vote"
+            handleSubmit={handleSubmit}
           />
         </div>
       </div>

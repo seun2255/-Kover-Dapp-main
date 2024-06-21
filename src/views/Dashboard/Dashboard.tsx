@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../../components/common/Button'
 import FilterTabs from '../../components/common/FilterTabs'
@@ -25,15 +25,23 @@ import Switch from '@mui/material/Switch'
 import { Box } from '@mui/material'
 import useWindowDimensions from '../../components/global/UserInform/useWindowDimensions'
 import Alert from '../../components/common/Alert'
+import { useWeb3React } from '@web3-react/core'
+import { get_covers, getPolicyData, get_claims, getClaimData } from '../../api'
+import { getUser } from '../../tableland'
+import axios from 'axios'
+import { useDispatch } from 'react-redux'
+import { openAlert, closeAlert } from '../../redux/alerts'
 
 function Dashboard() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
   const [isOpen, setIsOpen] = React.useState(false)
+  const { library, account } = useWeb3React()
   const [selectItem, setselectItem] = useState()
   const { width } = useWindowDimensions()
   const toggleDrawer = () => {
     setIsOpen((prevState) => !prevState)
   }
+  const [selectedCover, setSelectedCover] = useState(6)
 
   const handlerLink = (item: any) => {
     setselectItem(item)
@@ -44,12 +52,109 @@ function Dashboard() {
   const [dateFilter, setDateFilter] = useState<number>(0)
 
   const [popup, setPopup] = useState<PopConfirmProps | null>(null)
-  const popupHandle = (data?: PopConfirmProps) =>
-    data ? setPopup(data) : setPopup(null)
+  const [covers, setCovers] = useState<any[]>([])
+  const [claims, setClaims] = useState<any[]>([])
+  const dispatch = useDispatch()
+
+  const popupHandle = (data: any) => {
+    setSelectedCover(data)
+    data === null ? setPopup(null) : setPopup(myCoverPopup)
+  }
+
+  const getData = async () => {
+    if (account) {
+      fetch('https://ipinfo.io/json')
+        .then((response) => response.json())
+        .then(async (data) => {
+          const covers = await get_covers(data.country)
+          const axiosRequests = covers.map(async (cover) => {
+            if (cover.address === account.toLowerCase()) {
+              const user = await getUser(cover.address)
+              const response = await axios.get(user.data as string)
+              var result = response.data
+              var policyDetails = await getPolicyData(
+                cover.address,
+                cover.poolName
+              )
+              result = {
+                ...result,
+                ...cover,
+                ...policyDetails,
+                userData: user.data,
+              }
+              return result
+            }
+          })
+          const allCovers = await Promise.all(axiosRequests)
+          setCovers(allCovers)
+        })
+
+      fetch('https://ipinfo.io/json')
+        .then((response) => response.json())
+        .then(async (data) => {
+          const claims = await get_claims(data.country)
+          const axiosRequests = claims.map(async (claim) => {
+            const user = await getUser(claim.address)
+            const response = await axios.get(user.data as string)
+            var result = response.data
+            console.log('Got here 10')
+            const claim_details = await getClaimData(
+              claim.poolName,
+              claim.address
+            )
+            result = {
+              ...result,
+              ...claim,
+              ...claim_details,
+              userData: user.data,
+            }
+            return result
+          })
+          const allClaims = await Promise.all(axiosRequests)
+          console.log('Claims: ', allClaims)
+          setClaims(allClaims)
+        })
+    }
+  }
+
+  const checkClaim = (application: any) => {
+    if (application.resultStatus === 'pending') {
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 2,
+            variant: 'Failed',
+            classname: 'text-black',
+            title: 'Claim is being Assesed',
+            tag1: 'Claim has not been Assesed!',
+            tag2: 'wait for the adjuster to asses the claim',
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+    }
+  }
+
+  useEffect(() => {
+    getData()
+  }, [])
+
+  //Policy State
+  const policyState: { [key: string]: string } = {
+    active: 'Policy Activated',
+    inactive: 'Policy Inactive',
+    user_decision_pending: 'Decision Pending',
+    funds_pending: 'Funds Pending',
+    paused: 'Policy Paused',
+  }
 
   const myCover: TableProps = {
     tabs: tabs,
     options: [{ name: 'Claim' }, { name: 'Pause' }],
+    data: covers,
     columns: [
       {
         name: 'NAME',
@@ -76,16 +181,18 @@ function Dashboard() {
         width: 'w-[9%] ',
       },
     ],
-    rows: [
-      [
+    rows: covers.map((cover, index) => {
+      return [
         <CarInsurance />,
         <Status type="Active" text="Active" />,
         <span className="prp dark:prp-dark">80%</span>,
-        <span className="prp dark:prp-dark">Policy Activated</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
+        <span className="prp dark:prp-dark">
+          {policyState[cover.policyStatus]}
+        </span>,
+        <LargeText primary={cover.src} secondary="USDC" />,
         <div>
           <Button
-            onClick={() => popupHandle(myCoverPopup)}
+            onClick={() => popupHandle(cover)}
             text="Manage"
             btnText="table-action"
             endIcon={
@@ -98,52 +205,8 @@ function Dashboard() {
             } px-[19.5px] py-[11.5px] w-full`}
           />
         </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Active" text="Active" />,
-        <span>80%</span>,
-        <span className="prp dark:prp-dark">Risk Assessment</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            onClick={() => popupHandle(myCoverPopup)}
-            text="Manage"
-            btnText="table-action"
-            endIcon={
-              theme === 'dark'
-                ? '/images/action-btn-logo.svg'
-                : '/images/011.svg'
-            }
-            className={`${
-              theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
-            } px-[19.5px] py-[11.5px] w-full`}
-          />
-        </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Active" text="Active" />,
-        <span>80%</span>,
-        <span className="prp dark:prp-dark">Policyholder Verdict</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            onClick={() => popupHandle(myCoverPopup)}
-            text="Manage"
-            btnText="table-action"
-            endIcon={
-              theme === 'dark'
-                ? '/images/action-btn-logo.svg'
-                : '/images/011.svg'
-            }
-            className={`${
-              theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
-            } px-[19.5px] py-[11.5px] w-full`}
-          />
-        </div>,
-      ],
-    ],
+      ]
+    }),
   }
 
   const myClaims: TableProps = {
@@ -179,20 +242,27 @@ function Dashboard() {
         width: 'w-[9%]',
       },
     ],
-    rows: [
-      [
+    rows: claims.map((application: any, index: number) => {
+      return [
         <CarInsurance />,
-        <Status type="Accepted" />,
-        <span>10</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <span>Payout</span>,
+        <Status type="Active" />,
+        <span>{application.claimId}</span>,
+        <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
+        <span>{application.stage}</span>,
         <LargeText primary="9.4000" secondary="USDC" />,
         <div>
           <Button
-            to="/claim-assessment"
-            text="View"
-            btnText="table-action"
+            to={
+              application.stage === 'validation'
+                ? `/claim-assessment/${application.claimId}`
+                : application.resultStatus !== 'pending'
+                ? `/claim-view-user/${application.claimId}`
+                : undefined
+            }
             className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
+            text="View"
+            onClick={() => checkClaim(application)}
+            btnText="table-action"
             endIcon={
               theme === 'dark'
                 ? '/images/light-btn-icon.svg'
@@ -200,50 +270,8 @@ function Dashboard() {
             }
           />
         </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Declined" />,
-        <span>10</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <span>Payout</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            to="/claim-assessment"
-            text="View"
-            btnText="table-action"
-            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-          />
-        </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Accepted" />,
-        <span>10</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <span>Payout</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            to="/claim-assessment"
-            text="View"
-            btnText="table-action"
-            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-          />
-        </div>,
-      ],
-    ],
+      ]
+    }),
   }
 
   const myBonds: TableProps = {
@@ -434,34 +462,6 @@ function Dashboard() {
         </div>,
       ],
     ],
-  }
-
-  const empty: TableProps = {
-    tabs: tabs,
-    options: [{ name: 'Hide' }, { name: 'Empty' }],
-    columns: [
-      {
-        name: 'POLICY TYPE',
-        width: 'w-[25%]',
-      },
-      {
-        name: 'STATUS',
-        width: 'w-[25%]',
-      },
-      {
-        name: 'CLAIM ID',
-        width: 'w-[16%]',
-      },
-      {
-        name: 'STAGE',
-        width: 'w-[25%]',
-      },
-      {
-        name: 'ACTION',
-        width: 'w-[9%]',
-      },
-    ],
-    rows: [],
   }
 
   const WithdrawalRequests: TableProps = {
@@ -662,6 +662,9 @@ function Dashboard() {
     inputMax: {
       placeholder: '00.00',
       action: true,
+      setAmountApproved: {},
+      setDepositAmount: {},
+      poolName: 'cake',
     },
     balance: '10.42 USDC',
     disclaimer:
@@ -841,7 +844,7 @@ function Dashboard() {
   return (
     <div className="z-10">
       <Header name="Dashboard" overview={true} />
-      {/* <Alert id={2} variant={"Failed"} classname={"text-black"} title={"Transaction Failed"} tag1={"Deposit 50 USDC Cancelled"} tag2={"View on etherscan"}/>  */}
+      {/* {/* <Alert id={2} variant={"Failed"} classname={"text-black"} title={"Transaction Failed"} tag1={"Deposit 50 USDC Cancelled"} tag2={"View on etherscan"}/>  */}
 
       <div className="grid xl:grid-cols-[24.10%_50%_22.94%] lg:grid-cols-[24.10%_50%_22.94%] md:[100%] sm:[100%] md:mb-[30px] mb-[20px] gap-[20px] lg:gap-[20px]">
         <div>
@@ -899,7 +902,6 @@ function Dashboard() {
               'My Claims',
               'My Liquidity',
               'My Votes',
-              'If Empty',
               'Withdrawal Requests',
             ]}
           />
@@ -911,15 +913,14 @@ function Dashboard() {
         </div>
 
         <div className="block max-[1200px]:hidden">
-          {tabs === 0 && <Table {...myCover} />}
+          {tabs === 0 && <Table {...myCover} tableId={0} />}
           {tabs === 1 && <Table {...myClaims} />}
           {tabs === 2 && <Table {...myBonds} />}
           {tabs === 3 && <Table {...myVotes} />}
-          {tabs === 4 && <Table {...empty} />}
-          {tabs === 5 && <Table {...WithdrawalRequests} />}
+          {tabs === 4 && <Table {...WithdrawalRequests} />}
         </div>
 
-        <div className="hidden max-[1200px]:block">
+        {/*<div className="hidden max-[1200px]:block">
           {tabs === 0 && (
             <>
               <>
@@ -1670,11 +1671,19 @@ function Dashboard() {
               </Drawer>
             </>
           )}
-        </div>
+        </div>*/}
       </div>
       {popup !== null && (
-        <Popup onClose={() => popupHandle()} visible maxWidth="max-w-[860px]">
-          <PopConfirm onClose={() => popupHandle()} {...popup} />
+        <Popup
+          onClose={() => popupHandle(null)}
+          visible
+          maxWidth="max-w-[860px]"
+        >
+          <PopConfirm
+            onClose={() => popupHandle(null)}
+            {...popup}
+            coverDetails={selectedCover}
+          />
         </Popup>
       )}
     </div>

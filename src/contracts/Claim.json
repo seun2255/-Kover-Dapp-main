@@ -1,0 +1,1090 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Claim",
+  "sourceName": "contracts/Claim.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "_pool_name",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "_protocol_manager_address",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_staking_pool_address",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_revenue_pool_address",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_max_exposure",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_deductible_perc",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "minimum",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "maximum",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.PayoutParams",
+              "name": "_payout_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "_claim_ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "assign_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "claimant_decision_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "validation_duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "claim_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "adjustor_stake_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "adjustor_approval_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "absolute_majority_perc",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.ClaimParams",
+              "name": "_claim_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "minimum_reputation",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "maximum_reputation",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "initial_reputation",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "trusted_reputation",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "reputation_increment_denominator",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "reputation_decrement_denominator",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.ValidationParams",
+              "name": "_validation_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "claimant_rating",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "validator_rating",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_saved_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "validation_success_perc",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.AdjustorEfficiencyWeights",
+              "name": "_adjustor_efficiency_weights",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Definitions.ClaimDeployParams",
+          "name": "deploy_params",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "_claims_table_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_claimant",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "user_manager_address",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "amount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "amount_to_collect",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "assign_adjustor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "base_perc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "_should_terminate_policy",
+          "type": "bool"
+        }
+      ],
+      "name": "cancel_claim_for_inactivity",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "claim_data",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "adjustor",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "appeal_adjustor",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "appeal_timestamp",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "enum Definitions.ResultStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approved_payout",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "report_ipfs_hash",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "assign_timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "assessment_timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "claimant_rating",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "is_claimant_rated",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct Claim.AdjustorParams",
+          "name": "adjustor_params",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "enum Definitions.ResultStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approved_payout",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "report_ipfs_hash",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "assign_timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "assessment_timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "claimant_rating",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "is_claimant_rated",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct Claim.AdjustorParams",
+          "name": "appeal_adjustor_params",
+          "type": "tuple"
+        },
+        {
+          "internalType": "enum Definitions.ClaimStage",
+          "name": "stage",
+          "type": "uint8"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "minimum",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximum",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.PayoutParams",
+          "name": "payout_params",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "minimum",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximum",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.PayoutParams",
+          "name": "appeal_payout_params",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "claim_ipfs_hashes",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "pre_appeal_claim_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "claim_timestamp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "claimant",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "clearOutstandingDues",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "conclude_reassessment",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "internalType": "bool",
+              "name": "is_member",
+              "type": "bool"
+            },
+            {
+              "internalType": "enum Definitions.ApplicationStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "application_ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "assign_timestamp",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_timestamp",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "reviewer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "enum Definitions.ResultStatus",
+                  "name": "status",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_wait_time",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.Result",
+              "name": "result",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Definitions.KYC",
+          "name": "_kyc",
+          "type": "tuple"
+        }
+      ],
+      "name": "conclude_validation",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "fee_perc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getValidatorsCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_claim_stage",
+      "outputs": [
+        {
+          "internalType": "enum Definitions.ClaimStage",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_price",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "is_claim_success",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "minimum",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximum",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.PayoutParams",
+          "name": "_appeal_payout_params",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_claim_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "modify_appeal_data",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "minimum",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximum",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.PayoutParams",
+          "name": "_payout_params",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_claim_ipfs_hashes",
+          "type": "tuple"
+        }
+      ],
+      "name": "modify_claim_data",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "new_max",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "old_max",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "outstanding_dues",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pool_name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "priceFeed",
+      "outputs": [
+        {
+          "internalType": "contract AggregatorV3Interface",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "_should_inactivate_adjustor",
+          "type": "bool"
+        }
+      ],
+      "name": "revert_adjustor_assessment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "_is_approved",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_approved_payout",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "_report_ipfs_hash",
+          "type": "string"
+        }
+      ],
+      "name": "submit_adjustor_assessment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_source",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_accept",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_claimant_rating",
+          "type": "uint256"
+        }
+      ],
+      "name": "submit_claimant_assessment_decision",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "to_collect",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_claimant",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_base_token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_kover_token_address",
+          "type": "address"
+        }
+      ],
+      "name": "token_initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "total_vote_power",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "trusted_total_vote_power",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "trusted_validators",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "trusted_yes_vote_power",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_source",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_stake",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_reputation",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_yes",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_validator_rating",
+          "type": "uint256"
+        }
+      ],
+      "name": "validate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "validation_rating",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "validations_map",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "stake_locked",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "vote_power",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stake_locked_trusted",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "vote_power_trusted",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "is_yes",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "validators",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "yes_vote_power",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+}

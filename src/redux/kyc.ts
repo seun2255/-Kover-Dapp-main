@@ -3,6 +3,8 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
   kycApplicants: [],
   kycReviewerApplicants: [],
+  coverApplications: [],
+  claimApplications: [],
 }
 
 interface KYCAction {
@@ -21,10 +23,21 @@ export const kycSlice = createSlice({
     setKYCReviewerApplicants: (state: any, action: KYCAction) => {
       state.kycReviewerApplicants = action.payload.data
     },
+    setCoverApplications: (state: any, action: KYCAction) => {
+      state.coverApplications = action.payload.data
+    },
+    setClaimsApplications: (state: any, action: KYCAction) => {
+      state.claimApplications = action.payload.data
+    },
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { setKYCApplicants, setKYCReviewerApplicants } = kycSlice.actions
+export const {
+  setKYCApplicants,
+  setKYCReviewerApplicants,
+  setCoverApplications,
+  setClaimsApplications,
+} = kycSlice.actions
 
 export default kycSlice.reducer

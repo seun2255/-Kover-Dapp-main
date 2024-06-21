@@ -1,0 +1,1818 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "ProtocolManager",
+  "sourceName": "contracts/ProtocolManager.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_admin_address",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "utilization_ratio_risky",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "min_cost_on_capital_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "target_cost_on_capital_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "max_cost_on_capital_perc",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.CostOnCapitalParams",
+              "name": "cost_on_capital_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "revenue_pool_interest_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "rewards_pool_interest_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "staking_interest_perc",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.ReinsuranceParams",
+              "name": "reinsurance_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "can_withdraw_with_penalty",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "wait_time_with_penalty",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "early_withdrawal_penalty_perc",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.WithdrawalParams",
+              "name": "withdrawal_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "max_premium_discount_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "max_fee_on_cost_on_capital_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "pool_operator_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "protocol_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "unpaid_premium_penalty_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "rolling_average_days",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "stake_reward_rates",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "stake_reward_rate_durations",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct Definitions.ProtocolManagerPercentages",
+              "name": "percentages",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "base_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "oracle_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "aToken_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "aPool_address",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "kover_token_address",
+                  "type": "address"
+                }
+              ],
+              "internalType": "struct Definitions.ProtocolManagerAddresses",
+              "name": "addresses",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "approval_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "rejection_fee_perc",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.FeeParams",
+              "name": "membership_fee_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "approval_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "rejection_fee_perc",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.AdminFeeParams",
+              "name": "kyc_reviewer_application_fee_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "minimum_reputation",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "maximum_reputation",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "initial_reputation",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "trusted_reputation",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "reputation_increment_denominator",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "reputation_decrement_denominator",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.ValidationParams",
+              "name": "validation_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "approval_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "rejection_fee_perc",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.AdminFeeParams",
+              "name": "policy_reviewer_application_fee_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "approval_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "rejection_fee_perc",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.AdminFeeParams",
+              "name": "adjustor_application_fee_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "pool_pause_days",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "pool_pause",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "pool_cancellation",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "region_cancellation",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "protocol_cancellation",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.AllowedCounts",
+              "name": "allowed_counts",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "token_buyback_base_token_auction_lot_size",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "token_buyback_auction_duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "token_buyback_auction_step",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "token_buyback_auction_burn_threshold",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.TokenBuyBackParams",
+              "name": "token_buyback_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "claimant_rating",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "validator_rating",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_saved_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "validation_success_perc",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.AdjustorEfficiencyWeights",
+              "name": "adjustor_efficiency_weights",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Definitions.ProtocolManagerParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "BaseToken",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "aPool_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "aToken_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "int256",
+          "name": "_x",
+          "type": "int256"
+        }
+      ],
+      "name": "abs",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "adjustor_application_fee_params",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "approval_fee_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rejection_fee_perc",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "adjustor_efficiency_weights",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "claimant_rating",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "validator_rating",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "time_saved_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "validation_success_perc",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "admin_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "allowed_counts",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "pool_pause_days",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "pool_pause",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "pool_cancellation",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "region_cancellation",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "protocol_cancellation",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "cancellation_count_map",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "cost_on_capital_params",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "utilization_ratio_risky",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "min_cost_on_capital_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "target_cost_on_capital_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "max_cost_on_capital_perc",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_adjustor_application_fee_params",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rejection_fee_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.AdminFeeParams",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_admin_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_policy_reviewer_application_fee_params",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rejection_fee_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.AdminFeeParams",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "poolName",
+          "type": "string"
+        }
+      ],
+      "name": "get_pool_addresses",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "premium",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "policy",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "reinsurance",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "capital",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct Definitions.PoolAddresses",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_pool_names",
+      "outputs": [
+        {
+          "internalType": "string[]",
+          "name": "",
+          "type": "string[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "pool_name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "region",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "terms_and_conditions_ipfs_hash",
+              "type": "string"
+            },
+            {
+              "internalType": "int256",
+              "name": "timezone_offset",
+              "type": "int256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "risk_module_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "risk_module_address",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "investment_fraction",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "safe_utilization_ratio",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "reviewer_stake_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "reviewer_result_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "reviewer_stake_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "reviewer_approval_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "reviewer_rejection_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "assessment_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "assesment_validity_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "termination_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "termination_approval_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "termination_rejection_fee_perc",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.PolicyFeeParams",
+              "name": "policy_fee_params",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "assign_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "claimant_decision_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "validation_duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "claim_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "adjustor_stake_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "adjustor_approval_fee_perc",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "absolute_majority_perc",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.ClaimParams",
+              "name": "claim_params",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Definitions.InitPoolArgs",
+          "name": "_init_pool_args",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "_premium_address",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_policy_address",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_reinsurance_address",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "_capital_address",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct protocolManager.InitPoolAdresses",
+          "name": "addresses",
+          "type": "tuple"
+        }
+      ],
+      "name": "init_pool",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "max_fee_on_cost_on_capital_perc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "max_pool_operator_fee_external_and_risk_module_fee_perc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "max_pool_operator_fee_external_and_risk_module_fee_pool_name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "max_premium_discount_perc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "max_risk_module_fee_internal_pool_name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "max_risk_module_fee_perc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "oracle_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "policy_reviewer_application_fee_params",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "approval_fee_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rejection_fee_perc",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "name": "pool_addresses_map",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "premium",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "policy",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "reinsurance",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "capital",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "pool_names",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pool_operator_fee_perc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "protocol_fee_perc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "region_cancellation_count_map",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "reinsurance_params",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "revenue_pool_interest_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rewards_pool_interest_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "staking_interest_perc",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "revenue_pool_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "rewards_pool_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "rolling_average_days",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "seconds_in_one_day",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_active",
+          "type": "bool"
+        }
+      ],
+      "name": "set_active",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rejection_fee_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.AdminFeeParams",
+          "name": "_adjustor_application_fee_params",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_adjustor_application_fee_params",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "assign_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "result_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "claimant_decision_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "validation_duration",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "claim_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "adjustor_stake_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "adjustor_approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "absolute_majority_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.ClaimParams",
+          "name": "_claim_params",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_claim_params",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "utilization_ratio_risky",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "min_cost_on_capital_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "target_cost_on_capital_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "max_cost_on_capital_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.CostOnCapitalParams",
+          "name": "_cost_on_capital_params",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_cost_on_capital_params",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "utilization_ratio_risky",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "min_cost_on_capital_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "target_cost_on_capital_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "max_cost_on_capital_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.CostOnCapitalParams",
+          "name": "_cost_on_capital_params_external",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_cost_on_capital_params_external",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_investment_fraction",
+          "type": "uint256"
+        }
+      ],
+      "name": "set_investment_fraction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_latest_terms_and_conditions_ipfs_hash",
+          "type": "string"
+        }
+      ],
+      "name": "set_latest_terms_and_conditions_ipfs_hash",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_max_premium_discount_perc",
+          "type": "uint256"
+        }
+      ],
+      "name": "set_max_premium_discount_perc",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reviewer_stake_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reviewer_result_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reviewer_stake_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reviewer_approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reviewer_rejection_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "assessment_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "assesment_validity_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "termination_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "termination_approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "termination_rejection_fee_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.PolicyFeeParams",
+          "name": "_policy_fee_params",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_policy_fee_params",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rejection_fee_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.AdminFeeParams",
+          "name": "_policy_reviewer_application_fee_params",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_policy_reviewer_application_fee_params",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_pool_operator_fee_perc",
+          "type": "uint256"
+        }
+      ],
+      "name": "set_pool_operator_fee_perc",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_protocol_fee_perc",
+          "type": "uint256"
+        }
+      ],
+      "name": "set_protocol_fee_perc",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "revenue_pool_interest_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rewards_pool_interest_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "staking_interest_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.ReinsuranceParams",
+          "name": "_reinsurance_params",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_reinsurance_params",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_risk_module_address",
+          "type": "address"
+        }
+      ],
+      "name": "set_risk_module_address",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_risk_module_fee_internal_perc",
+          "type": "uint256"
+        }
+      ],
+      "name": "set_risk_module_fee_internal_perc",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_safe_utilization_ratio",
+          "type": "uint256"
+        }
+      ],
+      "name": "set_safe_utilization_ratio",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "can_withdraw_with_penalty",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "wait_time_with_penalty",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "early_withdrawal_penalty_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.WithdrawalParams",
+          "name": "_withdrawal_params",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_withdrawal_params",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "can_withdraw_with_penalty",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "wait_time_with_penalty",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "early_withdrawal_penalty_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.WithdrawalParams",
+          "name": "_withdrawal_params_external",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_withdrawal_params_external",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "staking_pool_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "unpaid_premium_penalty_perc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "user_manager_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "withdrawal_params",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "wait_time",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "can_withdraw_with_penalty",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "wait_time_with_penalty",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "early_withdrawal_penalty_perc",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+}

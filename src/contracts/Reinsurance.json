@@ -1,0 +1,361 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Reinsurance",
+  "sourceName": "contracts/Reinsurance.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "contract IERC20",
+          "name": "_BaseToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_aToken_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_aPool_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_rewards_pool_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_revenue_pool_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_staking_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_protocol_manager",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "capital_pool_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "principal_consumed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "to_withdraw",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "to_staking",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "to_rewards_pool",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "to_revenue_pool",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "is_source_premium",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct Definitions.DisinvestParams",
+          "name": "_disinvest_params",
+          "type": "tuple"
+        }
+      ],
+      "name": "disinvest",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "exchange_rate_last_day",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_days_lag",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int256",
+          "name": "_capital_pool_deficit",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_max_premium_discount",
+          "type": "uint256"
+        }
+      ],
+      "name": "fetch_premium_discount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_premium_discount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_exchange_rate",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_maximum_withdrawable",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_days_lag",
+          "type": "uint256"
+        },
+        {
+          "internalType": "int256",
+          "name": "_capital_pool_deficit",
+          "type": "int256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_max_premium_discount",
+          "type": "uint256"
+        }
+      ],
+      "name": "get_premium_discount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "_premium_discount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "to_staking",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "to_rewards_pool",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "to_revenue_pool",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_rebalance_params",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "principal",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "exchange_rate",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "aToken_balance",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximum_withdrawable",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.RebalanceParams",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_total_investment_value",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_source_premium",
+          "type": "bool"
+        }
+      ],
+      "name": "invest",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pool_name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "premium_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "principal",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "principal_last_day",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "set_dependencies",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "_is_source_premium",
+          "type": "bool"
+        }
+      ],
+      "name": "set_exchange_rate_last_day",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}

@@ -1,0 +1,586 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Premium",
+  "sourceName": "contracts/Premium.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
+        },
+        {
+          "internalType": "contract IERC20",
+          "name": "_BaseToken",
+          "type": "address"
+        },
+        {
+          "internalType": "int256",
+          "name": "_timezone_offset",
+          "type": "int256"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_internal",
+          "type": "bool"
+        },
+        {
+          "internalType": "address",
+          "name": "_oracleAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_protocol_manager",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "cost_of_capital_params_external",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "utilization_ratio_risky",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "min_cost_on_capital_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "target_cost_on_capital_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "max_cost_on_capital_perc",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "datewise_adjustor_fees",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "datewise_claim_payouts",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "datewise_gas_expenses",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "datewise_premium_discounts",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "datewise_premiums",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "day",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "determine_risk_pool_age",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_base_balance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "get_current_day",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_day",
+          "type": "uint256"
+        }
+      ],
+      "name": "get_premiums_by_day",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_day",
+          "type": "uint256"
+        }
+      ],
+      "name": "get_premiums_discounts_by_day",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "max_premium_discount_external_perc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "perform_overnight_accounting",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pool_name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pool_operator_fee_external_perc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "reset_day",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "risk_module_fee_perc",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "rolling_average_days_external",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "seconds_in_one_day",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "utilization_ratio_risky",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "min_cost_on_capital_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "target_cost_on_capital_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "max_cost_on_capital_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.CostOnCapitalParams",
+          "name": "_cost_of_capital_params_external",
+          "type": "tuple"
+        }
+      ],
+      "name": "set_cost_of_capital_params_external",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "set_dependencies",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_max_premium_discount_external_perc",
+          "type": "uint256"
+        }
+      ],
+      "name": "set_max_premium_discount_external_perc",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_pool_operator_fee_external_perc",
+          "type": "uint256"
+        }
+      ],
+      "name": "set_pool_operator_fee_external_perc",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_risk_module_fee_perc",
+          "type": "uint256"
+        }
+      ],
+      "name": "set_risk_module_fee_perc",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_old_rolling_average_days",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_new_rolling_average_days",
+          "type": "uint256"
+        }
+      ],
+      "name": "set_rolling_average_days",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "timezone_offset",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_adjustor",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_fee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_policyholder",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_payout",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "internalType": "bool",
+              "name": "is_member",
+              "type": "bool"
+            },
+            {
+              "internalType": "enum Definitions.ApplicationStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "application_ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "assign_timestamp",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_timestamp",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "reviewer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "enum Definitions.ResultStatus",
+                  "name": "status",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_wait_time",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.Result",
+              "name": "result",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Definitions.KYC",
+          "name": "_kyc",
+          "type": "tuple"
+        }
+      ],
+      "name": "update_adjustor_fee_and_claim_payout",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}

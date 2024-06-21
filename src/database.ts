@@ -6,11 +6,18 @@ import {
   setDoc,
   doc,
 } from 'firebase/firestore'
-import { getCurrentTime } from './utils/dateTime'
+import { getCurrentTime, getCurrentFormattedTime } from './utils/dateTime'
 // import { timeStamp } from './utils/dateFunctions'
 import { Notification } from './types/database'
 
 const db = getFirestore(app)
+
+interface CoverDetails {
+  status: string
+  poolName: string
+  id: string
+  canModify: false
+}
 
 /**
  * Auth Functions
@@ -41,7 +48,10 @@ const createUser = async (address: any) => {
     insureProVerificationState: 'unverified',
     notifications: [],
     dp: 'default',
+    covers: [],
+    isExpert: false,
   }
+
   var data: any = {}
   const userData = await getDocs(collection(db, 'users'))
   userData.forEach((doc) => {
@@ -258,6 +268,146 @@ const getChatRoom = async (roomId: string) => {
   return details
 }
 
+// Cover
+const addCover = async (address: any, cover: any) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  temp.covers.push(cover)
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
+const updateCoverQuote = async (
+  address: any,
+  poolName: string,
+  newValues: any
+) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  const newCovers = temp.covers.map((cover: any) => {
+    if (cover.poolName === poolName) {
+      cover.premiumQuote = newValues.premiumQuote
+      cover.src = newValues.src
+      cover.deductiblePerc = newValues.deductiblePerc
+      cover.maxExposure = newValues.maxExposure
+      cover.riskFactor = newValues.riskFactor
+    }
+    return cover
+  })
+  temp.covers = newCovers
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
+const switchCoverModifyState = async (address: any, poolName: string) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  const newCovers = temp.covers.map((cover: any) => {
+    if (cover.poolName === poolName) {
+      cover.canModify = !cover.canModify
+    }
+    return cover
+  })
+  temp.covers = newCovers
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
+const updateCoverState = async (
+  address: any,
+  poolName: string,
+  accepted: boolean
+) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  const newCovers = temp.covers.map((cover: any) => {
+    if (cover.poolName === poolName) {
+      if (accepted) {
+        cover.status = 'accepted'
+      } else {
+        cover.status = 'rejected'
+      }
+    }
+    return cover
+  })
+  temp.covers = newCovers
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
+const updateCoverClaimState = async (
+  address: any,
+  poolName: string,
+  claimState: string
+) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  const newCovers = temp.covers.map((cover: any) => {
+    if (cover.poolName === poolName) {
+      cover.claimState = claimState
+      cover.claimHistory += 1
+    }
+    return cover
+  })
+  temp.covers = newCovers
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
+const getCoverDetails = async (address: any, poolName: string) => {
+  var data: any = {}
+  var coverDetails: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  const details = data[address.toLowerCase()]
+  details.covers.map((cover: any) => {
+    if (cover.poolName === poolName) {
+      coverDetails = cover
+    }
+  })
+  return coverDetails
+}
+
+// const getClaimDetails = async (address: any, poolName: string) => {
+//   var data: any = {}
+//   var coverDetails: any = {}
+//   const userData = await getDocs(collection(db, 'users'))
+//   userData.forEach((doc) => {
+//     // doc.data() is never undefined for query doc snapshots
+//     data[doc.id] = doc.data()
+//   })
+//   const details = data[address.toLowerCase()]
+//   details.covers.map((cover: any) => {
+//     if (cover.poolName === poolName) {
+//       coverDetails = cover
+//     }
+//   })
+//   return coverDetails
+// }
+
 //updates a users data
 // const updateUserProfile = async (
 //   name,
@@ -294,6 +444,61 @@ const getUserDetails = async (address: any) => {
   }
 }
 
+// Claims
+
+const getNotes = async (claimId: string) => {
+  var data: any = {}
+  const claimsData = await getDocs(collection(db, 'claims'))
+  claimsData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var details = data[claimId]
+  return details.notes
+}
+
+const createClaim = async (claimId: number) => {
+  const claim = {
+    notes: [],
+  }
+  var data: any = {}
+  const claimData = await getDocs(collection(db, 'claims'))
+  claimData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  if (data[`${claimId}`]) {
+    console.log('claim already created')
+  } else {
+    await setDoc(doc(db, 'claims', `${claimId}`), claim)
+  }
+}
+
+const addNote = async (
+  claimId: string,
+  senderName: any,
+  senderAddress: any,
+  text: string
+) => {
+  const note = {
+    name: senderName,
+    address: senderAddress,
+    text: text,
+    date: getCurrentFormattedTime(),
+  }
+  var data: any = {}
+  const claimsData = await getDocs(collection(db, 'claims'))
+
+  claimsData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+
+  var temp = data[claimId]
+  temp.notes.push(note)
+  await setDoc(doc(db, 'claims', claimId), temp)
+}
+
 export {
   // updateUserProfile,
   checkIfUserExists,
@@ -311,5 +516,14 @@ export {
   updateNotifications,
   markAllMessagesAsRead,
   updateDp,
+  addCover,
+  updateCoverQuote,
+  switchCoverModifyState,
+  getCoverDetails,
   db,
+  updateCoverState,
+  updateCoverClaimState,
+  getNotes,
+  addNote,
+  createClaim,
 }

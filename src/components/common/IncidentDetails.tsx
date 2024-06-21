@@ -3,7 +3,11 @@ import { UserContext } from '../../App'
 import { Tooltip as ReactTooltip } from 'react-tooltip'
 import useWindowDimensions from '../global/UserInform/useWindowDimensions'
 
-function IncidentDetails() {
+interface IncidentProps {
+  data: any
+}
+
+function IncidentDetails({ data }: IncidentProps) {
   const { theme } = React.useContext(UserContext)
   const [hoverIcon, sethoverIcon] = useState('')
   const [icon, setIcon] = useState('')
@@ -13,19 +17,19 @@ function IncidentDetails() {
     {
       id: 1,
       title: 'Claim Type',
-      value: 'Climate Event',
+      value: data.claimType,
       icon: true,
     },
     {
       id: 2,
       title: 'Event Type',
-      value: 'Flooding',
+      value: data.eventType,
       icon: true,
     },
     {
       id: 3,
       title: 'Event Date',
-      value: '26/01/2022',
+      value: data.eventDate,
       icon: false,
     },
     {
@@ -48,7 +52,7 @@ function IncidentDetails() {
             </div>
             <div className="w-full px-[30px] py-[21px] flex justify-between gap-8 rounded dark:box-border dark:borderLight-border">
               {Data.map((item: any, _index: any) => (
-                <>
+                <div key={_index}>
                   <div className="flex gap-[5px] flex-row w-[114px]">
                     <span className="incident-title uppercase text-[#6D6E76]">
                       {item.title}
@@ -82,18 +86,18 @@ function IncidentDetails() {
                       <></>
                     )}
                   </div>
-                </>
+                </div>
               ))}
             </div>
 
             {/* rounded dark:box-border dark:borderLight-border */}
             <div className="w-full bg-[#1D2024] rounded box-border-2x-light dark:box-border-2x-dark  w-full bg-[#1D2024] px-[30px] py-[21px] flex justify-between gap-8 dark:bg-[#F1F1F1] px-[30px] py-[21px] flex justify-between gap-8 dark:bg-[#F1F1F1]">
               {Data.map((item: any, _index: any) => (
-                <>
+                <div key={_index}>
                   <div className="flex flex-row w-[114px]">
                     <span className="incident-value"> {item.value}</span>{' '}
                   </div>
-                </>
+                </div>
               ))}
             </div>
           </div>
@@ -132,7 +136,7 @@ function IncidentDetails() {
 
               <div className="flex flex-col gap-[15px]">
                 {Data.map((item: any, _index: any) => (
-                  <>
+                  <div key={_index}>
                     <div className="flex">
                       <div className="w-[150px] flex items-center gap-[8px]">
                         <span className="text-dark-200">{item.title}</span>
@@ -182,7 +186,7 @@ function IncidentDetails() {
                         </div>
                       </>
                     )}
-                  </>
+                  </div>
                 ))}
               </div>
             </div>

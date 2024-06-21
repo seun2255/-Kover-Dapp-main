@@ -1,24 +1,44 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { UserContext } from '../../../App'
 import Button from '../../common/Button'
 import InfoText from '../../common/InfoText'
 import UploadButton from '../../common/UploadButton'
 import useWindowDimensions from './useWindowDimensions'
+import {
+  switchCoverModifyState,
+  switchKYCModify,
+  switchKYCReviewerModify,
+} from '../../../database'
+import { useWeb3React } from '@web3-react/core'
+import { useDispatch, useSelector } from 'react-redux'
+import { openAlert, closeAlert } from '../../../redux/alerts'
+import { setCoverApplications, setKYCApplicants } from '../../../redux/kyc'
 
 interface UserInformProps {
   variant?: 'customer' | 'personal'
+  user: any
 }
-function RiskPolicyUserInform({ variant }: UserInformProps) {
+
+function RiskPolicyUserInform({ variant, user }: UserInformProps) {
   const [viewmore, setViewmore] = useState(false)
   const [history, setHistory] = useState(false)
+  const { coverApplications } = useSelector((state: any) => state.kyc)
   const { theme } = React.useContext(UserContext)
+  const { account } = useWeb3React()
+  const dispatch = useDispatch()
   const viewmoreHandler = () => {
     viewmore ? setViewmore(false) : setViewmore(true)
   }
 
+  const [canEdit, setCanEdit] = useState(user.canModify)
+
   const historyHandler = () => {
     history ? setHistory(false) : setHistory(true)
   }
+
+  useEffect(() => {
+    setCanEdit(variant === 'personal' ? user.canModify : user.canModify)
+  }, [user])
 
   return (
     <>
@@ -27,26 +47,26 @@ function RiskPolicyUserInform({ variant }: UserInformProps) {
           <div className="flex flex-row justify-between">
             <div className="flex flex-row justify-between">
               <div className="flex gap-8 w-[88px] h-[88px] bg-[#2A2B31] dark:bg-light-1200 items-center justify-center">
-                  <img
-                    width={50}
-                    height={50}
-                    src="/images/profile-photo.jpg"
-                    alt=""
-                    className="rounded-full"
-                  />
-                </div>
-                <div className="ml-[20px]">
-                  <span className="text-md block mb-2.5 fw-400">
-                    User ID <span className="font-medium">525432</span>
-                  </span>
-                  <strong
-                    role="button"
-                    className="font-medium text-3xl fs-400 mb-[5px] nderline block user-name"
-                  >
-                    Sandra Adams
-                  </strong>
-                </div>
-                <div className="">sandra.adams@gmail.com</div>
+                <img
+                  width={50}
+                  height={50}
+                  src="/images/profile-photo.jpg"
+                  alt=""
+                  className="rounded-full"
+                />
+              </div>
+              <div className="ml-[20px]">
+                <span className="text-md block mb-2.5 fw-400">
+                  User ID <span className="font-medium">{user.id}</span>
+                </span>
+                <strong
+                  role="button"
+                  className="font-medium text-3xl fs-400 mb-[5px] nderline block user-name"
+                >
+                  {`${user.firstName} ${user.lastName}`}
+                </strong>
+              </div>
+              <div className="">sandra.adams@gmail.com</div>
             </div>
             <div className="flex flex-row-reverse justify-end">
               <div className="flex gap-1.5">
@@ -116,12 +136,54 @@ function RiskPolicyUserInform({ variant }: UserInformProps) {
             </div>
           </div>
           <div className="mt-[20px]">
-            
-              <Button
-                className="w-full sm:min-w-[120px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
-                text="Allow Edit"
-              />
-            {variant === 'personal' ? '' : (
+            <Button
+              className="min-w-[125px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
+              text={canEdit ? 'Stop Edit' : 'Allow Edit'}
+              onClick={() => {
+                console.log(user)
+                // if (user.reviewer === account) {
+                //   switchCoverModifyState(user.address, user.poolName).then(
+                //     () => {
+                //       setCanEdit(!canEdit)
+                //       var temp = [...coverApplications]
+                //       var placeholder = {}
+                //       for (var i = 0; i < temp.length; i++) {
+                //         if (temp[i].id === user.id) {
+                //           placeholder = {
+                //             ...temp[i],
+                //             canModify: !temp[i].canModify,
+                //           }
+                //           temp.splice(i, 1)
+                //           i--
+                //         }
+                //       }
+                //       temp.push(placeholder)
+                //       dispatch(setCoverApplications({ data: temp }))
+                //     }
+                //   )
+                // } else {
+                //   dispatch(
+                //     openAlert({
+                //       displayAlert: true,
+                //       data: {
+                //         id: 2,
+                //         variant: 'Failed',
+                //         classname: 'text-black',
+                //         title: 'Transaction Failed',
+                //         tag1: 'Assign application first',
+                //         tag2: 'application not assigned to you',
+                //       },
+                //     })
+                //   )
+                //   setTimeout(() => {
+                //     dispatch(closeAlert())
+                //   }, 10000)
+                // }
+              }}
+            />
+            {variant === 'personal' ? (
+              ''
+            ) : (
               <Button
                 variant="outline"
                 color="dark"
@@ -158,19 +220,19 @@ function RiskPolicyUserInform({ variant }: UserInformProps) {
 
                   <div className="w-max">
                     <span className="text-md block mb-2.5 fw-400 ">
-                      User ID <span className="font-medium">525432</span>
+                      User ID <span className="font-medium">{user.id}</span>
                     </span>
                     <strong
                       role="button"
                       className="font-medium text-3xl mb-[5px] hover:underline block user-name"
                     >
-                      Sandra Adams
+                      {`${user.firstName} ${user.lastName}`}
                     </strong>
                     <span
                       role="button"
                       className="block mb-4 text-dark-650 hover:underline"
                     >
-                      sandra.adams@gmail.com
+                      {user.email}
                     </span>
                     <div className="flex justify-end max-[640px]:items-center">
                       <div className="items-center flex gap-1.5">
@@ -185,9 +247,9 @@ function RiskPolicyUserInform({ variant }: UserInformProps) {
             <div>
               <div>
                 <div className="self-center">
-                  
-                   
-                  {variant === 'personal' ? '' : (
+                  {variant === 'personal' ? (
+                    ''
+                  ) : (
                     <Button
                       variant="outline"
                       color="dark"
@@ -210,7 +272,7 @@ function RiskPolicyUserInform({ variant }: UserInformProps) {
             <div>
               <div>
                 <div className="relative z-0 col-span-4">
-                <div className="flex justify-between gap-4">
+                  <div className="flex justify-between gap-4">
                     <div>
                       <p className="text-3xl mb-[5px] fw-400">
                         {variant === 'personal' ? '' : '80%'}
@@ -221,11 +283,7 @@ function RiskPolicyUserInform({ variant }: UserInformProps) {
                         color="dark-650"
                         variant="small"
                         icon={variant === 'personal' ? undefined : true}
-                        text={
-                          variant === 'personal'
-                            ? ''
-                            : 'Policy PRP'
-                        }
+                        text={variant === 'personal' ? '' : 'Policy PRP'}
                       />
                       {(variant === 'customer' || variant === undefined) && (
                         <div
@@ -254,7 +312,67 @@ function RiskPolicyUserInform({ variant }: UserInformProps) {
               <>
                 <Button
                   className="min-w-[120px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
-                  text="Allow Edit"
+                  text={canEdit ? 'Stop Edit' : 'Allow Edit'}
+                  onClick={() => {
+                    if (user.status !== 'in review') {
+                      if (user.reviewer === account) {
+                        switchCoverModifyState(
+                          user.address,
+                          user.poolName
+                        ).then(() => {
+                          setCanEdit(!canEdit)
+                          var temp = [...coverApplications]
+                          var placeholder = {}
+                          for (var i = 0; i < temp.length; i++) {
+                            if (temp[i].id === user.id) {
+                              placeholder = {
+                                ...temp[i],
+                                canModify: !temp[i].canModify,
+                              }
+                              temp.splice(i, 1)
+                              i--
+                            }
+                          }
+                          temp.push(placeholder)
+                          dispatch(setCoverApplications({ data: temp }))
+                        })
+                      } else {
+                        dispatch(
+                          openAlert({
+                            displayAlert: true,
+                            data: {
+                              id: 2,
+                              variant: 'Failed',
+                              classname: 'text-black',
+                              title: 'Transaction Failed',
+                              tag1: 'Assign application first',
+                              tag2: 'application not assigned to you',
+                            },
+                          })
+                        )
+                        setTimeout(() => {
+                          dispatch(closeAlert())
+                        }, 10000)
+                      }
+                    } else {
+                      dispatch(
+                        openAlert({
+                          displayAlert: true,
+                          data: {
+                            id: 2,
+                            variant: 'Failed',
+                            classname: 'text-black',
+                            title: 'Policy Closed',
+                            tag1: 'A decision has already been made',
+                            tag2: 'cannot modify',
+                          },
+                        })
+                      )
+                      setTimeout(() => {
+                        dispatch(closeAlert())
+                      }, 10000)
+                    }
+                  }}
                 />
               </>
             </div>
@@ -298,11 +416,7 @@ function RiskPolicyUserInform({ variant }: UserInformProps) {
                     color="dark-650"
                     text="Change History"
                   />
-                  <InfoText
-                    variant="small"
-                    color="dark-650"
-                    text="Created"
-                  />
+                  <InfoText variant="small" color="dark-650" text="Created" />
                   <InfoText
                     variant="small"
                     color="dark-650"

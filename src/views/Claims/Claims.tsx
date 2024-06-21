@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../../components/common/Button'
 import FilterTabs from '../../components/common/FilterTabs'
@@ -20,6 +20,14 @@ import TableCard from '../../components/common/cards/TableCard/TableCard'
 import ClaimsCard from '../../components/common/cards/ClaimsCard'
 import Pagination from '../../components/common/Pagination'
 import Drawer from 'react-modern-drawer'
+import { useWeb3React } from '@web3-react/core'
+import { get_claims, getClaimData } from '../../api'
+import { getUser } from '../../tableland'
+import axios from 'axios'
+import { useDispatch } from 'react-redux'
+import { openAlert, closeAlert } from '../../redux/alerts'
+import StakingPopup from '../Staking/StakePopup'
+import { getUserDetails } from '../../database'
 
 function Claims() {
   const [select, setSelect] = useState(false)
@@ -38,6 +46,44 @@ function Claims() {
   const handlerLink = (item: any) => {
     setselectItem(item)
   }
+  const { account } = useWeb3React()
+  const [claims, setClaims] = useState<any[]>([])
+
+  const getData = async () => {
+    if (account) {
+      fetch('https://ipinfo.io/json')
+        .then((response) => response.json())
+        .then(async (data) => {
+          const claims = await get_claims(data.country)
+          const axiosRequests = claims.map(async (claim) => {
+            const user = await getUser(claim.address)
+            const response = await axios.get(user.data as string)
+            var result = response.data
+            console.log('Got here 10')
+            const claim_details = await getClaimData(
+              claim.poolName,
+              claim.address
+            )
+            result = {
+              ...result,
+              ...claim,
+              ...claim_details,
+              userData: user.data,
+            }
+            return result
+          })
+          const allClaims = await Promise.all(axiosRequests)
+          const validationClaims = allClaims.filter(
+            (item) => item.stage === 'validation'
+          )
+          setClaims(validationClaims)
+        })
+    }
+  }
+
+  useEffect(() => {
+    getData()
+  }, [])
 
   const ClaimsCover = {
     id: 1,
@@ -107,20 +153,20 @@ function Claims() {
         width: 'w-[121px]',
       },
     ],
-    rows: [
-      [
+    rows: claims.map((application: any, index: number) => {
+      return [
         <CarInsurance />,
-        <Status type="Accepted" />,
-        <span>10</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <span>Payout</span>,
+        <Status type="Active" />,
+        <span>{application.claimId}</span>,
+        <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
+        <span>{application.stage}</span>,
         <LargeText primary="9.4000" secondary="USDC" />,
         <div>
           <Button
-            to="/claim-assessment"
+            to={`/claim-assessment/${application.claimId}`}
+            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
             text="View"
             btnText="table-action"
-            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
             endIcon={
               theme === 'dark'
                 ? '/images/light-btn-icon.svg'
@@ -128,134 +174,8 @@ function Claims() {
             }
           />
         </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Declined" />,
-        <span>10</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <span>Payout</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            to="/claim-assessment"
-            text="View"
-            btnText="table-action"
-            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-          />
-        </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Ongoing" />,
-        <span>10</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <span>Payout</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            to="/claim-assessment"
-            text="View"
-            btnText="table-action"
-            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-          />
-        </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Accepted" />,
-        <span>10</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <span>Payout</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            to="/claim-assessment"
-            text="View"
-            btnText="table-action"
-            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-          />
-        </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Declined" />,
-        <span>10</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <span>Payout</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            to="/claim-assessment"
-            text="View"
-            btnText="table-action"
-            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-          />
-        </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Ongoing" />,
-        <span>10</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <span>Payout</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            to="/claim-assessment"
-            text="View"
-            btnText="table-action"
-            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-          />
-        </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Accepted" />,
-        <span>10</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <span>Payout</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            to="/claim-assessment"
-            text="View"
-            btnText="table-action"
-            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-          />
-        </div>,
-      ],
-    ],
+      ]
+    }),
   }
 
   const stakePopup: PopConfirmProps = {
@@ -901,11 +821,11 @@ function Claims() {
         )}
       </div>
       <Popup
-        maxWidth="max-w-[860px]"
+        maxWidth="max-w-[900px]"
         onClose={toggleStake}
         visible={Boolean(stake)}
       >
-        <PopConfirm
+        <StakingPopup
           defaultTab={stake === 2 ? 1 : 0}
           onClose={toggleStake}
           {...stakePopup}

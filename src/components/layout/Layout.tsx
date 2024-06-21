@@ -9,6 +9,7 @@ import useWindowDimensions from '../../components/global/UserInform/useWindowDim
 import { useNavigate } from 'react-router-dom'
 import TermOfUsePopup from '../global/TermOfUsePopup'
 import Popup from '../templates/Popup'
+import Dashboard from '../../views/Dashboard/Dashboard'
 
 function Layout() {
   const { width } = useWindowDimensions()
@@ -24,7 +25,7 @@ function Layout() {
     if (agreed && agreed === 'true') {
       setTerms(false)
     }
-    navigate('/')
+    // navigate('/')
   }, [])
 
   return (

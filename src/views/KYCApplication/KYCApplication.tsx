@@ -36,12 +36,24 @@ import {
   concludeMembershipApplication,
   modifyInsureProApplication,
   concludeInsureproApplication,
+  get_covers,
+  getPolicyData,
+  assignPolicyApplication,
+  submitPolicyApplicationResult,
+  concludePolicyAssesement,
+  get_claims,
+  getClaimData,
 } from '../../api'
 import axios from 'axios'
 import { addContractState, addKycReviewerState } from '../../utils/helpers'
 import { useDispatch } from 'react-redux'
-import { setKYCApplicants, setKYCReviewerApplicants } from '../../redux/kyc'
-import { getUserDetails } from '../../database'
+import {
+  setKYCApplicants,
+  setKYCReviewerApplicants,
+  setCoverApplications,
+  setClaimsApplications,
+} from '../../redux/kyc'
+import { getUserDetails, updateCoverState } from '../../database'
 import {
   createChatRoom,
   updateVerificationState,
@@ -50,6 +62,7 @@ import {
 } from '../../database'
 import { openAlert, closeAlert } from '../../redux/alerts'
 import CountdownTimer from '../../components/common/CountdownTimer'
+import { getUser } from '../../tableland'
 
 function KYCApplication() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
@@ -61,7 +74,10 @@ function KYCApplication() {
     []
   )
   const [reviewerApplications, setReviewerApplications] = useState<any[]>([])
+  const [policyApplications, setPolicyApplications] = useState<any[]>([])
+  const [claimApplications, setClaimApplications] = useState<any[]>([])
   const [assignpopup, setAssignPopup] = useState(false)
+  const [policyAssignpopup, setPolicyAssignPopup] = useState(false)
   const { width } = useWindowDimensions()
   const toggleDrawer = () => {
     setIsOpen((prevState) => !prevState)
@@ -81,8 +97,13 @@ function KYCApplication() {
   )
   const [kycDecisionMade, setKycDecisionMade] = useState(false)
   const [kycReviewerDecisionMade, setKycReviewerDecisionMade] = useState(false)
+  const [policyDecisionMade, setPolicyDecisionMade] = useState(false)
+  const [claimDecisionMade, setClaimDecisionMade] = useState(false)
   const [kycDecision, setKycDecision] = useState(true)
   const [kycReviewerDecision, setKycReviewerDecision] = useState(true)
+  const [policyDecision, setPolicyDecision] = useState(true)
+  const [claimDecision, setClaimDecision] = useState(true)
+  const [searchResults, setSearchResults] = useState<any>([])
 
   const makeKYCDecision = (decision: boolean) => {
     setKycDecisionMade(true)
@@ -94,15 +115,23 @@ function KYCApplication() {
     setKycReviewerDecision(decision)
   }
 
+  const makePolicyDecision = (decision: boolean) => {
+    setPolicyDecisionMade(true)
+    setPolicyDecision(decision)
+  }
+
+  const makeClaimDecision = (decision: boolean) => {
+    setClaimDecisionMade(true)
+    setClaimDecision(decision)
+  }
+
   const getData = async () => {
     if (account) {
       fetch('https://ipinfo.io/json')
         .then((response) => response.json())
         .then(async (data) => {
-          console.log(data.country)
           const applicants = await get_applications(data.country)
 
-          console.log('Applicants: ', applicants)
           const axiosRequests = applicants.map(async (applicant) => {
             const response = await axios.get(applicant.data as string)
             const kyc_details = await getKycDetails(
@@ -117,14 +146,18 @@ function KYCApplication() {
             result.canModifyKYC = userFirebaseDetails.canModifyKYC
             result.canModifyKYCReviewer =
               userFirebaseDetails.canModifyKYCReviewer
+            result.kycVerificationState =
+              userFirebaseDetails.kycVerificationState
+            result.insureProVerificationState =
+              userFirebaseDetails.insureProVerificationState
             result.ipfsHash = applicant.data
             result.kycReviewDone = userFirebaseDetails.kycReviewDone
-            console.log('Result: ', result)
             return result
           })
 
           // Wait for all axios requests to complete
           const membership_applications = await Promise.all(axiosRequests)
+          console.log('members; ', membershipApplications)
           dispatch(setKYCApplicants({ data: membership_applications }))
           setMembershipApplications(membership_applications)
         })
@@ -134,7 +167,6 @@ function KYCApplication() {
         .then(async (data) => {
           const applicants = await get_Reviewer_applications(data.country)
 
-          console.log('Applicants: ', applicants)
           const axiosRequests = applicants.map(async (applicant) => {
             const response = await axios.get(applicant.data as string)
             const kyc_details = await getKycReveiwerDetails(
@@ -151,7 +183,8 @@ function KYCApplication() {
             result.canModifyKYC = userFirebaseDetails.canModifyKYC
             result.ipfsHash = applicant.data
             result.kycReviewDone = userFirebaseDetails.kycReviewDone
-            console.log('Reviewer Result: ', result)
+            result.insureProVerificationState =
+              userFirebaseDetails.insureProVerificationState
             return result
           })
 
@@ -159,13 +192,88 @@ function KYCApplication() {
           const membership_applications = await Promise.all(axiosRequests)
           dispatch(setKYCReviewerApplicants({ data: membership_applications }))
           setReviewerApplications(membership_applications)
+          console.log(membershipApplications)
         })
+
+      fetch('https://ipinfo.io/json')
+        .then((response) => response.json())
+        .then(async (data) => {
+          const covers = await get_covers(data.country)
+          const axiosRequests = covers.map(async (cover) => {
+            const user = await getUser(cover.address)
+            const response = await axios.get(user.data as string)
+            var result = response.data
+            var policyDetails = await getPolicyData(
+              cover.address,
+              cover.poolName
+            )
+            result = {
+              ...result,
+              ...cover,
+              ...policyDetails,
+              userData: user.data,
+            }
+            return result
+          })
+          const allCovers = await Promise.all(axiosRequests)
+          console.log('Covers: ', allCovers)
+          dispatch(setCoverApplications({ data: allCovers }))
+          setPolicyApplications(allCovers)
+        })
+
+      fetch('https://ipinfo.io/json')
+        .then((response) => response.json())
+        .then(async (data) => {
+          const claims = await get_claims(data.country)
+          const axiosRequests = claims.map(async (claim) => {
+            const user = await getUser(claim.address)
+            const response = await axios.get(user.data as string)
+            var result = response.data
+            console.log('Got here 10')
+            const claim_details = await getClaimData(
+              claim.poolName,
+              claim.address
+            )
+            result = {
+              ...result,
+              ...claim,
+              ...claim_details,
+              userData: user.data,
+            }
+            return result
+          })
+          const allClaims = await Promise.all(axiosRequests)
+          console.log('Claims: ', allClaims)
+          dispatch(setClaimsApplications({ data: allClaims }))
+          setClaimApplications(allClaims)
+        })
+    }
+  }
+
+  const checkClaim = (application: any) => {
+    if (application.resultStatus !== 'pending') {
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 2,
+            variant: 'Failed',
+            classname: 'text-black',
+            title: 'Claim is in Validation stage!',
+            tag1: 'Claim has been Assesed!',
+            tag2: 'this has already been assesed',
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
     }
   }
 
   useEffect(() => {
     getData()
-    if (account && account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD') {
+    if (account && account === '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266') {
       setIsAdmin(true)
     }
   }, [account, library])
@@ -417,7 +525,7 @@ function KYCApplication() {
                     application.address,
                     application.region,
                     application.ipfsHash,
-                    kycDecision
+                    policyDecision
                   )
                   dispatch(
                     openAlert({
@@ -458,7 +566,6 @@ function KYCApplication() {
             />
           ) : (
             <Button
-              // onClick={() => popupHandle(myCoverPopup)}
               onClick={async () => {
                 if (application.address === account) {
                   dispatch(
@@ -627,18 +734,18 @@ function KYCApplication() {
         >
           <span className="prp dark:prp-dark">{`${application.firstName} ${application.lastName}`}</span>
         </Link>,
-        <span className="prp dark:prp-dark">{application.workArea}</span>,
+        <span className="prp dark:prp-dark">{application.workField}</span>,
         <Status
           type={
             application.kycReviewDone
-              ? application.is_expert
+              ? application.insureProVerificationState === 'verified'
                 ? 'Accepted'
                 : 'Declined'
               : 'Pending'
           }
           text={
             application.kycReviewDone
-              ? application.is_expert
+              ? application.insureProVerificationState === 'verified'
                 ? 'Accepted'
                 : 'Declined'
               : 'Pending'
@@ -650,9 +757,13 @@ function KYCApplication() {
         <div>
           {application.kycReviewDone ? (
             <DecisionToggle
-              makeDecision={makeKYCDecision}
+              makeDecision={makeKYCReviewerDecision}
               completed={true}
-              decision={application.is_expert ? true : false}
+              decision={
+                application.insureProVerificationState === 'verified'
+                  ? true
+                  : false
+              }
             />
           ) : (
             <DecisionToggle makeDecision={makeKYCReviewerDecision} />
@@ -673,10 +784,14 @@ function KYCApplication() {
           ) : (
             <Button
               onClick={async () => {
+                console.log(kycReviewerDecision)
+                console.log(application.pool)
                 await concludeInsureproApplication(
                   application.address,
                   application.region,
-                  kycReviewerDecision
+                  application.workField,
+                  kycReviewerDecision,
+                  application.pool
                 )
                 await updateInsureProVerificationState(
                   application.address,
@@ -691,7 +806,7 @@ function KYCApplication() {
                       variant: 'Successful',
                       classname: 'text-black',
                       title: 'Submission Successful',
-                      tag1: 'KYC Reviewer Review concluded',
+                      tag1: `${application.workField} Review concluded`,
                       tag2: 'View on etherscan',
                     },
                   })
@@ -716,6 +831,7 @@ function KYCApplication() {
 
   const policies: TableProps = {
     tabs: tabs,
+    data: policyApplications,
     options: [{ name: 'Revert' }, { name: 'Cancel' }],
     columns: [
       {
@@ -743,119 +859,319 @@ function KYCApplication() {
         width: 'w-[9%] ',
       },
     ],
-    rows: [
-      [
-        <Link to="/policy-risk-user-profile">
-          <span className="prp dark:prp-dark">Natacha Nilson</span>
-        </Link>,
-        <span className="prp dark:prp-dark">2000/06/01</span>,
-        <Status type="Withdrawn" text="Pending" />,
-        <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
-        <div>
-          <Box
-            sx={{
-              '.Mui-checked': {
-                color: `${
-                  theme === 'dark' ? '#606166' : '#ff9800'
-                } !important;`,
-              },
-              '.MuiSwitch-track': {
-                background: `${
-                  theme === 'dark' ? '#ff9800' : 'rgba(148, 233, 63, 0.4)'
-                } !important;`,
-              },
+    rows: policyApplications.map((application: any, index: number) => {
+      return [
+        <Link
+          to={
+            // application.reviewer === account ||
+            application.address === account || isAdmin
+              ? `/policy-risk-user-profile/${application.id}`
+              : ''
+          }
+        >
+          <span
+            className="prp dark:prp-dark"
+            onClick={() => {
+              console.log('Account: ', account)
             }}
-          >
-            <Switch className="convert-switch" id="1" />
-          </Box>
-        </div>,
-        <div>
-          <Button
-            // onClick={() => popupHandle(myCoverPopup)}
-            text="Assign"
-            btnText="table-action"
-            endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
-            className={`${
-              theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
-            } px-[19.5px] py-[11.5px] w-full`}
-          />
-        </div>,
-      ],
-      [
-        <Link to="/policy-risk-user-profile">
-          <span className="prp dark:prp-dark">Natacha Nilson</span>
+          >{`${application.firstName} ${application.lastName}`}</span>
         </Link>,
-        <span className="prp dark:prp-dark">2000/06/01</span>,
-        <Status type="Accepted" text="Pending" />,
-        <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
+        <span className="prp dark:prp-dark">{application.dob}</span>,
+        <Status
+          type={
+            application.resultStatus === 'rejected'
+              ? 'Declined'
+              : capitalizeFirstLetter(application.resultStatus)
+          }
+          text={
+            application.resultStatus === 'rejected'
+              ? 'Declined'
+              : capitalizeFirstLetter(application.resultStatus)
+          }
+        />,
+        <span className="prp dark:prp-dark">
+          {application.applicationStatus === 'assigned' ? (
+            <>
+              {extractDate(application.date)}
+              <CountdownTimer
+                timeLeftInSeconds={application.submit_time_left}
+              />
+            </>
+          ) : (
+            application.date
+          )}
+        </span>,
         <div>
-          <Box
-            sx={{
-              '.Mui-checked': {
-                color: `${
-                  theme === 'dark' ? '#606166' : '#50ff7f'
-                } !important;`,
-              },
-              '.MuiSwitch-track': {
-                background: `${
-                  theme === 'dark' ? '#50ff7f' : 'rgba(148, 233, 63, 0.4)'
-                } !important;`,
-              },
-            }}
-          >
-            <Switch className="convert-switch" id="1" />
-          </Box>
+          {application.resultStatus === 'approved' ||
+          application.resultStatus === 'rejected' ? (
+            <DecisionToggle
+              makeDecision={makePolicyDecision}
+              completed={true}
+              decision={application.resultStatus === 'approved' ? true : false}
+            />
+          ) : application.applicationStatus === 'assigned' ? (
+            <DecisionToggle makeDecision={makePolicyDecision} />
+          ) : (
+            <Box
+              sx={{
+                '.Mui-checked': {
+                  color: `${
+                    theme === 'dark' ? '#606166' : '#50ff7f'
+                  } !important;`,
+                },
+                '.MuiSwitch-track': {
+                  background: `${
+                    theme === 'dark' ? '#606166' : 'rgba(148, 233, 63, 0.4)'
+                  } !important;`,
+                },
+              }}
+            >
+              <Switch className="convert-switch" id="1" disabled />
+            </Box>
+          )}
         </div>,
         <div>
-          <Button
-            // onClick={() => popupHandle(myCoverPopup)}
-            text="Assign"
-            btnText="table-action"
-            endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
-            className={`${
-              theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
-            } px-[19.5px] py-[11.5px] w-full`}
-          />
+          {(application.resultStatus === 'approved' ||
+            application.resultStatus === 'rejected') &&
+          application.submit_time_left <= 0 ? (
+            <Button
+              disabled={
+                application.applicationStatus === 'concluded' ? true : false
+              }
+              text="Conclude"
+              btnText="table-action"
+              endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
+              className={`${
+                theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+              } px-[19.5px] py-[11.5px] w-full ${
+                application.applicationStatus === 'concluded'
+                  ? 'disabled:opacity-10 disabled:pointer-events-none'
+                  : ''
+              }`}
+              onClick={async () => {
+                await concludePolicyAssesement(
+                  application.poolName,
+                  application.address
+                )
+                await updateCoverState(
+                  application.address,
+                  application.poolName,
+                  application.resultStatus === 'approved'
+                )
+                dispatch(
+                  openAlert({
+                    displayAlert: true,
+                    data: {
+                      id: 1,
+                      variant: 'Successful',
+                      classname: 'text-black',
+                      title: 'Submission Successful',
+                      tag1: 'Policy Review concluded',
+                      tag2: 'View on etherscan',
+                    },
+                  })
+                )
+                getData()
+                setTimeout(() => {
+                  dispatch(closeAlert())
+                }, 10000)
+              }}
+            />
+          ) : application.resultStatus === 'approved' ||
+            application.resultStatus === 'rejected' ? (
+            <Button
+              // onClick={() => popupHandle(myCoverPopup)}
+              disabled
+              text="Submit"
+              btnText="table-action"
+              endIcon={'/images/126.svg'}
+              className={`${
+                theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+              } px-[19.5px] py-[11.5px] w-full disabled:opacity-10 disabled:pointer-events-none`}
+            />
+          ) : application.applicationStatus === 'assigned' ? (
+            <Button
+              text="Submit"
+              btnText="table-action"
+              endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
+              className={`${
+                theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+              } px-[19.5px] py-[11.5px] w-full`}
+              onClick={async () => {
+                if (policyDecisionMade) {
+                  console.log('Decision: ', policyDecision)
+                  await submitPolicyApplicationResult(
+                    application.poolName,
+                    application.address,
+                    application.reviewer,
+                    application.data,
+                    application.userData,
+                    policyDecision,
+                    application
+                  )
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 1,
+                        variant: 'Successful',
+                        classname: 'text-black',
+                        title: 'Submission Successful',
+                        tag1: 'Policy Review submitted',
+                        tag2: 'View on etherscan',
+                      },
+                    })
+                  )
+                  getData()
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                } else {
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 2,
+                        variant: 'Failed',
+                        classname: 'text-black',
+                        title: 'Transaction Failed',
+                        tag1: 'A decision has not been made',
+                        tag2: 'View on etherscan',
+                      },
+                    })
+                  )
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                }
+              }}
+            />
+          ) : (
+            <Button
+              onClick={async () => {
+                if (application.address === account) {
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 2,
+                        variant: 'Failed',
+                        classname: 'text-black',
+                        title: 'Transaction Failed',
+                        tag1: "Can't self assign application",
+                        tag2: 'View on etherscan',
+                      },
+                    })
+                  )
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                } else {
+                  setPolicyAssignPopup(true)
+                }
+              }}
+              text="Assign"
+              btnText="table-action"
+              endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
+              className={`${
+                theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+              } px-[19.5px] py-[11.5px] w-full`}
+            />
+          )}
         </div>,
-      ],
-      [
-        <Link to="/policy-risk-user-profile">
-          <span className="prp dark:prp-dark">Natacha Nilson</span>
-        </Link>,
-        <span className="prp dark:prp-dark">2000/06/01</span>,
-        <Status type="Declined" text="Pending" />,
-        <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
-        <div>
-          <Box
-            sx={{
-              '.Mui-checked': {
-                color: `${
-                  theme === 'dark' ? '#606166' : '#d0021b'
-                } !important;`,
-              },
-              '.MuiSwitch-track': {
-                background: `${
-                  theme === 'dark' ? '#d0021b' : 'rgba(148, 233, 63, 0.4)'
-                } !important;`,
-              },
-            }}
-          >
-            <Switch className="convert-switch" id="1" />
-          </Box>
-        </div>,
-        <div>
-          <Button
-            // onClick={() => popupHandle(myCoverPopup)}
-            text="Assign"
-            btnText="table-action"
-            endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
-            className={`${
-              theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
-            } px-[19.5px] py-[11.5px] w-full`}
-          />
-        </div>,
-      ],
-    ],
+        <Popup
+          visible={policyAssignpopup}
+          onClose={() => {
+            setPolicyAssignPopup(false)
+          }}
+        >
+          <div className="px-[30px] pb-[40px] pt-[30px] dark:bg-white w-[345px] sm:w-[310px]">
+            <div className="flex justify-end">
+              <img
+                role={'button'}
+                className="w-2.5"
+                src="/images/Group 158.svg"
+                alt=""
+                onClick={() => {
+                  setPolicyAssignPopup(false)
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col items-center mb-[32px]">
+              <img
+                className="mt-[10px] w-[25px] h-[27px]"
+                src={
+                  theme === 'dark'
+                    ? '/images/x-logo-dark.svg'
+                    : '/images/x-logo.svg'
+                }
+                alt=""
+              />
+              <h3 className="mt-[17px] fw-500 fs-16 lh-28">Lock To Assess</h3>
+            </div>
+            <div className="mt-[32px] rounded box-border-2x-light dark:box-border-2x-dark  dark:bg-[#F1F1F1] bg-[#2A2B31] h-[50px] min-w-[250px] px-[20px] py-[4px] flex justify-between items-center">
+              <span className="fw-400 text-[24px] lh-42 text-[#FAFAFA] dark:text-dark-800">
+                25
+              </span>
+              <div className="bg-[#3F4048] dark:bg-[#FFF] my-[6px] py-[6px] px-[18px] h-[30px]">
+                <button className="fw-500 fs-16 lh-19">USDC</button>
+              </div>
+            </div>
+            <div className="flex justify-end items-center mt-[10px] mb-[15px]">
+              <span className="text-[#606166] fw-500 fs-12 lh-14"> ~ $25 </span>
+            </div>
+            <div className="mt-[14px]">
+              <button
+                type="button"
+                className={` ${
+                  theme === 'dark'
+                    ? `dark:white dark:box-border`
+                    : `greenGradient`
+                } contained medium  font-medium px-8 w-full square button`}
+                onClick={async () => {
+                  await assignPolicyApplication(
+                    application.poolName,
+                    application.address,
+                    application.region
+                  )
+                  await createChatRoom(
+                    'policy',
+                    application.region,
+                    application.id,
+                    {
+                      [application.address]: application.firstName,
+                      [account as string]: 'reviewer',
+                    }
+                  )
+                  getData()
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 1,
+                        variant: 'Successful',
+                        classname: 'text-black',
+                        title: 'Submission Successful',
+                        tag1: 'Policy application assigned to you',
+                        tag2: 'View on etherscan',
+                      },
+                    })
+                  )
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                  setPolicyAssignPopup(false)
+                }}
+              >
+                <span>Submit</span>
+                <img className="duration-150 " src="/images/125.svg" alt="" />
+              </button>
+            </div>
+          </div>
+        </Popup>,
+      ]
+    }),
   }
 
   const claims: TableProps = {
@@ -891,19 +1207,28 @@ function KYCApplication() {
         width: 'w-[9%]',
       },
     ],
-    rows: [
-      [
+    rows: claimApplications.map((application: any, index: number) => {
+      return [
         <CarInsurance />,
         <Status type="Active" />,
-        <span>10</span>,
+        <span>{application.claimId}</span>,
         <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
-        <span>Payout</span>,
+        <span>{application.stage}</span>,
         <LargeText primary="9.4000" secondary="USDC" />,
         <div>
           <Button
-            to="/new-claim"
+            to={
+              application.address === account
+                ? `/claim-view-user/${application.claimId}`
+                : application.reviewer === account
+                ? application.resultStatus === 'pending'
+                  ? `/claim-view/${application.claimId}`
+                  : undefined
+                : undefined
+            }
             className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
             text="View"
+            onClick={() => checkClaim(application)}
             btnText="table-action"
             endIcon={
               theme === 'dark'
@@ -912,50 +1237,8 @@ function KYCApplication() {
             }
           />
         </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Inactive" />,
-        <span>10</span>,
-        <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
-        <span>Payout</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            to="/new-claim"
-            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            text="View"
-            btnText="table-action"
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-          />
-        </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Declined" />,
-        <span>10</span>,
-        <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
-        <span>Payout</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            to="/new-claim"
-            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            text="View"
-            btnText="table-action"
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-          />
-        </div>,
-      ],
-    ],
+      ]
+    }),
   }
 
   const riskPool: TableProps = {
@@ -1077,13 +1360,38 @@ function KYCApplication() {
         width: 'w-[9%]',
       },
     ],
-    rows: [
-      [
-        <span>Natacha Nilson</span>,
+    rows: searchResults.map((result: any, index: number) => {
+      return [
+        <Link
+          to={
+            // application.reviewer === account ||
+            result.address === account || isAdmin
+              ? `/policy-risk-user-profile/${result.id}`
+              : ''
+          }
+        >
+          <span
+            className="prp dark:prp-dark"
+            onClick={() => {
+              console.log('Account: ', account)
+            }}
+          >{`${result.firstName} ${result.lastName}`}</span>
+        </Link>,
         <CarInsurance />,
-        <Status type="Declined" />,
-        <span>2000</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
+        <Status
+          type={
+            result.resultStatus === 'rejected'
+              ? 'Declined'
+              : capitalizeFirstLetter(result.resultStatus)
+          }
+          text={
+            result.resultStatus === 'rejected'
+              ? 'Declined'
+              : capitalizeFirstLetter(result.resultStatus)
+          }
+        />,
+        <span>20%</span>,
+        <LargeText primary={result.premiumQuote} secondary="USDC" />,
         <span className="claim-history">9</span>,
         <div>
           <Button
@@ -1099,118 +1407,8 @@ function KYCApplication() {
             color={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
           />
         </div>,
-      ],
-      [
-        <span>Natacha Nilson</span>,
-        <CarInsurance />,
-        <Status type="Active" />,
-        <span>2000</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <span className="claim-history">9</span>,
-        <div>
-          <Button
-            to="/new-claim"
-            className=" dark:bg-white dark:box-border w-[120px]"
-            text="View"
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-            btnText="table-action"
-            color={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-          />
-        </div>,
-      ],
-      [
-        <span>Natacha Nilson</span>,
-        <CarInsurance />,
-        <Status type="Declined" />,
-        <span>2000</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <span className="claim-history">9</span>,
-        <div>
-          <Button
-            to="/new-claim"
-            className=" dark:bg-white dark:box-border w-[120px]"
-            text="View"
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-            btnText="table-action"
-            color={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-          />
-        </div>,
-      ],
-      [
-        <span>Natacha Nilson</span>,
-        <CarInsurance />,
-        <Status type="Withdrawn" />,
-        <span>2000</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <span className="claim-history">9</span>,
-        <div>
-          <Button
-            to="/new-claim"
-            className=" dark:bg-white dark:box-border w-[120px]"
-            text="View"
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-            btnText="table-action"
-            color={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-          />
-        </div>,
-      ],
-      [
-        <span>Natacha Nilson</span>,
-        <CarInsurance />,
-        <Status type="Active" />,
-        <span>2000</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <span className="claim-history">9</span>,
-        <div>
-          <Button
-            to="/new-claim"
-            className=" dark:bg-white dark:box-border w-[120px]"
-            text="View"
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-            btnText="table-action"
-            color={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-          />
-        </div>,
-      ],
-      [
-        <span>Natacha Nilson</span>,
-        <CarInsurance />,
-        <Status type="Ongoing" />,
-        <span>2000</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <span className="claim-history">9</span>,
-        <div>
-          <Button
-            to="/new-claim"
-            className=" dark:bg-white dark:box-border w-[120px]"
-            text="View"
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-            btnText="table-action"
-            color={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-          />
-        </div>,
-      ],
-    ],
+      ]
+    }),
   }
   const verify = {
     id: 3,
@@ -1579,10 +1777,26 @@ function KYCApplication() {
     ],
     rows: [],
   }
+
+  function searchArray(array: any, searchString: string) {
+    const lowerCaseSearchString = searchString.toLowerCase()
+    return array.filter((item: any) => {
+      return (
+        item.firstName.toLowerCase().includes(lowerCaseSearchString) ||
+        item.lastName.toLowerCase().includes(lowerCaseSearchString) ||
+        item.country.toLowerCase().includes(lowerCaseSearchString) ||
+        item.coverId.toString().toLowerCase().includes(lowerCaseSearchString)
+      )
+    })
+  }
+
   const [search, setSearch] = useState('')
   const handlerSearch = (text: any) => {
     setSearch(text)
+    const results = searchArray(policyApplications, text)
+    setSearchResults(results)
   }
+
   return (
     <div className="z-10">
       <Header name="InsurePro" overview={true} />

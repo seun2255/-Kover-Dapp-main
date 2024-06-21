@@ -188,34 +188,64 @@ function InsureProCommunity(
           const userData = await uploadJsonData(dataString)
           // const isReviwer = await is_kyc_reviewer(signer);
 
-          await apply_for_InsurePro(userData, data.country)
-          const userInfo = await getUser(account as string)
-          const userId = userInfo.id
+          await apply_for_InsurePro(
+            userData,
+            formState.workField,
+            data.country,
+            'Car Insurance'
+          ).then(async (result) => {
+            if (result.success) {
+              const userInfo = await getUser(account as string)
+              const userId = userInfo.id
 
-          await createChatRoom('insure-pro', data.country, userId as number, {
-            [account as string]: formData.firstName,
-            // eslint-disable-next-line no-useless-computed-key
-            ['0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD']: 'Admin',
+              await createChatRoom(
+                'insure-pro',
+                data.country,
+                userId as number,
+                {
+                  [account as string]: formData.firstName,
+                  // eslint-disable-next-line no-useless-computed-key
+                  ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266']: 'Admin',
+                }
+              )
+              await updateInsureProVerificationState(account, 'verifying')
+              dispatch(
+                openAlert({
+                  displayAlert: true,
+                  data: {
+                    id: 1,
+                    variant: 'Successful',
+                    classname: 'text-black',
+                    title: 'Submission Successful',
+                    tag1: 'Insure Pro application submitted',
+                    tag2: 'View on etherscan',
+                  },
+                })
+              )
+              setTimeout(() => {
+                dispatch(closeAlert())
+              }, 10000)
+              setUserVerificationState('verifying')
+              if (onClose !== undefined) onClose()
+            } else {
+              dispatch(
+                openAlert({
+                  displayAlert: true,
+                  data: {
+                    id: 2,
+                    variant: 'Failed',
+                    classname: 'text-black',
+                    title: 'Transaction Failed',
+                    tag1: result.reason ? result.reason : '',
+                    tag2: 'View on etherscan',
+                  },
+                })
+              )
+              setTimeout(() => {
+                dispatch(closeAlert())
+              }, 10000)
+            }
           })
-          await updateInsureProVerificationState(account, 'verifying')
-          dispatch(
-            openAlert({
-              displayAlert: true,
-              data: {
-                id: 1,
-                variant: 'Successful',
-                classname: 'text-black',
-                title: 'Submission Successful',
-                tag1: 'Insure Pro application submitted',
-                tag2: 'View on etherscan',
-              },
-            })
-          )
-          setTimeout(() => {
-            dispatch(closeAlert())
-          }, 10000)
-          setUserVerificationState('verifying')
-          if (onClose !== undefined) onClose()
         })
         .catch((error) => {
           console.log('Error fetching IP address information: ', error)

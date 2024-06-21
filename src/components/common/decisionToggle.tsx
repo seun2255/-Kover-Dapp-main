@@ -12,7 +12,7 @@ function DecisionToggle({
   completed,
   decision,
 }: DecisionToggleProps) {
-  const [accepted, setAccepted] = useState(!decision ? decision : true)
+  const [accepted, setAccepted] = useState(!decision ? false : true)
   const [active, setActive] = useState(completed)
 
   const handleClick = () => {
@@ -57,6 +57,7 @@ function DecisionToggle({
       }}
     >
       <Switch
+        checked={accepted}
         onClick={() => {
           setActive(true)
           setAccepted(true)

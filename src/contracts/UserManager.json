@@ -6,6 +6,164 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_protocol_manager",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_base_token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_kover_token_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_staking_pool_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_revenue_pool_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_users_table_address",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "result_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rejection_fee_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.FeeParams",
+          "name": "_membership_fee_params",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "approval_fee_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "rejection_fee_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.AdminFeeParams",
+          "name": "_kyc_reviewer_application_fee_params",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "minimum_reputation",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maximum_reputation",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initial_reputation",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "trusted_reputation",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reputation_increment_denominator",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "reputation_decrement_denominator",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.ValidationParams",
+          "name": "_validation_params",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "BaseToken",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "admin_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "string",
           "name": "_region",
           "type": "string"
@@ -31,6 +189,37 @@
       "name": "apply_for_membership",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "_ipfs_hash",
+          "type": "tuple"
+        }
+      ],
+      "name": "are_ipfs_hashes_bounded",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
       "type": "function"
     },
     {
@@ -80,6 +269,236 @@
           "internalType": "string",
           "name": "_region",
           "type": "string"
+        }
+      ],
+      "name": "get_membership_applicants",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "region",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "get_region_KYC",
+      "outputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "internalType": "bool",
+              "name": "is_member",
+              "type": "bool"
+            },
+            {
+              "internalType": "enum Definitions.ApplicationStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "details",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "proof",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Definitions.IpfsHashes",
+              "name": "application_ipfs_hashes",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_fee",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "assign_timestamp",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_timestamp",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "reviewer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "enum Definitions.ResultStatus",
+                  "name": "status",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "result_wait_time",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "stake_wait_time",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct Definitions.Result",
+              "name": "result",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct Definitions.KYC",
+          "name": "kyc",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
+        }
+      ],
+      "name": "is_kyc_reviewer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "kover_token_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "membership_applications",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "membership_fee_params",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stake_fee_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "result_wait_time",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stake_wait_time",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "approval_fee_perc",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rejection_fee_perc",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_region",
+          "type": "string"
         },
         {
           "components": [
@@ -105,29 +524,163 @@
       "type": "function"
     },
     {
-      "inputs": [
+      "inputs": [],
+      "name": "policy_manager_contract_address",
+      "outputs": [
         {
           "internalType": "address",
-          "name": "_member_address",
+          "name": "",
           "type": "address"
-        },
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
         {
           "internalType": "string",
-          "name": "_region",
+          "name": "",
           "type": "string"
         },
         {
-          "internalType": "bool",
-          "name": "_should_conclude_application",
-          "type": "bool"
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "region_KYC_map",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "ipfs_hashes",
+          "type": "tuple"
         },
         {
           "internalType": "bool",
-          "name": "_should_inactivate_kyc_reviewer",
+          "name": "is_member",
           "type": "bool"
+        },
+        {
+          "internalType": "enum Definitions.ApplicationStatus",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "proof",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct Definitions.IpfsHashes",
+          "name": "application_ipfs_hashes",
+          "type": "tuple"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_fee",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "assign_timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "result_timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "reviewer",
+              "type": "address"
+            },
+            {
+              "internalType": "enum Definitions.ResultStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "result_wait_time",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_wait_time",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.Result",
+          "name": "result",
+          "type": "tuple"
         }
       ],
-      "name": "revert_membership_application_result",
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "revenue_pool_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "reviewer_contract_address",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_days",
+          "type": "uint256"
+        }
+      ],
+      "name": "setReflectionPeriod",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -296,29 +849,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_member_address",
-          "type": "address"
-        },
-        {
-          "internalType": "string",
-          "name": "_region",
-          "type": "string"
-        },
-        {
-          "internalType": "bool",
-          "name": "_status",
-          "type": "bool"
-        }
-      ],
-      "name": "set_membership_status",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "components": [
             {
               "internalType": "uint256",
@@ -362,16 +892,16 @@
       "type": "function"
     },
     {
-      "inputs": [
+      "inputs": [],
+      "name": "staking_pool_address",
+      "outputs": [
         {
-          "internalType": "uint256",
-          "name": "_days",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "",
+          "type": "address"
         }
       ],
-      "name": "setReflectionPeriod",
-      "outputs": [],
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -417,426 +947,34 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_protocol_manager",
-          "type": "address"
+          "internalType": "string",
+          "name": "_pool_name",
+          "type": "string"
         },
         {
           "internalType": "address",
-          "name": "_base_token",
+          "name": "_policy_holder_address",
           "type": "address"
         },
         {
-          "internalType": "address",
-          "name": "_kover_token_address",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "_stake",
+          "type": "uint256"
         },
         {
-          "internalType": "address",
-          "name": "_staking_pool_address",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "_validator_rating",
+          "type": "uint256"
         },
         {
-          "internalType": "address",
-          "name": "_revenue_pool_address",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_users_table_address",
-          "type": "address"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint256",
-              "name": "fee",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "stake_fee_perc",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "result_wait_time",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "stake_wait_time",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "approval_fee_perc",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "rejection_fee_perc",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct Definitions.FeeParams",
-          "name": "_membership_fee_params",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint256",
-              "name": "fee",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "approval_fee_perc",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "rejection_fee_perc",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct Definitions.AdminFeeParams",
-          "name": "_kyc_reviewer_application_fee_params",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint256",
-              "name": "minimum_reputation",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "maximum_reputation",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "initial_reputation",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "trusted_reputation",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "reputation_increment_denominator",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "reputation_decrement_denominator",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct Definitions.ValidationParams",
-          "name": "_validation_params",
-          "type": "tuple"
+          "internalType": "bool",
+          "name": "isYes",
+          "type": "bool"
         }
       ],
+      "name": "validate",
+      "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "inputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "_ipfs_hash",
-          "type": "tuple"
-        }
-      ],
-      "name": "are_ipfs_hashes_bounded",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "BaseToken",
-      "outputs": [
-        {
-          "internalType": "contract IERC20",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "_region",
-          "type": "string"
-        }
-      ],
-      "name": "get_membership_applicants",
-      "outputs": [
-        {
-          "internalType": "address[]",
-          "name": "",
-          "type": "address[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "_region",
-          "type": "string"
-        }
-      ],
-      "name": "is_kyc_reviewer",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "kover_token_address",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "membership_applications",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "membership_fee_params",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "fee",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "stake_fee_perc",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "result_wait_time",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "stake_wait_time",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "approval_fee_perc",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "rejection_fee_perc",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
-        },
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "region_KYC_map",
-      "outputs": [
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "internalType": "bool",
-          "name": "is_member",
-          "type": "bool"
-        },
-        {
-          "internalType": "enum Definitions.ApplicationStatus",
-          "name": "status",
-          "type": "uint8"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "application_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint256",
-              "name": "fee",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "stake_fee",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assign_timestamp",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "result_timestamp",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address",
-              "name": "reviewer",
-              "type": "address"
-            },
-            {
-              "internalType": "enum Definitions.ResultStatus",
-              "name": "status",
-              "type": "uint8"
-            },
-            {
-              "internalType": "uint256",
-              "name": "result_wait_time",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "stake_wait_time",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct Definitions.Result",
-          "name": "result",
-          "type": "tuple"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "revenue_pool_address",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "staking_pool_address",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {

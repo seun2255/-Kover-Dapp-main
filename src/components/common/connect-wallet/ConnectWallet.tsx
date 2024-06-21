@@ -187,18 +187,18 @@ const networks = [
   //   text: 'ETH',
   //   chainId: '0x1',
   // },
-  // {
-  //   id: 34526,
-  //   icon: '/images/Group-29.svg',
-  //   text: 'LCH',
-  //   chainId: '0x7a69',
-  // },
   {
     id: 34526,
     icon: '/images/Group-29.svg',
-    text: 'sepolia',
-    chainId: '0x66eee',
+    text: 'LCH',
+    chainId: '0x7a69',
   },
+  // {
+  //   id: 34526,
+  //   icon: '/images/Group-29.svg',
+  //   text: 'sepolia',
+  //   chainId: '0x66eee',
+  // },
   {
     id: 34527,
     icon: '/images/Group (1).svg',
@@ -347,7 +347,7 @@ function ConnectWallet(
             }
           )
           if (
-            account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD' ||
+            account === '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266' ||
             user.insureProVerificationState === 'verified'
           ) {
             navigate('/kyc-application')

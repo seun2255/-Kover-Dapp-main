@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Attachment from '../../components/common/Attachment'
 import Button from '../../components/common/Button'
 import IncidentCard from '../../components/common/cards/IncidentCard'
@@ -13,17 +13,31 @@ import { Link } from 'react-router-dom'
 import IncidentDetails from '../../components/common/IncidentDetails'
 import useWindowDimensions from '../../components/global/UserInform/useWindowDimensions'
 import { Tooltip as ReactTooltip } from 'react-tooltip'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import VerifyIdentity from '../Welcome/membership/VerifyIdentity'
 import CastVote from '../Welcome/membership/CastVote'
 import CastVoteWallet from '../Welcome/membership/CastVoteWallet'
+import { getClaimDataById, getClaimValidationData } from '../../api'
+import { extractHash } from '../../utils/helpers'
+import { useWeb3React } from '@web3-react/core'
+
+function shortenAddress(address: string) {
+  const firstPart = address.slice(0, 8)
+  const lastPart = address.slice(-8)
+  return `${firstPart}....${lastPart}`
+}
+
 function ClaimAssessment() {
   let navigate = useNavigate()
   const { theme } = React.useContext(UserContext)
   const [zero, setZero] = useState(false)
   const { width } = useWindowDimensions()
   const [icon, setIcon] = useState('')
+  const [claimdetails, setClaimdetails] = useState<any>({})
+  const [loading, setLoading] = useState(true)
+  const [isYes, setIsYes] = useState(false)
   const [hoverIcon, sethoverIcon] = useState('')
+  const { account } = useWeb3React()
   const handleChange = (event: any) => {
     if (event.target.value === '00.00') {
       setZero(true)
@@ -31,13 +45,51 @@ function ClaimAssessment() {
       setZero(false)
     }
   }
+  let { claimId } = useParams()
+  const [validationData, setValidationData] = useState<any>({})
+
+  const getRecommendation = (status: string) => {
+    if (status === 'approved') {
+      return 'Approve'
+    } else if (status === 'rejected') {
+      return 'reject'
+    } else {
+      return 'Pending'
+    }
+  }
+
+  const handleSubmit = async () => {
+    const validationData = await getClaimValidationData(
+      claimdetails.poolName,
+      claimdetails.address
+    )
+    setValidationData(validationData)
+  }
+
+  useEffect(() => {
+    const getData = async () => {
+      const data = await getClaimDataById(claimId as string)
+      console.log('Data: ', data)
+      setClaimdetails(data)
+
+      const validationData = await getClaimValidationData(
+        data.poolName,
+        data.address
+      )
+      setValidationData(validationData)
+      setLoading(false)
+    }
+    getData()
+  }, [])
 
   const titleClassName = 'fw-400 fs-13 lh-15 text-light-800 dark:text-dark-600'
   const textClassName = 'fw-500 fs-13 lh-15 text-light-800 dark:text-dark-600'
 
-  return (
+  return loading ? (
+    <></>
+  ) : (
     <div>
-      <Header name="Claim #1250" showBackAero={true} overview={true} />
+      <Header name={`Claim #${claimId}`} showBackAero={true} overview={true} />
       {width < 600 ? (
         <>
           <div className="flex mb-10  flex-col sm:hidden">
@@ -218,7 +270,7 @@ function ClaimAssessment() {
             </div>
 
             <div className="mt-[20px] ">
-              <IncidentDetails />
+              <IncidentDetails data={claimdetails} />
             </div>
 
             <div className="mt-[20px] bg-dark-600  dark:bg-white box-border-2x-light dark:box-border-2x-dark">
@@ -247,7 +299,7 @@ function ClaimAssessment() {
                               ? '/images/backFile.svg'
                               : '/images/Group 218.svg'
                           }
-                          name="doc 001.pdf"
+                          name={claimdetails.report.name}
                           status={
                             theme === 'dark'
                               ? '/images/downloadblack.svg'
@@ -277,7 +329,7 @@ function ClaimAssessment() {
                     </div>
                     <div className="flex w-[60%]">
                       <span className="investigation-item-value-sm">
-                        QmXvcdrqmchauToi...
+                        {extractHash(claimdetails.report.link)}
                       </span>
                     </div>
                   </div>
@@ -319,8 +371,14 @@ function ClaimAssessment() {
                       />
                     </div>
                     <div className="flex w-[60%]">
-                      <span className="text-[#DA0A0A] investigation-item-value-sm">
-                        Reject
+                      <span
+                        className={`text-[${
+                          claimdetails.resultStatus === 'approved'
+                            ? '#50ff7f'
+                            : '#DA0A0A'
+                        }] investigation-item-value-sm`}
+                      >
+                        {getRecommendation(claimdetails.resultStatus)}
                       </span>
                     </div>
                   </div>
@@ -340,12 +398,10 @@ function ClaimAssessment() {
                         placeholder={'0000'}
                         onChange={handleChange}
                         className={`placeholder:text-dark-300 text-6xl max-w-none min-w-0 w-[42px] flex-grow dark:placeholder:text-dark-300 
-                      fw-400 lh-42 input-value 
-                      ${
-                        zero
-                          ? 'text-[#42434B]'
-                          : 'text-[#FFF] dark:text-dark-800'
-                      }`}
+                    fw-400 lh-42 input-value 
+                    ${
+                      zero ? 'text-[#42434B]' : 'text-[#FFF] dark:text-dark-800'
+                    }`}
                       />
                       <div className="ml-[15px]">
                         <Button
@@ -375,6 +431,8 @@ function ClaimAssessment() {
                   headline
                   view="moblie"
                   firsttext="By voting, I accept Kover's"
+                  setIsYes={setIsYes}
+                  handleSubmit={handleSubmit}
                 />
               </div>
             </div>
@@ -464,10 +522,10 @@ function ClaimAssessment() {
                 <b className="fw-500 fs-16 lh-19 text-[#F1F1F1] dark:text-dark-600 block mb-5">
                   Incident Details
                 </b>
-                <IncidentCard />
+                <IncidentCard data={claimdetails} />
               </div>
 
-              <IncidentDetails />
+              <IncidentDetails data={claimdetails} />
 
               <div className="mt-[20px] bg-dark-600  dark:bg-white box-border-2x-light dark:box-border-2x-dark">
                 <InfoText
@@ -495,7 +553,7 @@ function ClaimAssessment() {
                                 ? '/images/backFile.svg'
                                 : '/images/Group 218.svg'
                             }
-                            name="doc 001.pdf"
+                            name={claimdetails.report.name}
                             status={
                               theme === 'dark'
                                 ? '/images/downloadblack.svg'
@@ -516,7 +574,7 @@ function ClaimAssessment() {
                       </div>
                       <div className="flex w-[80%]">
                         <span className="investigation-item-value">
-                          QmXvcdrqmchauToiQmXvcdrqmchauToiQmXvcdrqmchauToiQmXvcdrmXvcdrqmchauToi
+                          {extractHash(claimdetails.report.link)}
                         </span>
                       </div>
                     </div>
@@ -549,8 +607,14 @@ function ClaimAssessment() {
                         />
                       </div>
                       <div className="flex w-[80%]">
-                        <span className="text-[#DA0A0A] investigation-item-value">
-                          Reject
+                        <span
+                          className={`text-[${
+                            claimdetails.resultStatus === 'approved'
+                              ? '#50ff7f'
+                              : '#DA0A0A'
+                          }] investigation-item-value-sm`}
+                        >
+                          {getRecommendation(claimdetails.resultStatus)}
                         </span>
                       </div>
                     </div>
@@ -559,54 +623,63 @@ function ClaimAssessment() {
               </div>
 
               {/* <div>
-                <div>
-                  <h6 className="fw-500 fs-16 lh-19 mb-[20px]">Decision</h6>
-                  <div className=" py-[10px] px-[20px] sm:px-[30px] dark:box-border dark:borderLight-border dark:borderLightColor-color dark:text-dark-800 dark:text-primary-100 dark:bg-light-1100 bg-dark-800 box-border-2x-light dark:box-border-2x-dark">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center">
-                        <input
-                          type="text"
-                          maxLength={4}
-                          placeholder={'0000'}
-                          onChange={handleChange}
-                          className={`placeholder:text-dark-300 text-6xl max-w-none min-w-0 w-[65px] flex-grow dark:placeholder:text-dark-300 
-                      fw-400 lh-42 input-value 
-                      ${
-                        zero
-                          ? 'text-[#42434B]'
-                          : 'text-[#FFF] dark:text-dark-800'
-                      }`}
+              <div>
+                <h6 className="fw-500 fs-16 lh-19 mb-[20px]">Decision</h6>
+                <div className=" py-[10px] px-[20px] sm:px-[30px] dark:box-border dark:borderLight-border dark:borderLightColor-color dark:text-dark-800 dark:text-primary-100 dark:bg-light-1100 bg-dark-800 box-border-2x-light dark:box-border-2x-dark">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <input
+                        type="text"
+                        maxLength={4}
+                        placeholder={'0000'}
+                        onChange={handleChange}
+                        className={`placeholder:text-dark-300 text-6xl max-w-none min-w-0 w-[65px] flex-grow dark:placeholder:text-dark-300 
+                    fw-400 lh-42 input-value 
+                    ${
+                      zero
+                        ? 'text-[#42434B]'
+                        : 'text-[#FFF] dark:text-dark-800'
+                    }`}
+                      />
+                      <div className="ml-[10px]">
+                        <InfoText text="ELA" />
+                      </div>
+                      <div className="ml-[64px]">
+                        <Button
+                          className="px-6 h-[30px] font-medium text-3xl bg-[#3F4048] dark:bg-[#FFFFFF]"
+                          text="USDC"
                         />
-                        <div className="ml-[10px]">
-                          <InfoText text="ELA" />
-                        </div>
-                        <div className="ml-[64px]">
-                          <Button
-                            className="px-6 h-[30px] font-medium text-3xl bg-[#3F4048] dark:bg-[#FFFFFF]"
-                            text="USDC"
-                          />
-                        </div>
                       </div>
-                      <div className="flex gap-[10px]">
-                        <span className="fw-400 fs-16 lh-42 sm:decision-amount">
-                          ~
-                        </span>
-                        <span className="fw-400 fs-16 lh-42 sm:decision-amount">
-                          $3.09
-                        </span>
-                      </div>
+                    </div>
+                    <div className="flex gap-[10px]">
+                      <span className="fw-400 fs-16 lh-42 sm:decision-amount">
+                        ~
+                      </span>
+                      <span className="fw-400 fs-16 lh-42 sm:decision-amount">
+                        $3.09
+                      </span>
                     </div>
                   </div>
                 </div>
-                <div className="mt-[20px]">
-                  <CastYourVote />
-                </div>
-              </div> */}
+              </div>
+              <div className="mt-[20px]">
+                <CastYourVote />
+              </div>
+            </div> */}
 
-              <CastVoteWallet />
-              <CastVote />
+              {account ? (
+                <CastVote
+                  claimDetails={claimdetails}
+                  onComplete={handleSubmit}
+                />
+              ) : (
+                <CastVoteWallet />
+              )}
+
               <div>
-                <h6 className="vote dark:vote-dark mb-[22px]">Votes (152)</h6>
+                <h6 className="vote dark:vote-dark mb-[22px]">
+                  Votes ({validationData.validators.length}))
+                </h6>
                 <div className="grid grid-cols-3 pr-[15px] pl-[32px] mb-4 items-center">
                   <InfoText
                     icon={false}
@@ -630,39 +703,41 @@ function ClaimAssessment() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-5 ">
-                  {[...Array(3)].map((value, index) => (
-                    <div key={index}>
-                      <div className="grid grid-cols-3 items-center py-[17px] px-[30px] bg-dark-600 rounded dark:bg-white box-border-2x-light dark:box-border-2x-dark">
-                        <div className="flex items-center gap-4">
-                          <img
-                            src="/images/Vector.png"
-                            className="rounded-full"
-                            alt=""
-                          />
-                          <Link
-                            to=""
-                            className="hover:no-underline no-underline"
-                          >
-                            <span
-                              className={`${
-                                theme === 'dark'
-                                  ? 'text-[#6D6E76] hover:text-[#000]'
-                                  : 'hover:text-brand-400'
-                              }`}
+                  {validationData.validators.map(
+                    (validator: any, index: number) => (
+                      <div key={index}>
+                        <div className="grid grid-cols-3 items-center py-[17px] px-[30px] bg-dark-600 rounded dark:bg-white box-border-2x-light dark:box-border-2x-dark">
+                          <div className="flex items-center gap-4">
+                            <img
+                              src="/images/Vector.png"
+                              className="rounded-full"
+                              alt=""
+                            />
+                            <Link
+                              to=""
+                              className="hover:no-underline no-underline"
                             >
-                              0x95e441....ddd97400
-                            </span>
-                          </Link>
-                        </div>
-                        <div className="flex justify-center">
-                          <span>Yes</span>
-                        </div>
-                        <div className="flex justify-end">
-                          <span>15,856.640</span>
+                              <span
+                                className={`${
+                                  theme === 'dark'
+                                    ? 'text-[#6D6E76] hover:text-[#000]'
+                                    : 'hover:text-brand-400'
+                                }`}
+                              >
+                                {shortenAddress(validator.address)}
+                              </span>
+                            </Link>
+                          </div>
+                          <div className="flex justify-center">
+                            <span>{validator.isYes ? 'Yes' : 'No'}</span>
+                          </div>
+                          <div className="flex justify-end">
+                            <span>{validator.votePower}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
               </div>
             </div>
@@ -694,13 +769,19 @@ function ClaimAssessment() {
                 <div className="flex flex-col gap-4 mb-4">
                   <WeightRow
                     name="For"
-                    value="26048660 (65%)"
+                    value={`${validationData.votesFor} (${Math.round(
+                      (validationData.votesFor * 100) /
+                        validationData.totalVotePower
+                    )}%)`}
                     titleclassname={titleClassName}
                     textclassname={textClassName}
                   />
                   <div>
                     <Progress
-                      current={15}
+                      current={Math.round(
+                        (validationData.votesFor * 100) /
+                          validationData.totalVotePower
+                      )}
                       color={
                         theme === 'dark'
                           ? 'rgb(42, 43, 49)'
@@ -712,7 +793,10 @@ function ClaimAssessment() {
                 <div className="flex flex-col gap-4">
                   <WeightRow
                     name="Against"
-                    value="125465 (35%)"
+                    value={`${validationData.votesAgainst} (${Math.round(
+                      (validationData.votesAgainst * 100) /
+                        validationData.totalVotePower
+                    )}%)`}
                     titleclassname={titleClassName}
                     textclassname={textClassName}
                   />
@@ -723,7 +807,10 @@ function ClaimAssessment() {
                           ? 'rgb(42, 43, 49)'
                           : 'rgba(193, 30, 15, 0.8)'
                       }
-                      current={65}
+                      current={Math.round(
+                        (validationData.votesAgainst * 100) /
+                          validationData.totalVotePower
+                      )}
                     />
                   </div>
                 </div>

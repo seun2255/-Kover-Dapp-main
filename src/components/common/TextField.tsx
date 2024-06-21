@@ -55,7 +55,12 @@ function TextField(props: TextFieldProps) {
     ) {
       const regex = /^[a-zA-Z]+$/
       regex.test(text) ? setError(false) : setError(true)
-    } else if (name === 'postCode' || name === 'nationalID') {
+    } else if (
+      name === 'postCode' ||
+      name === 'nationalID' ||
+      name === 'registrationNumber' ||
+      name === 'insurableValue'
+    ) {
       var regex = /^[0-9]+$/
       regex.test(text) ? setError(false) : setError(true)
     }

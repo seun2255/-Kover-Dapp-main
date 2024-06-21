@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Agreament from '../../components/common/Agreament'
 import UploadingFile from '../../components/common/FileUpload/UploadingFile'
 import WeightTitle from '../../components/common/WeightTitle'
@@ -10,13 +10,292 @@ import useWindowDimensions from '../../components/global/UserInform/useWindowDim
 import FormAgreament from '../../components/common/FormAgreament'
 import { Link } from 'react-router-dom'
 import { Tooltip as ReactTooltip } from 'react-tooltip'
+import { useDispatch } from 'react-redux'
+import { useWeb3React } from '@web3-react/core'
+import { useNavigate } from 'react-router-dom'
+import { openAlert, closeAlert } from '../../redux/alerts'
+import { convertJsonToString } from '../../utils/helpers'
+import { getCurrentDateTime } from '../../utils/dateTime'
+import lighthouse from '@lighthouse-web3/sdk'
+import { uploadJsonData } from '../../lighthouse'
+import {
+  is_kyc_reviewer,
+  apply_for_membership,
+  apply_for_InsurePro,
+  getUserData,
+} from '../../api'
+import {
+  createUser,
+  updateInsureProVerificationState,
+  createChatRoom,
+} from '../../database'
+import { getUser } from '../../tableland'
+import { removeItemFromArray } from '../../utils/helpers'
+import { getUserDetails } from '../../database'
+import VerifyIdentity from '../Welcome/membership/VerifyIdentity'
+import StartProcess from '../InsurePro/membership/StartProcess'
+import { useSelector } from 'react-redux'
+
+interface popupProps {
+  userVerificationState: string
+  setUserVerificationState: any
+}
+
+interface Document {
+  link: string
+  name: string
+}
 
 function Adjuster() {
   const { theme } = React.useContext(UserContext)
   const { width } = useWindowDimensions()
   const [currentIcon, setcurrentIcon] = useState('')
+  const { library, account } = useWeb3React()
+  const { connected } = useSelector((state: any) => state.user)
+  const dispatch = useDispatch()
+  const [formState, setFormState] = useState({
+    workArea: '',
+    workField: '',
+    pool: 'Car Insurance',
+    reviewerDocuments: [] as Document[],
+  })
   const fileName = ['Id_back.png', 'Id_front.png', 'img 001.png', 'Doc 002.pdf']
-  return (
+  const [formFilled, setFormFilled] = useState(true)
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
+  const [fileUploadInitated, setFileUploadInitiated] = useState(false)
+  const [showPools, setShowPools] = useState(false)
+  const [kycVerified, setKycVerified] = useState(false)
+  const [userVerificationState, setUserVerificationState] =
+    useState('unverified')
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(true)
+
+  type ProgressData = {
+    total: number
+    uploaded: number
+  }
+
+  useEffect(() => {
+    if (account) {
+      getUserDetails(account).then((user) => {
+        if (user) {
+          if (user.kycVerificationState === 'verified') {
+            setKycVerified(true)
+          }
+          if (user.insureProVerificationState === 'verified') {
+            navigate('/kyc-application')
+          }
+          setUserVerificationState(user.insureProVerificationState)
+        }
+        setLoading(false)
+      })
+    }
+  }, [connected])
+
+  useEffect(() => {
+    if (formState.workField !== 'KYC Reviewer' && formState.workField !== '') {
+      setShowPools(true)
+    } else {
+      setShowPools(false)
+    }
+  }, [formState.workField])
+
+  const progressCallback = (progressData: ProgressData) => {
+    let percentageDone = Math.round(
+      (progressData?.uploaded / progressData?.total) * 100
+    )
+    setUploadProgress(percentageDone)
+  }
+
+  //Uploads File to IPFS
+  const uploadFile = async (file: any) => {
+    const output = await lighthouse.upload(
+      file,
+      process.env.REACT_APP_LIGHTHOUSE_API_KEY as string,
+      false,
+      undefined,
+      progressCallback
+    )
+    const link = 'https://gateway.lighthouse.storage/ipfs/' + output.data.Hash
+    const currentDocuments: Document[] = [...formState.reviewerDocuments]
+    currentDocuments.push({
+      link: link,
+      name: file[0].name,
+    })
+    setFormState((prevState) => ({
+      ...prevState,
+      reviewerDocuments: currentDocuments,
+    }))
+  }
+
+  const handleFileChange = async (event: any) => {
+    setFileUploadInitiated(true)
+    const files = event.target.files
+    const updatedFiles = [...selectedFiles]
+
+    for (let i = 0; i < files.length; i++) {
+      updatedFiles.push(files[i])
+    }
+
+    // const encryptedFile = await encryptAndHandleFile(files[0])
+    // console.log(encryptedFile)
+    // const decryptedFile = await decryptAndHandleFile(encryptedFile)
+    // console.log(decryptedFile)
+
+    setSelectedFiles(updatedFiles)
+    uploadFile(files)
+  }
+
+  const removeFile = (index: number) => {
+    const newArray = removeItemFromArray(
+      formState.reviewerDocuments,
+      formState.reviewerDocuments[index].link
+    )
+    setFormState((prevState: any) => ({
+      ...prevState,
+      reviewerDocuments: newArray,
+    }))
+    var newFiles = [...selectedFiles]
+    newFiles.splice(index, 1)
+    setSelectedFiles(newFiles)
+  }
+
+  // Generic change handler for all inputs
+  const handleChange = (e: any) => {
+    const { name, value } = e.target
+    setFormState((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }))
+  }
+
+  function areAllValuesFilled(obj: any) {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key) && obj[key] === '') {
+        return false // If any value is not an empty string, return false
+      }
+    }
+    return true // All values are empty strings
+  }
+
+  // Handle form submission
+  const handleSubmit = async () => {
+    const user = await getUserData(account)
+    setFileUploadInitiated(true)
+    const date = getCurrentDateTime()
+    setFormState((prevState) => ({
+      ...prevState,
+      date: date,
+      address: account,
+    }))
+    const formFilled = areAllValuesFilled(formState)
+    setFormFilled(formFilled)
+    // if (verificationState !== 'verified') {
+    //   setEmailRequiredMessage(true)
+    // }
+    // if (formFilled && verificationState === 'verified') {
+    if (formFilled) {
+      fetch('https://ipinfo.io/json')
+        .then((response) => response.json())
+        .then(async (data) => {
+          const formData = {
+            ...formState,
+            date: date,
+            address: account,
+            region: data.country,
+            ...user,
+          }
+          const dataString = convertJsonToString(formData)
+          const userData = await uploadJsonData(dataString)
+          // const isReviwer = await is_kyc_reviewer(signer);
+
+          await apply_for_InsurePro(
+            userData,
+            formState.workField,
+            data.country,
+            'Car Insurance'
+          ).then(async (result) => {
+            if (result.success) {
+              const userInfo = await getUser(account as string)
+              const userId = userInfo.id
+
+              await createChatRoom(
+                'insure-pro',
+                data.country,
+                userId as number,
+                {
+                  [account as string]: formData.firstName,
+                  // eslint-disable-next-line no-useless-computed-key
+                  ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266']: 'Admin',
+                }
+              )
+              await updateInsureProVerificationState(account, 'verifying')
+              dispatch(
+                openAlert({
+                  displayAlert: true,
+                  data: {
+                    id: 1,
+                    variant: 'Successful',
+                    classname: 'text-black',
+                    title: 'Submission Successful',
+                    tag1: 'Insure Pro application submitted',
+                    tag2: 'View on etherscan',
+                  },
+                })
+              )
+              setTimeout(() => {
+                dispatch(closeAlert())
+              }, 10000)
+              setUserVerificationState('verifying')
+            } else {
+              dispatch(
+                openAlert({
+                  displayAlert: true,
+                  data: {
+                    id: 2,
+                    variant: 'Failed',
+                    classname: 'text-black',
+                    title: 'Transaction Failed',
+                    tag1: result.reason ? result.reason : '',
+                    tag2: 'View on etherscan',
+                  },
+                })
+              )
+              setTimeout(() => {
+                dispatch(closeAlert())
+              }, 10000)
+            }
+          })
+        })
+        .catch((error) => {
+          console.log('Error fetching IP address information: ', error)
+        })
+    }
+  }
+
+  return loading ? (
+    <div></div>
+  ) : !kycVerified ? (
+    <>
+      <div className="flex-grow flex flex-col w-[1100px]">
+        {!connected && (
+          <div className="mt-[28px]">
+            <VerifyIdentity />
+          </div>
+        )}
+        {connected && (
+          <div className="mt-[10px]">
+            <StartProcess kycVerified={kycVerified} />
+          </div>
+        )}
+      </div>
+    </>
+  ) : userVerificationState !== 'unverified' ? (
+    <div className="mt-[10px]">
+      <StartProcess kycVerified={kycVerified} />
+    </div>
+  ) : (
     <>
       <div className="mb-10 lg:flex gap-[60px] sm:mt-[20px]">
         <div className="flex-grow">
@@ -32,8 +311,32 @@ function Adjuster() {
               </p>
             </div>
             <div className="flex flex-col gap-5 pt-5 lg:pt-2">
-              <SelectField label="Work Area" placeholder="Please Select" />
-              <SelectField label="Work Field" placeholder="Domain" />
+              <SelectField
+                labelIcon={false}
+                handleChange={handleChange}
+                filled={formFilled}
+                label="Work Area"
+                placeholder="Please Select"
+                name="workArea"
+              />
+              <SelectField
+                labelIcon={false}
+                handleChange={handleChange}
+                filled={formFilled}
+                label="Work Field"
+                placeholder="Domain"
+                name="workField"
+              />
+              {showPools && (
+                <SelectField
+                  labelIcon={false}
+                  handleChange={handleChange}
+                  filled={formFilled}
+                  label="Pool"
+                  placeholder="Please select"
+                  name="pool"
+                />
+              )}
             </div>
           </div>
           <hr className="my-[25px]" />
@@ -74,9 +377,9 @@ function Adjuster() {
             <div className="flex flex-col gap-5 lg:pt-0 pt-[10px]">
               <div>
                 <label
-                  className={`flex justify-center w-full  transition border-2 border-gray-300 dark:dark-light-box-border dark:border-dashed border-dashed appearance-none cursor-pointer hover:border-gray-400 focus:outline-none border-color w-full h-[40px]`}
+                  className={`mb-[20px] mt-[15px] flex justify-center w-full  transition border-2 border-gray-300 dark:dark-light-box-border dark:border-dashed border-dashed appearance-none cursor-pointer hover:border-gray-400 focus:outline-none border-color w-full h-[40px]`}
                 >
-                  <span className="flex items-center gap-[10px] sm:gap-[15px]">
+                  <span className="flex items-center space-x-2">
                     <img
                       className="w-[14px] h-[16px]"
                       src="/images/uploadAeroBlack.svg"
@@ -86,14 +389,31 @@ function Adjuster() {
                       Upload
                     </span>
                   </span>
-                  <input type="file" name="file_upload" className="hidden" />
+                  <input
+                    type="file"
+                    name="file_upload"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
                 </label>
               </div>
-              <div className="flex gap-[12px] flex-col">
-                <UploadingFile progress={100} />
-                <UploadingFile progress={80} />
+              {selectedFiles.map((file, index) => (
+                <div className="mb-[5px]" key={index}>
+                  <UploadingFile
+                    progress={uploadProgress}
+                    file={file}
+                    handleRemove={() => removeFile(index)}
+                  />
+                </div>
+              ))}
+              <div className="my-[20px]">
+                <Rules padding="py-[20px] px-[20px]" space="ml-[20px]" />
               </div>
-              <Rules padding={width < 600 ? '' : 'px-[20px] py-[22px]'} />
+              {((formState.reviewerDocuments.length === 0 &&
+                fileUploadInitated) ||
+                !formFilled) && (
+                <span style={{ color: 'red' }}>Document is required</span>
+              )}
             </div>
           </div>
 
@@ -109,6 +429,7 @@ function Adjuster() {
                 item1Class="w-full flex gap-[12px] items-center"
                 item2Class="w-full mt-[10px] flex justify-end"
                 btn="sm:w-fit w-full"
+                handleSubmit={handleSubmit}
               />
             </div>
           </div>

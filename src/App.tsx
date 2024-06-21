@@ -85,12 +85,12 @@ export const routes = [
   },
   {
     id: 764,
-    route: 'claim-assessment',
+    route: 'claim-assessment/:claimId',
     el: <ClaimAssessment />,
   },
   {
     id: 764,
-    route: 'claim-view',
+    route: 'claim-view/:claimId',
     el: <ClaimView />,
   },
   {
@@ -176,7 +176,7 @@ export const routes = [
   },
   {
     id: 785,
-    route: 'claim-view-user',
+    route: 'claim-view-user/:claimId',
     el: <ClaimViewUser />,
   },
   {
@@ -226,7 +226,7 @@ export const routes = [
   },
   {
     id: 523650,
-    route: 'policy-risk-user-profile',
+    route: 'policy-risk-user-profile/:coverId',
     el: <PolicyRiskUserPofile />,
   },
   {

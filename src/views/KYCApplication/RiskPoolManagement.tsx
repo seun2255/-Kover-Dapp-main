@@ -66,13 +66,13 @@ function RiskPoolMnagament() {
                     <SelectField
                       labelIcon={true}
                       label="Admin Address"
-                      placeholder="e.g. 0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD"
+                      placeholder="e.g. 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
                     />
                     <TextField
                       label="Risk Module Address"
                       field="$"
                       labelIcon={true}
-                      placeholder="e.g. 0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD"
+                      placeholder="e.g. 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
                       outline={true}
                       classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                     />

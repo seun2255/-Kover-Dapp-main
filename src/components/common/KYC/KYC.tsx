@@ -249,7 +249,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
           }
           const dataString = convertJsonToString(formData)
           const userData = await uploadJsonData(dataString)
-          const signer = library.getSigner(account)
+          console.log('KYC Data: ', userData)
           // const isReviwer = await is_kyc_reviewer(signer);
 
           await apply_for_membership(userData, data.country)
@@ -482,8 +482,6 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                       labelIcon={false}
                       placeholder="e.g. California"
                       classname="dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
-
-                      // classname="border-none"
                     />
                     <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
                       <TextField
@@ -495,10 +493,6 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                         labelIcon={false}
                         placeholder="e.g. 645 EShaw Ave"
                         classname="dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
-
-                        // classname={`${
-                        //   theme === "dark" ? "otp-input-dark" : "otp-input"
-                        // }`}
                       />
                       <TextField
                         handleChange={handleChange}
@@ -644,11 +638,13 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                   <div>
                     <label
                       className={`mb-[20px] mt-[15px] flex justify-center w-full  transition border-2 border-gray-300 dark:dark-light-box-border dark:border-dashed border-dashed appearance-none cursor-pointer hover:border-gray-400 focus:outline-none border-color w-full h-[40px]`}
-                      onClick={() =>
-                        setTimeout(() => {
-                          setFileUploadInitiated(true)
-                        }, 10000)
-                      }
+                      onClick={(e) => {
+                        console.log('Clicked')
+                        // setTimeout(() => {
+                        //   setFileUploadInitiated(true)
+                        // }, 10000)
+                      }}
+                      htmlFor="file_upload"
                     >
                       <span className="flex items-center space-x-2">
                         <img
@@ -661,9 +657,13 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                         </span>
                       </span>
                       <input
+                        id="file_upload"
                         type="file"
                         name="file_upload"
                         className="hidden"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                        }}
                         onChange={handleFileChange}
                       />
                     </label>

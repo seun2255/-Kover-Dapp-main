@@ -19,6 +19,7 @@ import TableCard from '../../components/common/cards/TableCard/TableCard'
 import ClaimsCard from '../../components/common/cards/ClaimsCard'
 import Pagination from '../../components/common/Pagination'
 import Drawer from 'react-modern-drawer'
+import StakingPopup from './StakePopup'
 
 function Staking() {
   const [select, setSelect] = useState(false)
@@ -182,7 +183,11 @@ function Staking() {
       [
         <CarInsurance
           text="KVER Pool"
-          icon={theme === 'dark' ? '/images/logo-start.svg' : '/images/logo-start.svg'}
+          icon={
+            theme === 'dark'
+              ? '/images/logo-start.svg'
+              : '/images/logo-start.svg'
+          }
         />,
         <img
           src={
@@ -209,7 +214,11 @@ function Staking() {
       [
         <CarInsurance
           text="KVER Pool"
-          icon={theme === 'dark' ? '/images/logo-start.svg' : '/images/logo-start.svg'}
+          icon={
+            theme === 'dark'
+              ? '/images/logo-start.svg'
+              : '/images/logo-start.svg'
+          }
         />,
         <img
           src={theme === 'dark' ? '/images/59.svg' : '/images/58.svg'}
@@ -232,7 +241,11 @@ function Staking() {
       [
         <CarInsurance
           text="KVER Pool"
-          icon={theme === 'dark' ? '/images/logo-start.svg' : '/images/logo-start.svg'}
+          icon={
+            theme === 'dark'
+              ? '/images/logo-start.svg'
+              : '/images/logo-start.svg'
+          }
         />,
         <img
           src={
@@ -259,7 +272,11 @@ function Staking() {
       [
         <CarInsurance
           text="KVER Pool"
-          icon={theme === 'dark' ? '/images/logo-start.svg' : '/images/logo-start.svg'}
+          icon={
+            theme === 'dark'
+              ? '/images/logo-start.svg'
+              : '/images/logo-start.svg'
+          }
         />,
         <img
           src={theme === 'dark' ? '/images/59.svg' : '/images/58.svg'}
@@ -290,20 +307,20 @@ function Staking() {
     <div>
       <Header name="Staking" showBackAero={false} overview={true} />
       <div className="flex items-center justify-between mb-5">
-        <span className="claim-title">Earn extra rewards by Staking KOVER Tokens</span>
-       
-          <Link
-            to="/"
-            className="hidden text-lg font-bold text-brand-300 sm:block"
-          >
-            How it works
-          </Link>
+        <span className="claim-title">
+          Earn extra rewards by Staking KOVER Tokens
+        </span>
+
+        <Link
+          to="/"
+          className="hidden text-lg font-bold text-brand-300 sm:block"
+        >
+          How it works
+        </Link>
       </div>
 
       {/* Moblie */}
       <div className="mb-5">
-       
-
         {width >= 1000 ? (
           <>
             <div className="block max-[1000px]:hidden">
@@ -313,54 +330,48 @@ function Staking() {
         ) : (
           <>
             <div className="hidden max-[1000px]:block mt-[20px]">
-           
-                <>
-                  <div className="flex w-full table-search-bar">
-                    <SearchField width={'w-full'} />{' '}
-                    <button
-                      type="button"
-                      className="px-5 py-0 ml-3 text-base font-bold uppercase dark:bg-light-1100 bg-dark-800 text-dark-500 w-100 justify-self-end"
-                    >
-                      Filter
-                    </button>
-                  </div>
-                  <ClaimsCard
-                    icon={
-                      theme === 'dark'
-                        ? '/images/dark-diamond.svg'
-                        : '/images/light-diamond.svg'
-                    }
-                  />
-                  <ClaimsCard
-                    icon={
-                      theme === 'dark' ? '/images/59.svg' : '/images/58.svg'
-                    }
-                  />
-                  <ClaimsCard
-                    icon={
-                      theme === 'dark'
-                        ? '/images/dark-diamond.svg'
-                        : '/images/light-diamond.svg'
-                    }
-                  />
-                  <ClaimsCard
-                    button={true}
-                    icon={
-                      theme === 'dark' ? '/images/59.svg' : '/images/58.svg'
-                    }
-                  />
-                </>
-             
+              <>
+                <div className="flex w-full table-search-bar">
+                  <SearchField width={'w-full'} />{' '}
+                  <button
+                    type="button"
+                    className="px-5 py-0 ml-3 text-base font-bold uppercase dark:bg-light-1100 bg-dark-800 text-dark-500 w-100 justify-self-end"
+                  >
+                    Filter
+                  </button>
+                </div>
+                <ClaimsCard
+                  icon={
+                    theme === 'dark'
+                      ? '/images/dark-diamond.svg'
+                      : '/images/light-diamond.svg'
+                  }
+                />
+                <ClaimsCard
+                  icon={theme === 'dark' ? '/images/59.svg' : '/images/58.svg'}
+                />
+                <ClaimsCard
+                  icon={
+                    theme === 'dark'
+                      ? '/images/dark-diamond.svg'
+                      : '/images/light-diamond.svg'
+                  }
+                />
+                <ClaimsCard
+                  button={true}
+                  icon={theme === 'dark' ? '/images/59.svg' : '/images/58.svg'}
+                />
+              </>
             </div>
           </>
         )}
       </div>
       <Popup
-        maxWidth="max-w-[860px]"
+        maxWidth="max-w-[900px]"
         onClose={toggleStake}
         visible={Boolean(stake)}
       >
-        <PopConfirm
+        <StakingPopup
           defaultTab={stake === 2 ? 1 : 0}
           onClose={toggleStake}
           {...stakePopup}

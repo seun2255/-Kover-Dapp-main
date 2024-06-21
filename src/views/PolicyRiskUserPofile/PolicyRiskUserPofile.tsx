@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../../components/common/Button'
 import Header from '../../components/common/header/Header'
-import SelectField from '../../components/common/TextField/SelectField'
+import RiskSelectField from '../../components/common/TextField/riskSelectField'
 import TextField from '../../components/common/TextField'
 import InsureProUserInfom from '../../components/global/RiskPolicyUserInfom/RiskPolicyUserInfom'
 import { UserContext } from '../../App'
@@ -10,20 +10,303 @@ import Score from '../Dashboard/Score'
 import Attachment from '../../components/common/Attachment'
 import WeightRow from '../../components/common/WeightRow'
 import WeightTitle from '../../components/common/WeightTitle'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import TextFieldS from '../../components/common/TextFieldS'
 import { Tooltip as ReactTooltip } from 'react-tooltip'
 import AttachmentPreview from '../../components/common/AttachmentPreview/AttachmentPreview'
 import Popup from '../../components/templates/Popup'
+import { useSelector, useDispatch } from 'react-redux'
+import { useWeb3React } from '@web3-react/core'
+import { createDateString } from '../../utils/dateTime'
+import { findObjectById, removeItemFromArray } from '../../utils/helpers'
+import { getCurrentDateTime } from '../../utils/dateTime'
+import { convertJsonToString } from '../../utils/helpers'
+import { uploadJsonData } from '../../lighthouse'
+import { openAlert, closeAlert } from '../..//redux/alerts'
+import { getUserData, modifyPolicy, get_covers } from '../../api'
+import {
+  switchCoverModifyState,
+  switchKYCReviewerModify,
+  updateCoverQuote,
+  getCoverDetails,
+} from '../../database'
+import lighthouse from '@lighthouse-web3/sdk'
+import UploadingFile from '../../components/common/FileUpload/UploadingFile'
+import Rules from '../../components/common/FileUpload/Rules'
+import { setCoverApplications, setKYCReviewerApplicants } from '../../redux/kyc'
+import calculatePremiumQuote from '../../utils/premiumSimulator'
+
+interface Document {
+  link: string
+  name: string
+}
+
+// Cover Durations
+const coverDurations = ['2 weeks', '30 days', '90 days', '180 days', '365 days']
+
+// Finds the index of the duration
+function findIndex(array: any, searchText: string) {
+  for (let i = 0; i < array.length; i++) {
+    if (array[i] === searchText) {
+      return i // Return index if match found
+    }
+  }
+  return -1 // Return -1 if no match found
+}
 
 function RiskPolicyUserProfile() {
   const { theme } = React.useContext(UserContext)
+  const { coverApplications } = useSelector((state: any) => state.kyc)
+  const { user } = useSelector((state: any) => state.user)
+  const { account, library } = useWeb3React()
   const [popup, setPopup] = useState(false)
   const togglePopup = () => setPopup((v) => !v)
-  const [currentIcon, setcurrentIcon] = useState('')
+  let { coverId } = useParams()
   let navigate = useNavigate()
+  const [applicant, setApplicant] = useState(
+    findObjectById(coverApplications, coverId)
+  )
+  console.log(applicant)
+  const [canModify, setCanModify] = useState(false)
+  const [formState, setFormState] = useState(applicant)
+  const [summaryData, setSummaryData] = useState({
+    purchase: '---',
+    coverId: '---',
+    status: '---',
+    claimId: '---',
+    claimAmout: '---',
+    claimHistory: '---',
+    PRP: '---',
+  })
+  const [formFilled, setFormFilled] = useState(true)
+  const dispatch = useDispatch()
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
+  const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
+  const [selectedDocument, setSelectedDocument] = useState(
+    applicant.documents[0]
+  )
+  const [documentsDisplayed, setDocumentsDisplayed] = useState(
+    applicant.documents
+  )
+  const originalFilesLength = applicant.documents.length
+
+  const [currentIcon, setcurrentIcon] = useState('')
   const titleClassName = 'fw-400 fs-13 lh-15 text-light-800 dark:text-dark-600'
   const textClassName = 'fw-500 fs-13 lh-15 text-light-800 dark:text-dark-600'
+
+  // Generic change handler for all inputs
+  const handleChange = (e: any) => {
+    const { name, value } = e.target
+    setFormState((prevState: any) => ({
+      ...prevState,
+      [name]: value,
+    }))
+  }
+
+  function areAllValuesFilled(obj: any) {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key) && obj[key] === '') {
+        return false // If any value is not an empty string, return false
+      }
+    }
+    return true // All values are empty strings
+  }
+
+  type ProgressData = {
+    total: number
+    uploaded: number
+  }
+
+  const progressCallback = (progressData: ProgressData) => {
+    let percentageDone = Math.round(
+      (progressData?.uploaded / progressData?.total) * 100
+    )
+    setUploadProgress(percentageDone)
+  }
+
+  //Uploads File to IPFS
+  const uploadFile = async (file: any) => {
+    console.log(file)
+    const output = await lighthouse.upload(
+      file,
+      process.env.REACT_APP_LIGHTHOUSE_API_KEY as string,
+      false,
+      undefined,
+      progressCallback
+    )
+    const link = 'https://gateway.lighthouse.storage/ipfs/' + output.data.Hash
+    const currentDocuments: Document[] = [...formState.reviewerDocuments]
+    currentDocuments.push({
+      link: link,
+      name: file[0].name,
+    })
+    setFormState((prevState: any) => ({
+      ...prevState,
+      reviewerDocuments: currentDocuments,
+    }))
+  }
+
+  const removeFile = (document: Document) => {
+    console.log(formState.reviewerDocuments)
+    const newArray = removeItemFromArray(
+      formState.reviewerDocuments,
+      document.link
+    )
+    console.log(newArray)
+    setFormState((prevState: any) => ({
+      ...prevState,
+      reviewerDocuments: newArray,
+    }))
+    setDocumentsDisplayed(newArray)
+  }
+
+  const handleFileRemove = (index: number) => {
+    const newArray = removeItemFromArray(
+      formState.documents,
+      formState.documents[originalFilesLength + index].link
+    )
+    setFormState((prevState: any) => ({
+      ...prevState,
+      documents: newArray,
+    }))
+    var newFiles = [...selectedFiles]
+    newFiles.splice(index, 1)
+    setSelectedFiles(newFiles)
+  }
+
+  const handleFileChange = async (event: any) => {
+    const files = event.target.files
+    const updatedFiles = [...selectedFiles]
+
+    for (let i = 0; i < files.length; i++) {
+      updatedFiles.push(files[i])
+    }
+
+    // const encryptedFile = await encryptAndHandleFile(files[0])
+    // console.log(encryptedFile)
+    // const decryptedFile = await decryptAndHandleFile(encryptedFile)
+    // console.log(decryptedFile)
+
+    setSelectedFiles(updatedFiles)
+    uploadFile(files)
+  }
+
+  // Handle form submission
+  const handleSubmit = async () => {
+    const date = getCurrentDateTime()
+    setFormState((prevState: any) => ({
+      ...prevState,
+      date: date,
+    }))
+    setFormState((prevState: any) => ({
+      ...prevState,
+      address: account,
+    }))
+    const formFilled = areAllValuesFilled(formState)
+    setFormFilled(formFilled)
+    console.log(formFilled)
+
+    if (formFilled) {
+      fetch('https://ipinfo.io/json')
+        .then((response) => response.json())
+        .then(async (data) => {
+          const formData = {
+            ...formState,
+            date: date,
+            address: account,
+            region: data.country,
+          }
+          const dataString = convertJsonToString(formData)
+          const userData = await uploadJsonData(dataString)
+
+          const durationIndex = findIndex(
+            coverDurations,
+            formData.coverDuration
+          )
+
+          const premiumQuote = calculatePremiumQuote(formData)
+
+          //Come update this after redeploying
+          await modifyPolicy('Car Insurance', userData, durationIndex)
+          await updateCoverQuote(account, 'Car Insurance', premiumQuote)
+
+          dispatch(
+            openAlert({
+              displayAlert: true,
+              data: {
+                id: 1,
+                variant: 'Successful',
+                classname: 'text-black',
+                title: 'Submission Successful',
+                tag1: 'Cover application modified',
+                tag2: 'modfifications made',
+              },
+            })
+          )
+          setTimeout(() => {
+            dispatch(closeAlert())
+          }, 10000)
+          setApplicant(formData)
+          switchCoverModifyState(applicant.address, applicant.poolName).then(
+            () => {
+              var temp = [...coverApplications]
+              var placeholder = {}
+              for (var i = 0; i < temp.length; i++) {
+                if (temp[i].id === applicant.id) {
+                  placeholder = {
+                    ...temp[i],
+                    canModify: !temp[i].canModify,
+                  }
+                  temp.splice(i, 1)
+                  i--
+                }
+              }
+              temp.push(placeholder)
+              dispatch(setCoverApplications({ data: temp }))
+            }
+          )
+        })
+        .catch((error) => {
+          console.log('Error fetching IP address information: ', error)
+        })
+    }
+  }
+
+  useEffect(() => {
+    const preLoad = async () => {
+      const covers = await get_covers('Car')
+      var temp = findObjectById(covers, coverId)
+      const userData = await getUserData(temp.address)
+      const coverFirebaseDetails = await getCoverDetails(
+        temp.address,
+        temp.poolName
+      )
+      temp = { ...userData, ...coverFirebaseDetails, ...temp }
+      console.log('Details: ', temp)
+
+      const summaryData = {
+        purchase: '---',
+        coverId: temp.coverId || '---',
+        status: temp.status || '---',
+        claimId: temp.claimId || '---',
+        claimAmout: temp.claimAmount || '---',
+        claimHistory: '---',
+        PRP: '---',
+      }
+      setApplicant(temp)
+      setSummaryData(summaryData)
+      console.log(temp)
+      console.log(account)
+      if (temp.canModify && temp.address === account?.toLowerCase()) {
+        setCanModify(true)
+      } else {
+        setCanModify(false)
+      }
+    }
+
+    preLoad()
+  }, [coverApplications, account, coverId])
+
   return (
     <>
       <Header name="Policy Risk" showBackAero={true} />
@@ -51,7 +334,7 @@ function RiskPolicyUserProfile() {
       </div>
       <div className="mb-10 lg:flex gap-[60px]">
         <div className="flex-grow mb-[50px]">
-          <InsureProUserInfom variant="customer" />
+          <InsureProUserInfom variant="customer" user={applicant} />
           <div className="flex-grow mb-[50px] mt-[20px]">
             <div className="lg:grid lg:grid-cols-2">
               <div className="sm:w-[60%]">
@@ -66,56 +349,101 @@ function RiskPolicyUserProfile() {
               text-white bg-dark-800 rounded h-[40px] text-lg py-3 w-full px-5 */}
               <div className="flex flex-col gap-5 pt-5 lg:pt-2">
                 <div className="flex flex-col gap-5 border-none lg:grid lg:grid-cols-2">
-                  <SelectField
+                  <RiskSelectField
                     labelIcon={false}
                     label="Make"
                     placeholder="Please Select"
+                    filled={formFilled}
+                    name="make"
+                    handleChange={handleChange}
+                    initialValue={applicant.make}
+                    disabled={!canModify}
                   />
-                  <SelectField
+                  <RiskSelectField
                     labelIcon={false}
                     label="Model"
                     placeholder="Please Select"
+                    carMake={formState.make}
+                    filled={formFilled}
+                    name="model"
+                    handleChange={handleChange}
+                    initialValue={applicant.model}
+                    disabled={!canModify}
                   />
                 </div>
                 <div className="flex flex-col gap-5 border-none lg:grid lg:grid-cols-2">
-                  <SelectField
+                  <RiskSelectField
                     labelIcon={false}
                     label="Year of Manufacture"
                     placeholder="YYYY"
+                    filled={formFilled}
+                    name="yearManufactured"
+                    handleChange={handleChange}
+                    initialValue={applicant.yearManufactured}
+                    disabled={!canModify}
                   />
-                  <SelectField
+                  {/* <RiskSelectField
                     labelIcon={false}
                     label="Type of Fuel "
                     placeholder="Please Select"
-                  />
+                  /> */}
                 </div>
-                <SelectField
+                <RiskSelectField
                   labelIcon={true}
                   label="Engine Size"
                   placeholder="Please Select"
+                  filled={formFilled}
+                  name="engineSize"
+                  handleChange={handleChange}
+                  initialValue={applicant.engineSize}
+                  disabled={!canModify}
                 />
                 <div className="flex flex-col gap-5 border-none lg:grid lg:grid-cols-2">
-                  <SelectField
-                    labelIcon={true}
+                  <TextField
+                    labelIcon={false}
                     label="Registration Number"
-                    placeholder="e.g. 645BS45"
+                    placeholder="654875236"
+                    outline={true}
+                    classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                    handleChange={handleChange}
+                    filled={formFilled}
+                    name="registrationNumber"
+                    initialValue={applicant.registrationNumber}
+                    disabled={!canModify}
                   />
-                  <SelectField
-                    labelIcon={true}
+                  <TextField
                     label="Insurable Value"
-                    placeholder="$ e.g. 5000"
+                    field="$"
+                    placeholder="e.g. 5000"
+                    outline={true}
+                    classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                    handleChange={handleChange}
+                    filled={formFilled}
+                    name="insurableValue"
+                    initialValue={applicant.insurableValue}
+                    disabled={!canModify}
                   />
                 </div>
                 <div className="flex flex-col gap-5 border-none lg:grid lg:grid-cols-2">
-                  <SelectField
+                  <RiskSelectField
                     labelIcon={true}
                     label="Estimated Annual Mileage"
                     placeholder="Please Select"
+                    filled={formFilled}
+                    name="annualMileage"
+                    handleChange={handleChange}
+                    initialValue={applicant.annualMileage}
+                    disabled={!canModify}
                   />
-                  <SelectField
+                  <RiskSelectField
                     labelIcon={true}
                     label="Overnight Parking "
                     placeholder="Please Select"
+                    filled={formFilled}
+                    name="overnightParking"
+                    handleChange={handleChange}
+                    initialValue={applicant.overnightParking}
+                    disabled={!canModify}
                   />
                 </div>
               </div>
@@ -131,87 +459,153 @@ function RiskPolicyUserProfile() {
                 </p>
               </div>
               <div className="flex flex-col gap-5 sm:pt-2 max-[640px]:pt-6">
-                <SelectField
+                <RiskSelectField
                   labelIcon={true}
                   label="Cover Duration"
                   placeholder="Please Select"
+                  filled={formFilled}
+                  name="coverDuration"
+                  handleChange={handleChange}
+                  initialValue={applicant.coverDuration}
+                  disabled={!canModify}
                 />
-                <SelectField
+                <RiskSelectField
                   labelIcon={true}
                   label="Cover Type"
                   placeholder="Please Select"
+                  filled={formFilled}
+                  name="coverType"
+                  handleChange={handleChange}
+                  initialValue={applicant.coverType}
+                  disabled={!canModify}
                 />
-                <SelectField
+                <RiskSelectField
                   labelIcon={true}
                   label="Usage "
                   placeholder="Please Select"
+                  filled={formFilled}
+                  name="usage"
+                  handleChange={handleChange}
+                  initialValue={applicant.usage}
+                  disabled={!canModify}
                 />
-                <SelectField
+                <RiskSelectField
                   labelIcon={true}
                   label="Security Measures"
                   placeholder="Please Select"
+                  filled={formFilled}
+                  name="securityMeasures"
+                  handleChange={handleChange}
+                  initialValue={applicant.securityMeasures}
+                  disabled={!canModify}
                 />
                 <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
-                  <SelectField
+                  <RiskSelectField
                     labelIcon={true}
                     label="Driving Offences"
                     placeholder="Please Select"
+                    filled={formFilled}
+                    name="drivingOffences"
+                    handleChange={handleChange}
+                    initialValue={applicant.drivingOffences}
+                    disabled={!canModify}
                   />
-                  <SelectField
+                  <RiskSelectField
                     labelIcon={true}
                     label="Claim History"
                     placeholder="Please Select"
+                    filled={formFilled}
+                    name="claimHistory"
+                    handleChange={handleChange}
+                    initialValue={applicant.claimHistory}
+                    disabled={!canModify}
                   />
                 </div>
                 <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
-                  <SelectField
+                  <RiskSelectField
                     labelIcon={false}
                     label="Year of Obtaining Licence"
                     placeholder="YYYY"
+                    filled={formFilled}
+                    name="yearObtainedLicence"
+                    handleChange={handleChange}
+                    initialValue={applicant.yearObtainedLicence}
+                    disabled={!canModify}
                   />
-                  <SelectField
+                  <TextField
                     labelIcon={false}
                     label="Driving Licence Number"
                     placeholder="e.g. RJ5852"
+                    handleChange={handleChange}
+                    filled={formFilled}
+                    name="drivingLicenceNumber"
+                    initialValue={applicant.drivingLicenceNumber}
+                    disabled={!canModify}
                   />
                 </div>
-                <SelectField
+                <RiskSelectField
                   labelIcon={true}
                   label="Risk Address"
                   placeholder="Please Select"
+                  filled={formFilled}
+                  name="riskAddress"
+                  handleChange={handleChange}
+                  initialValue={applicant.riskAddress}
+                  disabled={!canModify}
                 />
-                <TextField
+                <RiskSelectField
                   label="Country/Region"
-                  labelIcon={false}
                   placeholder="e.g. California"
-                  classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                  filled={formFilled}
+                  name="country"
+                  handleChange={handleChange}
+                  initialValue={applicant.country}
+                  disabled={!canModify}
                 />
                 <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
                   <TextField
-                    label="Address Line 1"
                     labelIcon={false}
+                    label="ADDRESS LINE 1"
                     placeholder="e.g. 645 EShaw Ave"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                    handleChange={handleChange}
+                    filled={formFilled}
+                    name="address1"
+                    initialValue={applicant.address1}
+                    disabled={!canModify}
                   />
                   <TextField
-                    label="Address Line 2"
                     labelIcon={false}
+                    label="ADDRESS LINE 2"
                     placeholder="e.g.  Fresco, ca 93710"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                    handleChange={handleChange}
+                    filled={formFilled}
+                    name="address2"
+                    initialValue={applicant.address2}
+                    disabled={!canModify}
                   />
-                </div>
-                <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
                   <TextField
-                    label="City"
                     labelIcon={false}
+                    label="City"
                     placeholder="e.g. New York"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                    handleChange={handleChange}
+                    filled={formFilled}
+                    name="city"
+                    initialValue={applicant.city}
+                    disabled={!canModify}
                   />
                   <TextField
-                    label="Post Code"
                     labelIcon={false}
+                    label="Post Code"
                     placeholder="e.g.  4450"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
+                    handleChange={handleChange}
+                    filled={formFilled}
+                    name="postCode"
+                    initialValue={applicant.postCode}
+                    disabled={!canModify}
                   />
                 </div>
               </div>
@@ -219,13 +613,13 @@ function RiskPolicyUserProfile() {
             <hr className="my-[24px]" />
             <div className="flex justify-end">
               <Button
-                className={`font-medium px-8 max-[640px]:w-full  ${
-                  theme === 'dark'
-                    ? 'dark:bg-light-1200 dark:box-border'
-                    : 'grey-gradient form-submit-btn'
-                }`}
+                className={`${
+                  theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+                } font-medium px-8 max-[640px]:w-full disabled:opacity-10 disabled:pointer-events-none`}
                 text="Save"
-                color={theme === 'dark' ? 'btn-white' : 'grey-gradient'}
+                disabled={!canModify}
+                // color={theme === 'dark' ? 'btn-white' : 'grey-gradient'}
+                onClick={canModify ? handleSubmit : () => null}
               />
             </div>
           </div>
@@ -255,13 +649,13 @@ function RiskPolicyUserProfile() {
               <div className="flex flex-col gap-[25px]">
                 <WeightRow
                   name="Purchase"
-                  value="13/05/2022 20:58"
+                  value={summaryData.purchase}
                   titleclassname={titleClassName}
                   textclassname={textClassName}
                 />
                 <WeightRow
                   name="Cover ID"
-                  value="2ab256355df..."
+                  value={summaryData.coverId}
                   valueStyle={{
                     color:
                       theme === 'dark'
@@ -273,33 +667,33 @@ function RiskPolicyUserProfile() {
                 />
                 <WeightRow
                   name="Status"
-                  value="Active"
+                  value={summaryData.status}
                   titleclassname={titleClassName}
                   textclassname={textClassName}
                 />
                 <WeightRow
                   name="Claim ID"
-                  value="1250"
+                  value={summaryData.claimId}
                   titleclassname={titleClassName}
                   textclassname={textClassName}
                 />
                 <WeightRow
                   name="Claim Amount"
-                  value="1250 USCD"
+                  value={summaryData.claimAmout}
                   titleclassname={titleClassName}
                   textclassname={textClassName}
                 />
                 <WeightRow
                   name="Claim History"
                   withInfo
-                  value="1250 USCD"
+                  value={summaryData.claimHistory}
                   titleclassname={titleClassName}
                   textclassname={textClassName}
                 />
                 <WeightRow
                   name="PRP"
                   withInfo
-                  value="2000"
+                  value={summaryData.PRP}
                   titleclassname={titleClassName}
                   textclassname={textClassName}
                 />
@@ -308,13 +702,14 @@ function RiskPolicyUserProfile() {
             <div className="bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
               <WeightTitle title="Attachments" />
               <div className="flex gap-[12px] flex-col mt-[25px] sm:mt-[0px]">
-                {[...Array(4)].map((value, index) => (
+                {documentsDisplayed.map((document: any, index: number) => (
                   <>
                     <div className="flex justify-between">
                       <div className="flex basis-3/4 gap-[16px]">
                         <img src="/images/pin.svg" alt="" />
                         <Link
                           onClick={() => {
+                            setSelectedDocument(document)
                             setPopup(true)
                           }}
                           className={`${
@@ -324,22 +719,62 @@ function RiskPolicyUserProfile() {
                           } file-name `}
                           to={''}
                         >
-                          Id_back.png
+                          {document.name}
                         </Link>
                       </div>
-                      <img
-                        className="items-end w-[20px]"
-                        src={
-                          theme === 'dark'
-                            ? '/images/downloadblack.svg'
-                            : '/images/Remove (1).svg'
-                        }
-                        alt=""
-                      />
+                      {canModify && (
+                        <img
+                          className="items-end w-[20px]"
+                          src={
+                            theme === 'dark'
+                              ? '/images/downloadblack.svg'
+                              : '/images/Remove (1).svg'
+                          }
+                          style={{ cursor: 'pointer' }}
+                          alt=""
+                          onClick={() => removeFile(document)}
+                        />
+                      )}
                     </div>
                   </>
                 ))}
               </div>
+              {canModify && (
+                <div>
+                  <label
+                    className={`mb-[20px] mt-[15px] flex justify-center w-full  transition border-2 border-gray-300 dark:dark-light-box-border dark:border-dashed border-dashed appearance-none cursor-pointer hover:border-gray-400 focus:outline-none border-color w-full h-[40px]`}
+                  >
+                    <span className="flex items-center space-x-2">
+                      <img
+                        className="w-[14px] h-[16px]"
+                        src="/images/uploadAeroBlack.svg"
+                        alt=""
+                      />
+                      <span className="upload-text dark:text-dark-800">
+                        Upload
+                      </span>
+                    </span>
+                    <input
+                      type="file"
+                      name="file_upload"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                  {selectedFiles.map((file, index) => (
+                    <div className="mb-[5px]" key={index}>
+                      <UploadingFile
+                        progress={uploadProgress}
+                        file={file}
+                        handleRemove={() => handleFileRemove(index)}
+                      />
+                    </div>
+                  ))}
+                  <div className="my-[20px]">
+                    <Rules padding="py-[20px] px-[20px]" space="ml-[20px]" />
+                  </div>
+                </div>
+              )}
             </div>
             <div className="bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
               <WeightTitle title="Policy T&C" />

@@ -546,13 +546,50 @@ const identityTypes = [
 ]
 
 const policyTypes = [
-  'Car insurance',
+  'Car Insurance',
   'Health Insurance',
   'Life Insurance',
   'Sport Insurance',
 ]
 
 const workFields = ['KYC Reviewer', 'Policy Reviewer', 'Adjustor']
+
+const timezones = [
+  '(PST)',
+  '(MST)',
+  '(CST)',
+  '(EST)',
+  '(GMT)',
+  '(CET)',
+  '(EET)',
+  '(JST)',
+  '(AEST)',
+  '(IST)',
+]
+
+const eventTypes = [
+  'Car Accident',
+  'Health Emergency',
+  'Natural Disaster',
+  'Theft/Burglary',
+  'Property Damage',
+  'Travel Issues',
+  'Fire',
+  'Flood',
+  'Robbery',
+  'Vandalism',
+]
+
+const claimTypes = [
+  'Accident Claim',
+  'Theft Claim',
+  'Natural Disaster Claim',
+  'Medical Claim',
+  'Property Damage Claim',
+  'Travel Claim',
+  'Life Claim',
+  'Vehicle Claim',
+]
 
 function SelectRootField({
   borderRight,
@@ -601,6 +638,12 @@ function SelectRootField({
     options = workFields
   } else if (name === 'pool') {
     options = policyTypes
+  } else if (name === 'claimType') {
+    options = claimTypes
+  } else if (name === 'eventType') {
+    options = eventTypes
+  } else if (name === 'timezone') {
+    options = timezones
   } else {
     console.log(name)
   }
