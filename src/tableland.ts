@@ -2,16 +2,15 @@ import { Database } from '@tableland/sdk'
 import { ethers } from 'ethers'
 import { convertJsonStringToObject } from './utils/helpers'
 
-//Localhost
+//Live
 const usersTableName = 'kover_finance_421614_780'
 const coversTableName = 'kover_finance_421614_781'
 const claimsTableName = 'kover_finance_421614_782'
 
-// const usersTableName = 'kover_finance_421614_473'
-
-//mumbai
-// const usersTableName = "libra_80001_7661";
-// const communitiesTableName = "libra_communities_80001_7662";
+//Localhost
+// const usersTableName = ' kover_finance_31337_2'
+// const coversTableName = 'kover_finance_31337_3'
+// const claimsTableName = 'kover_finance_31337_4'
 
 const createTable = async (signer: any) => {
   const db = new Database({ signer })
