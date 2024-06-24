@@ -187,18 +187,18 @@ const networks = [
   //   text: 'ETH',
   //   chainId: '0x1',
   // },
-  {
-    id: 34526,
-    icon: '/images/Group-29.svg',
-    text: 'LCH',
-    chainId: '0x7a69',
-  },
   // {
   //   id: 34526,
   //   icon: '/images/Group-29.svg',
-  //   text: 'sepolia',
-  //   chainId: '0x66eee',
+  //   text: 'LCH',
+  //   chainId: '0x7a69',
   // },
+  {
+    id: 34526,
+    icon: '/images/Group-29.svg',
+    text: 'sepolia',
+    chainId: '0x66eee',
+  },
   {
     id: 34527,
     icon: '/images/Group (1).svg',
