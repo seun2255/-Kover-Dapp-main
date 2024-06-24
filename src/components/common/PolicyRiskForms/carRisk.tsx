@@ -44,12 +44,15 @@ import {
 import { uploadJsonData } from '../../../lighthouse'
 import {
   is_kyc_reviewer,
-  apply_for_membership,
   getUserData,
   applyForPolicy,
   getPoolAddresses,
 } from '../../../api'
-import { createUser, updateVerificationState } from '../../../database'
+import {
+  applicationsUpdate,
+  createUser,
+  updateVerificationState,
+} from '../../../database'
 import { removeItemFromArray } from '../../../utils/helpers'
 import { addCover } from '../../../database'
 
@@ -241,70 +244,68 @@ function CarInsurance(
     // if (formFilled) {
     // if (true) {
     if (formFilled) {
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          const formData = {
-            ...formState,
-            date: date,
-            address: account,
-            region: data.country,
-            poolName: poolName,
-          }
-          const dataString = convertJsonToString(formData)
-          const userData = await uploadJsonData(dataString)
-          // const userData =
-          //   'https://gateway.lighthouse.storage/ipfs/Qmf4rzQkV64hBzkr5M4EsTWKUHMTsioea8fD6JXWu9gsBT'
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const formData = {
+        ...formState,
+        date: date,
+        address: account,
+        region: 'NG',
+        poolName: poolName,
+      }
+      const dataString = convertJsonToString(formData)
+      const userData = await uploadJsonData(dataString)
+      // const userData =
+      //   'https://gateway.lighthouse.storage/ipfs/Qmf4rzQkV64hBzkr5M4EsTWKUHMTsioea8fD6JXWu9gsBT'
 
-          console.log('Car Data: ', userData)
+      console.log('Car Data: ', userData)
 
-          const durationIndex = findIndex(
-            coverDurations,
-            formData.coverDuration
-          )
-          console.log('Durtion: ', durationIndex)
+      const durationIndex = findIndex(coverDurations, formData.coverDuration)
+      console.log('Durtion: ', durationIndex)
 
-          const premiumQuote = calculatePremiumQuote(formData)
-          console.log('Quote data: ', premiumQuote)
+      const premiumQuote = calculatePremiumQuote(formData)
+      console.log('Quote data: ', premiumQuote)
 
-          // await applyForPolicy(poolName, userData, durationIndex)
-          await applyForPolicy(poolName, userData, 1)
-          await addCover(account, {
-            status: 'in review',
-            claimState: 'no claims',
-            poolName: poolName,
-            canModify: false,
-            claimHistory: 0,
-            ...premiumQuote,
-          })
-
-          dispatch(
-            openAlert({
-              displayAlert: true,
-              data: {
-                id: 1,
-                variant: 'Successful',
-                classname: 'text-black',
-                title: 'Submission Successful',
-                tag1: 'policy application submitted',
-                tag2: 'View on etherscan',
-              },
-            })
-          )
-          setTimeout(() => {
-            dispatch(closeAlert())
-          }, 10000)
-          setPolicyProcessState('verifying')
-          const updatedData = await getUserData(account)
-          dispatch(updateUser({ data: updatedData }))
-          if (kycModal) {
-            dispatch(displayKycModal({ display: false }))
-          }
-          if (onClose !== undefined) onClose()
+      // await applyForPolicy(poolName, userData, durationIndex)
+      const hash = await applyForPolicy(poolName, userData, 1)
+      await addCover(account, {
+        status: 'in review',
+        claimState: 'no claims',
+        poolName: poolName,
+        canModify: false,
+        claimHistory: 0,
+        ...premiumQuote,
+      })
+      await applicationsUpdate()
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 1,
+            variant: 'Successful',
+            classname: 'text-black',
+            title: 'Submission Successful',
+            tag1: 'policy application submitted',
+            tag2: 'View on etherscan',
+            hash: hash,
+          },
         })
-        .catch((error) => {
-          console.log('Error fetching IP address information: ', error)
-        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+      setPolicyProcessState('verifying')
+      const updatedData = await getUserData(account)
+      dispatch(updateUser({ data: updatedData }))
+      if (kycModal) {
+        dispatch(displayKycModal({ display: false }))
+      }
+      if (onClose !== undefined) onClose()
+      // })
+      // .catch((error) => {
+      //   console.log('Error fetching IP address information: ', error)
+      // })
     }
   }
 

@@ -142,7 +142,7 @@ function StakingPopup(props: PopConfirmProps) {
   }
 
   const handleStake = async () => {
-    await stake(depositAmount)
+    const hash = await stake(depositAmount)
     await getData()
     dispatch(
       openAlert({
@@ -154,6 +154,7 @@ function StakingPopup(props: PopConfirmProps) {
           title: 'Stake Deposited!',
           tag1: 'succesfully staked an amount!',
           tag2: 'View on etherscan',
+          hash: hash,
         },
       })
     )

@@ -34,7 +34,6 @@ import {
   submitApplicationReviewResult,
   revertMembershipApplication,
   concludeMembershipApplication,
-  modifyInsureProApplication,
   concludeInsureproApplication,
   get_covers,
   getPolicyData,
@@ -43,6 +42,7 @@ import {
   concludePolicyAssesement,
   get_claims,
   getClaimData,
+  assignClaimApplication,
 } from '../../api'
 import axios from 'axios'
 import { addContractState, addKycReviewerState } from '../../utils/helpers'
@@ -63,6 +63,8 @@ import {
 import { openAlert, closeAlert } from '../../redux/alerts'
 import CountdownTimer from '../../components/common/CountdownTimer'
 import { getUser } from '../../tableland'
+import { doc, onSnapshot, getDocs, collection } from 'firebase/firestore'
+import { db } from '../../database'
 
 function KYCApplication() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
@@ -78,6 +80,7 @@ function KYCApplication() {
   const [claimApplications, setClaimApplications] = useState<any[]>([])
   const [assignpopup, setAssignPopup] = useState(false)
   const [policyAssignpopup, setPolicyAssignPopup] = useState(false)
+  const [claimAssignPopup, setClaimAssignPopup] = useState(false)
   const { width } = useWindowDimensions()
   const toggleDrawer = () => {
     setIsOpen((prevState) => !prevState)
@@ -127,126 +130,117 @@ function KYCApplication() {
 
   const getData = async () => {
     if (account) {
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          const applicants = await get_applications(data.country)
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const applicantsKyc = await get_applications('NG')
 
-          const axiosRequests = applicants.map(async (applicant) => {
-            const response = await axios.get(applicant.data as string)
-            const kyc_details = await getKycDetails(
-              response.data.address,
-              data.country
-            )
-            const result = addContractState(response.data, kyc_details)
-            const userFirebaseDetails = await getUserDetails(
-              response.data.address
-            )
-            result.id = applicant.id
-            result.canModifyKYC = userFirebaseDetails.canModifyKYC
-            result.canModifyKYCReviewer =
-              userFirebaseDetails.canModifyKYCReviewer
-            result.kycVerificationState =
-              userFirebaseDetails.kycVerificationState
-            result.insureProVerificationState =
-              userFirebaseDetails.insureProVerificationState
-            result.ipfsHash = applicant.data
-            result.kycReviewDone = userFirebaseDetails.kycReviewDone
-            return result
-          })
+      const axiosRequestsKyc = applicantsKyc.map(async (applicant) => {
+        const response = await axios.get(applicant.data as string)
+        const kyc_details = await getKycDetails(response.data.address, 'NG')
+        const result = addContractState(response.data, kyc_details)
+        const userFirebaseDetails = await getUserDetails(response.data.address)
+        result.id = applicant.id
+        result.canModifyKYC = userFirebaseDetails.canModifyKYC
+        result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
+        result.kycVerificationState = userFirebaseDetails.kycVerificationState
+        result.insureProVerificationState =
+          userFirebaseDetails.insureProVerificationState
+        result.ipfsHash = applicant.data
+        result.kycReviewDone = userFirebaseDetails.kycReviewDone
+        return result
+      })
 
-          // Wait for all axios requests to complete
-          const membership_applications = await Promise.all(axiosRequests)
-          console.log('members; ', membershipApplications)
-          dispatch(setKYCApplicants({ data: membership_applications }))
-          setMembershipApplications(membership_applications)
-        })
+      // Wait for all axios requests to complete
+      const membership_applicationsKyc = await Promise.all(axiosRequestsKyc)
+      dispatch(setKYCApplicants({ data: membership_applicationsKyc }))
+      setMembershipApplications(membership_applicationsKyc)
+      // })
 
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          const applicants = await get_Reviewer_applications(data.country)
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const applicantsReviewer = await get_Reviewer_applications('NG')
 
-          const axiosRequests = applicants.map(async (applicant) => {
-            const response = await axios.get(applicant.data as string)
-            const kyc_details = await getKycReveiwerDetails(
-              response.data.address,
-              data.country
-            )
-            const result = addKycReviewerState(response.data, kyc_details)
-            const userFirebaseDetails = await getUserDetails(
-              response.data.address
-            )
-            result.id = applicant.id
-            result.canModifyKYCReviewer =
-              userFirebaseDetails.canModifyKYCReviewer
-            result.canModifyKYC = userFirebaseDetails.canModifyKYC
-            result.ipfsHash = applicant.data
-            result.kycReviewDone = userFirebaseDetails.kycReviewDone
-            result.insureProVerificationState =
-              userFirebaseDetails.insureProVerificationState
-            return result
-          })
+      const axiosRequestsReviewer = applicantsReviewer.map(
+        async (applicant) => {
+          const response = await axios.get(applicant.data as string)
+          const kyc_details = await getKycReveiwerDetails(
+            response.data.address,
+            'NG'
+          )
+          const result = addKycReviewerState(response.data, kyc_details)
+          const userFirebaseDetails = await getUserDetails(
+            response.data.address
+          )
+          result.id = applicant.id
+          result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
+          result.canModifyKYC = userFirebaseDetails.canModifyKYC
+          result.ipfsHash = applicant.data
+          result.kycReviewDone = userFirebaseDetails.kycReviewDone
+          result.insureProVerificationState =
+            userFirebaseDetails.insureProVerificationState
+          return result
+        }
+      )
 
-          // Wait for all axios requests to complete
-          const membership_applications = await Promise.all(axiosRequests)
-          dispatch(setKYCReviewerApplicants({ data: membership_applications }))
-          setReviewerApplications(membership_applications)
-          console.log(membershipApplications)
-        })
+      // Wait for all axios requests to complete
+      const membership_applicationsReviewer = await Promise.all(
+        axiosRequestsReviewer
+      )
+      dispatch(
+        setKYCReviewerApplicants({ data: membership_applicationsReviewer })
+      )
+      setReviewerApplications(membership_applicationsReviewer)
+      console.log(reviewerApplications)
+      // })
 
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          const covers = await get_covers(data.country)
-          const axiosRequests = covers.map(async (cover) => {
-            const user = await getUser(cover.address)
-            const response = await axios.get(user.data as string)
-            var result = response.data
-            var policyDetails = await getPolicyData(
-              cover.address,
-              cover.poolName
-            )
-            result = {
-              ...result,
-              ...cover,
-              ...policyDetails,
-              userData: user.data,
-            }
-            return result
-          })
-          const allCovers = await Promise.all(axiosRequests)
-          console.log('Covers: ', allCovers)
-          dispatch(setCoverApplications({ data: allCovers }))
-          setPolicyApplications(allCovers)
-        })
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const covers = await get_covers('NG')
+      const axiosRequestsCovers = covers.map(async (cover) => {
+        const user = await getUser(cover.address)
+        const response = await axios.get(user.data as string)
+        var result = response.data
+        var policyDetails = await getPolicyData(cover.address, cover.poolName)
+        result = {
+          ...result,
+          ...cover,
+          ...policyDetails,
+          userData: user.data,
+        }
+        return result
+      })
+      const allCovers = await Promise.all(axiosRequestsCovers)
+      console.log('Covers: ', allCovers)
+      dispatch(setCoverApplications({ data: allCovers }))
+      setPolicyApplications(allCovers)
+      // })
 
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          const claims = await get_claims(data.country)
-          const axiosRequests = claims.map(async (claim) => {
-            const user = await getUser(claim.address)
-            const response = await axios.get(user.data as string)
-            var result = response.data
-            console.log('Got here 10')
-            const claim_details = await getClaimData(
-              claim.poolName,
-              claim.address
-            )
-            result = {
-              ...result,
-              ...claim,
-              ...claim_details,
-              userData: user.data,
-            }
-            return result
-          })
-          const allClaims = await Promise.all(axiosRequests)
-          console.log('Claims: ', allClaims)
-          dispatch(setClaimsApplications({ data: allClaims }))
-          setClaimApplications(allClaims)
-        })
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const claims = await get_claims('NG')
+      const axiosRequests = claims.map(async (claim) => {
+        const user = await getUser(claim.address)
+        const response = await axios.get(user.data as string)
+        var result = response.data
+        console.log('Got here 10')
+        const claim_details = await getClaimData(claim.poolName, claim.address)
+        result = {
+          ...result,
+          ...claim,
+          ...claim_details,
+          userData: user.data,
+        }
+        return result
+      })
+      const allClaims = await Promise.all(axiosRequests)
+      console.log('Claims: ', allClaims)
+      dispatch(setClaimsApplications({ data: allClaims }))
+      setClaimApplications(allClaims)
+      // })
     }
   }
 
@@ -276,7 +270,16 @@ function KYCApplication() {
     if (account && account === '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266') {
       setIsAdmin(true)
     }
-  }, [account, library])
+  }, [account])
+
+  useEffect(() => {
+    const unsub = onSnapshot(
+      doc(db, 'realtime', 'applications'),
+      (doc: any) => {
+        getData()
+      }
+    )
+  })
 
   const [popup, setPopup] = useState<PopConfirmProps | null>(null)
   const popupHandle = (data?: PopConfirmProps) =>
@@ -473,7 +476,7 @@ function KYCApplication() {
                   : ''
               }`}
               onClick={async () => {
-                await concludeMembershipApplication(
+                const hash = await concludeMembershipApplication(
                   application.address,
                   application.region
                 )
@@ -488,6 +491,7 @@ function KYCApplication() {
                       title: 'Submission Successful',
                       tag1: 'KYC Review concluded',
                       tag2: 'View on etherscan',
+                      hash: hash,
                     },
                   })
                 )
@@ -521,7 +525,7 @@ function KYCApplication() {
               onClick={async () => {
                 console.log('Was clicked')
                 if (kycDecisionMade) {
-                  await submitApplicationReviewResult(
+                  const hash = await submitApplicationReviewResult(
                     application.address,
                     application.region,
                     application.ipfsHash,
@@ -537,6 +541,7 @@ function KYCApplication() {
                         title: 'Submission Successful',
                         tag1: 'KYC Review submitted',
                         tag2: 'View on etherscan',
+                        hash: hash,
                       },
                     })
                   )
@@ -649,7 +654,7 @@ function KYCApplication() {
                 } contained medium  font-medium px-8 w-full square button`}
                 onClick={async () => {
                   const signer = library.getSigner(account)
-                  await assignMembershipApplication(
+                  const hash = await assignMembershipApplication(
                     signer,
                     application.address,
                     application.region
@@ -674,6 +679,7 @@ function KYCApplication() {
                         title: 'Submission Successful',
                         tag1: 'KYC application assigned to you',
                         tag2: 'View on etherscan',
+                        hash: hash,
                       },
                     })
                   )
@@ -786,7 +792,7 @@ function KYCApplication() {
               onClick={async () => {
                 console.log(kycReviewerDecision)
                 console.log(application.pool)
-                await concludeInsureproApplication(
+                const hash = await concludeInsureproApplication(
                   application.address,
                   application.region,
                   application.workField,
@@ -808,6 +814,7 @@ function KYCApplication() {
                       title: 'Submission Successful',
                       tag1: `${application.workField} Review concluded`,
                       tag2: 'View on etherscan',
+                      hash: hash,
                     },
                   })
                 )
@@ -949,7 +956,7 @@ function KYCApplication() {
                   : ''
               }`}
               onClick={async () => {
-                await concludePolicyAssesement(
+                const hash = await concludePolicyAssesement(
                   application.poolName,
                   application.address
                 )
@@ -968,6 +975,7 @@ function KYCApplication() {
                       title: 'Submission Successful',
                       tag1: 'Policy Review concluded',
                       tag2: 'View on etherscan',
+                      hash: hash,
                     },
                   })
                 )
@@ -1000,7 +1008,7 @@ function KYCApplication() {
               onClick={async () => {
                 if (policyDecisionMade) {
                   console.log('Decision: ', policyDecision)
-                  await submitPolicyApplicationResult(
+                  const hash = await submitPolicyApplicationResult(
                     application.poolName,
                     application.address,
                     application.reviewer,
@@ -1019,6 +1027,7 @@ function KYCApplication() {
                         title: 'Submission Successful',
                         tag1: 'Policy Review submitted',
                         tag2: 'View on etherscan',
+                        hash: hash,
                       },
                     })
                   )
@@ -1130,7 +1139,7 @@ function KYCApplication() {
                     : `greenGradient`
                 } contained medium  font-medium px-8 w-full square button`}
                 onClick={async () => {
-                  await assignPolicyApplication(
+                  const hash = await assignPolicyApplication(
                     application.poolName,
                     application.address,
                     application.region
@@ -1155,6 +1164,7 @@ function KYCApplication() {
                         title: 'Submission Successful',
                         tag1: 'Policy application assigned to you',
                         tag2: 'View on etherscan',
+                        hash: hash,
                       },
                     })
                   )
@@ -1216,27 +1226,153 @@ function KYCApplication() {
         <span>{application.stage}</span>,
         <LargeText primary="9.4000" secondary="USDC" />,
         <div>
-          <Button
-            to={
-              application.address === account
-                ? `/claim-view-user/${application.claimId}`
-                : application.reviewer === account
-                ? application.resultStatus === 'pending'
-                  ? `/claim-view/${application.claimId}`
+          {application.reviewer ===
+          '0x0000000000000000000000000000000000000000' ? (
+            <Button
+              onClick={async () => {
+                if (application.address === account) {
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 2,
+                        variant: 'Failed',
+                        classname: 'text-black',
+                        title: 'Transaction Failed',
+                        tag1: "Can't self assign application",
+                        tag2: 'View on etherscan',
+                      },
+                    })
+                  )
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                } else {
+                  setClaimAssignPopup(true)
+                }
+              }}
+              text="Assign"
+              btnText="table-action"
+              endIcon={theme === 'dark' ? '/images/126.svg' : '/images/125.svg'}
+              className={`${
+                theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+              } px-[19.5px] py-[11.5px] w-full`}
+            />
+          ) : (
+            <Button
+              to={
+                application.address === account
+                  ? `/claim-view-user/${application.claimId}`
+                  : application.reviewer === account
+                  ? application.resultStatus === 'pending'
+                    ? `/claim-view/${application.claimId}`
+                    : undefined
                   : undefined
-                : undefined
-            }
-            className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            text="View"
-            onClick={() => checkClaim(application)}
-            btnText="table-action"
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-          />
+              }
+              className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
+              text="View"
+              onClick={() => checkClaim(application)}
+              btnText="table-action"
+              endIcon={
+                theme === 'dark'
+                  ? '/images/light-btn-icon.svg'
+                  : '/images/dark-btn-icon.svg'
+              }
+            />
+          )}
         </div>,
+        <Popup
+          visible={claimAssignPopup}
+          onClose={() => {
+            setClaimAssignPopup(false)
+          }}
+        >
+          <div className="px-[30px] pb-[40px] pt-[30px] dark:bg-white w-[345px] sm:w-[310px]">
+            <div className="flex justify-end">
+              <img
+                role={'button'}
+                className="w-2.5"
+                src="/images/Group 158.svg"
+                alt=""
+                onClick={() => {
+                  setClaimAssignPopup(false)
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col items-center mb-[32px]">
+              <img
+                className="mt-[10px] w-[25px] h-[27px]"
+                src={
+                  theme === 'dark'
+                    ? '/images/x-logo-dark.svg'
+                    : '/images/x-logo.svg'
+                }
+                alt=""
+              />
+              <h3 className="mt-[17px] fw-500 fs-16 lh-28">Lock To Assess</h3>
+            </div>
+            <div className="mt-[32px] rounded box-border-2x-light dark:box-border-2x-dark  dark:bg-[#F1F1F1] bg-[#2A2B31] h-[50px] min-w-[250px] px-[20px] py-[4px] flex justify-between items-center">
+              <span className="fw-400 text-[24px] lh-42 text-[#FAFAFA] dark:text-dark-800">
+                25
+              </span>
+              <div className="bg-[#3F4048] dark:bg-[#FFF] my-[6px] py-[6px] px-[18px] h-[30px]">
+                <button className="fw-500 fs-16 lh-19">USDC</button>
+              </div>
+            </div>
+            <div className="flex justify-end items-center mt-[10px] mb-[15px]">
+              <span className="text-[#606166] fw-500 fs-12 lh-14"> ~ $25 </span>
+            </div>
+            <div className="mt-[14px]">
+              <button
+                type="button"
+                className={` ${
+                  theme === 'dark'
+                    ? `dark:white dark:box-border`
+                    : `greenGradient`
+                } contained medium  font-medium px-8 w-full square button`}
+                onClick={async () => {
+                  const hash = await assignClaimApplication(
+                    application.poolName,
+                    application.address,
+                    account as string
+                  )
+                  await createChatRoom(
+                    'claim',
+                    application.region,
+                    application.id,
+                    {
+                      [application.address]: application.firstName,
+                      [account as string]: 'reviewer',
+                    }
+                  )
+                  getData()
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 1,
+                        variant: 'Successful',
+                        classname: 'text-black',
+                        title: 'Submission Successful',
+                        tag1: 'Claim application assigned to you',
+                        tag2: 'View on etherscan',
+                        hash: hash,
+                      },
+                    })
+                  )
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                  setClaimAssignPopup(false)
+                }}
+              >
+                <span>Submit</span>
+                <img className="duration-150 " src="/images/125.svg" alt="" />
+              </button>
+            </div>
+          </div>
+        </Popup>,
       ]
     }),
   }

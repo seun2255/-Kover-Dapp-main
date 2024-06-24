@@ -25,7 +25,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { removeItemFromArray } from '../../utils/helpers'
 import { uploadJsonData } from '../../lighthouse'
 import { raiseClaim } from '../../api'
-import { updateCoverClaimState } from '../../database'
+import { applicationsUpdate, updateCoverClaimState } from '../../database'
 
 interface Document {
   link: string
@@ -192,47 +192,49 @@ function NewClaim() {
     }
 
     if (formFilled) {
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          const poolName = localStorage.getItem('claimPoolName')
-          const formData = {
-            ...formState,
-            date: date,
-            address: account,
-            region: data.country,
-            poolName: poolName,
-          }
-          const dataString = convertJsonToString(formData)
-          const userData = await uploadJsonData(dataString)
-          await raiseClaim(poolName as string, userData)
-          await updateCoverClaimState(
-            account,
-            poolName as string,
-            'in progress'
-          )
-          dispatch(
-            openAlert({
-              displayAlert: true,
-              data: {
-                id: 1,
-                variant: 'Successful',
-                classname: 'text-black',
-                title: 'Submission Successful',
-                tag1: 'Claim application submitted',
-                tag2: 'View on etherscan',
-              },
-            })
-          )
-          setTimeout(() => {
-            dispatch(closeAlert())
-          }, 10000)
-          localStorage.removeItem('claimPoolName')
-          navigate(-1)
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const poolName = localStorage.getItem('claimPoolName')
+      const formData = {
+        ...formState,
+        date: date,
+        address: account,
+        region: 'NG',
+        poolName: poolName,
+      }
+      const dataString = convertJsonToString(formData)
+      const userData = await uploadJsonData(dataString)
+      const hash = await raiseClaim(
+        poolName as string,
+        userData,
+        account as string
+      )
+      await updateCoverClaimState(account, poolName as string, 'in progress')
+      await applicationsUpdate()
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 1,
+            variant: 'Successful',
+            classname: 'text-black',
+            title: 'Submission Successful',
+            tag1: 'Claim application submitted',
+            tag2: 'View on etherscan',
+            hash: hash,
+          },
         })
-        .catch((error) => {
-          console.log('Error fetching IP address information: ', error)
-        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+      localStorage.removeItem('claimPoolName')
+      navigate(-1)
+      // })
+      // .catch((error) => {
+      //   console.log('Error fetching IP address information: ', error)
+      // })
     }
   }
 

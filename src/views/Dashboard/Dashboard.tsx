@@ -63,57 +63,51 @@ function Dashboard() {
 
   const getData = async () => {
     if (account) {
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          const covers = await get_covers(data.country)
-          const axiosRequests = covers.map(async (cover) => {
-            if (cover.address === account.toLowerCase()) {
-              const user = await getUser(cover.address)
-              const response = await axios.get(user.data as string)
-              var result = response.data
-              var policyDetails = await getPolicyData(
-                cover.address,
-                cover.poolName
-              )
-              result = {
-                ...result,
-                ...cover,
-                ...policyDetails,
-                userData: user.data,
-              }
-              return result
-            }
-          })
-          const allCovers = await Promise.all(axiosRequests)
-          setCovers(allCovers)
-        })
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const covers = await get_covers('NG')
+      const axiosRequestsCovers = covers.map(async (cover) => {
+        if (cover.address === account.toLowerCase()) {
+          const user = await getUser(cover.address)
+          const response = await axios.get(user.data as string)
+          var result = response.data
+          var policyDetails = await getPolicyData(cover.address, cover.poolName)
+          result = {
+            ...result,
+            ...cover,
+            ...policyDetails,
+            userData: user.data,
+          }
+          return result
+        }
+      })
+      const allCovers = await Promise.all(axiosRequestsCovers)
+      setCovers(allCovers)
+      // })
 
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          const claims = await get_claims(data.country)
-          const axiosRequests = claims.map(async (claim) => {
-            const user = await getUser(claim.address)
-            const response = await axios.get(user.data as string)
-            var result = response.data
-            console.log('Got here 10')
-            const claim_details = await getClaimData(
-              claim.poolName,
-              claim.address
-            )
-            result = {
-              ...result,
-              ...claim,
-              ...claim_details,
-              userData: user.data,
-            }
-            return result
-          })
-          const allClaims = await Promise.all(axiosRequests)
-          console.log('Claims: ', allClaims)
-          setClaims(allClaims)
-        })
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const claims = await get_claims('NG')
+      const axiosRequests = claims.map(async (claim) => {
+        const user = await getUser(claim.address)
+        const response = await axios.get(user.data as string)
+        var result = response.data
+        console.log('Got here 10')
+        const claim_details = await getClaimData(claim.poolName, claim.address)
+        result = {
+          ...result,
+          ...claim,
+          ...claim_details,
+          userData: user.data,
+        }
+        return result
+      })
+      const allClaims = await Promise.all(axiosRequests)
+      console.log('Claims: ', allClaims)
+      setClaims(allClaims)
+      // })
     }
   }
 
@@ -661,9 +655,6 @@ function Dashboard() {
     },
     inputMax: {
       placeholder: '00.00',
-      action: true,
-      setAmountApproved: {},
-      setDepositAmount: {},
       poolName: 'cake',
     },
     balance: '10.42 USDC',

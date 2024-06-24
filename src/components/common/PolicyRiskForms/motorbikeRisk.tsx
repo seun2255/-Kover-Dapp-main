@@ -41,11 +41,7 @@ import {
   decryptAndHandleFile,
 } from '../../../utils/encryption'
 import { uploadJsonData } from '../../../lighthouse'
-import {
-  is_kyc_reviewer,
-  apply_for_membership,
-  getUserData,
-} from '../../../api'
+import { is_kyc_reviewer, getUserData } from '../../../api'
 import { createUser, updateVerificationState } from '../../../database'
 import { removeItemFromArray } from '../../../utils/helpers'
 
@@ -240,50 +236,48 @@ function CarInsurance(
 
     if (formFilled && verificationState === 'verified') {
       // if (formFilled) {
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          console.log('Country: ' + data.country)
-          const formData = {
-            ...formState,
-            date: date,
-            address: account,
-            region: data.country,
-          }
-          const dataString = convertJsonToString(formData)
-          const userData = await uploadJsonData(dataString)
-          const signer = library.getSigner(account)
-          // const isReviwer = await is_kyc_reviewer(signer);
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const formData = {
+        ...formState,
+        date: date,
+        address: account,
+        region: 'NG',
+      }
+      const dataString = convertJsonToString(formData)
+      const userData = await uploadJsonData(dataString)
+      const signer = library.getSigner(account)
+      // const isReviwer = await is_kyc_reviewer(signer);
 
-          await apply_for_membership(userData, data.country)
-          await updateVerificationState(account, 'verifying')
-          dispatch(
-            openAlert({
-              displayAlert: true,
-              data: {
-                id: 1,
-                variant: 'Successful',
-                classname: 'text-black',
-                title: 'Submission Successful',
-                tag1: 'KYC application submitted',
-                tag2: 'View on etherscan',
-              },
-            })
-          )
-          setTimeout(() => {
-            dispatch(closeAlert())
-          }, 10000)
-          //   setPolicyProcessState('verifying')
-          // const updatedData = await getUserData(account)
-          // dispatch(updateUser({ data: updatedData }))
-          if (kycModal) {
-            dispatch(displayKycModal({ display: false }))
-          }
-          if (onClose !== undefined) onClose()
+      await updateVerificationState(account, 'verifying')
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 1,
+            variant: 'Successful',
+            classname: 'text-black',
+            title: 'Submission Successful',
+            tag1: 'KYC application submitted',
+            tag2: 'View on etherscan',
+          },
         })
-        .catch((error) => {
-          console.log('Error fetching IP address information: ', error)
-        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+      //   setPolicyProcessState('verifying')
+      // const updatedData = await getUserData(account)
+      // dispatch(updateUser({ data: updatedData }))
+      if (kycModal) {
+        dispatch(displayKycModal({ display: false }))
+      }
+      if (onClose !== undefined) onClose()
+      // })
+      // .catch((error) => {
+      //   console.log('Error fetching IP address information: ', error)
+      // })
     }
   }
 

@@ -499,6 +499,18 @@ const addNote = async (
   await setDoc(doc(db, 'claims', claimId), temp)
 }
 
+const applicationsUpdate = async () => {
+  var data: any = {}
+  const realtimeData = await getDocs(collection(db, 'realtime'))
+  realtimeData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data['applications']
+  temp.All = !temp.All
+  await setDoc(doc(db, 'realtime', 'applications'), temp)
+}
+
 export {
   // updateUserProfile,
   checkIfUserExists,
@@ -526,4 +538,5 @@ export {
   getNotes,
   addNote,
   createClaim,
+  applicationsUpdate,
 }

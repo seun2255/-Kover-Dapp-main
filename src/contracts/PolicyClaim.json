@@ -34,6 +34,11 @@
           "internalType": "address",
           "name": "_protocol_manager",
           "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_policy_management_address",
+          "type": "address"
         }
       ],
       "stateMutability": "nonpayable",
@@ -280,7 +285,7 @@
             }
           ],
           "internalType": "struct Definitions.ClaimDeployParams",
-          "name": "claim_deploy_params",
+          "name": "",
           "type": "tuple"
         }
       ],
@@ -630,19 +635,6 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "get_policy_claim_address",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [
         {
           "internalType": "address",
@@ -678,29 +670,16 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_claim_address",
-          "type": "address"
-        }
-      ],
-      "name": "raise_claim",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_source",
+          "name": "_claims_table_address",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "_claim_address",
+          "name": "_policy_members_address",
           "type": "address"
         }
       ],
-      "name": "set_claim_address",
+      "name": "raise_claim",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -745,6 +724,72 @@
       ],
       "name": "submit_policy_reassessment_post_claim",
       "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_claimant",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_adjustor",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_claimant_rating",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "_is_claimant_rated",
+          "type": "bool"
+        }
+      ],
+      "name": "update_adjustor_claimant_rating",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "claimant_rating",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "claimant_rating_count",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "validator_rating",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "validator_rating_count",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "validation_success_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "validation_completion_count",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.AdjustorRating",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     }

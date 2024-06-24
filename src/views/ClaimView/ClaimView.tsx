@@ -197,11 +197,11 @@ function ClaimView() {
 
       console.log('Is yes: ', isYes)
 
-      await submitClaimAssesment(
+      const hash = await submitClaimAssesment(
         claimdetails.poolName,
         claimdetails.address,
         isYes,
-        amount,
+        '60',
         reportData
       )
 
@@ -215,6 +215,7 @@ function ClaimView() {
             title: 'Submission Successful',
             tag1: 'Claim Review submitted',
             tag2: 'View on etherscan',
+            hash: hash,
           },
         })
       )

@@ -182,63 +182,63 @@ function InsureProUserProfile() {
     setFormFilled(formFilled)
 
     if (formFilled) {
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          console.log('Country: ' + data.country)
-          // var prevData = await getUserData(account)
-          const formData = {
-            ...formState,
-            date: date,
-            address: account,
-            region: data.country,
-          }
-          const dataString = convertJsonToString(formData)
-          const userData = await uploadJsonData(dataString)
-          await modifyInsureProApplication(
-            data.country,
-            userData,
-            data.workField,
-            data.pool
-          )
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      // var prevData = await getUserData(account)
+      const formData = {
+        ...formState,
+        date: date,
+        address: account,
+        region: 'NG',
+      }
+      const dataString = convertJsonToString(formData)
+      const userData = await uploadJsonData(dataString)
+      const hash = await modifyInsureProApplication(
+        'NG',
+        userData,
+        formData.workField,
+        formData.pool
+      )
 
-          dispatch(
-            openAlert({
-              displayAlert: true,
-              data: {
-                id: 1,
-                variant: 'Successful',
-                classname: 'text-black',
-                title: 'Submission Successful',
-                tag1: 'Insure Pro application modified',
-                tag2: 'modfifications made',
-              },
-            })
-          )
-          setTimeout(() => {
-            dispatch(closeAlert())
-          }, 10000)
-          setApplicant(formData)
-          switchKYCReviewerModify(applicant.address).then(() => {
-            var temp = [...kycReviewerApplicants]
-            var placeholder = {}
-            for (var i = 0; i < temp.length; i++) {
-              if (temp[i].id === user.id) {
-                placeholder = {
-                  ...temp[i],
-                  canModifyKYCReviewer: !temp[i].canModifyKYCReviewer,
-                }
-                temp.splice(i, 1)
-                i--
-              }
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 1,
+            variant: 'Successful',
+            classname: 'text-black',
+            title: 'Submission Successful',
+            tag1: 'Insure Pro application modified',
+            tag2: 'modfifications made',
+            hash: hash,
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+      setApplicant(formData)
+      switchKYCReviewerModify(applicant.address).then(() => {
+        var temp = [...kycReviewerApplicants]
+        var placeholder = {}
+        for (var i = 0; i < temp.length; i++) {
+          if (temp[i].id === user.id) {
+            placeholder = {
+              ...temp[i],
+              canModifyKYCReviewer: !temp[i].canModifyKYCReviewer,
             }
-            temp.push(placeholder)
-            dispatch(setKYCReviewerApplicants({ data: temp }))
-          })
-        })
-        .catch((error) => {
-          console.log('Error fetching IP address information: ', error)
-        })
+            temp.splice(i, 1)
+            i--
+          }
+        }
+        temp.push(placeholder)
+        dispatch(setKYCReviewerApplicants({ data: temp }))
+      })
+      // })
+      // .catch((error) => {
+      //   console.log('Error fetching IP address information: ', error)
+      // })
     }
   }
 

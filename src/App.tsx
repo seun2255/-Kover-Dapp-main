@@ -273,65 +273,61 @@ function App() {
   }, [theme])
 
   useEffect(() => {
-    console.log('User changed somehow')
-    fetch('https://ipinfo.io/json')
-      .then((response) => response.json())
-      .then(async (data) => {
-        const applicants = await get_applications(data.country)
+    const getData = async () => {
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const applicantsKyc = await get_applications('NG')
 
-        const axiosRequests = applicants.map(async (applicant) => {
-          const response = await axios.get(applicant.data as string)
-          const kyc_details = await getKycDetails(
-            response.data.address,
-            data.country
-          )
-          const result = addContractState(response.data, kyc_details)
-          const userFirebaseDetails = await getUserDetails(
-            response.data.address
-          )
-          result.id = applicant.id
-          result.canModifyKYC = userFirebaseDetails.canModifyKYC
-          result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
-          result.ipfsHash = applicant.data
-          result.kycReviewDone = userFirebaseDetails.kycReviewDone
-          return result
-        })
-
-        // Wait for all axios requests to complete
-        const membership_applications = await Promise.all(axiosRequests)
-        dispatch(setKYCApplicants({ data: membership_applications }))
-        // setMembershipApplications(membership_applications)
+      const axiosRequestsKyc = applicantsKyc.map(async (applicant) => {
+        const response = await axios.get(applicant.data as string)
+        const kyc_details = await getKycDetails(response.data.address, 'NG')
+        const result = addContractState(response.data, kyc_details)
+        const userFirebaseDetails = await getUserDetails(response.data.address)
+        result.id = applicant.id
+        result.canModifyKYC = userFirebaseDetails.canModifyKYC
+        result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
+        result.ipfsHash = applicant.data
+        result.kycReviewDone = userFirebaseDetails.kycReviewDone
+        return result
       })
 
-    fetch('https://ipinfo.io/json')
-      .then((response) => response.json())
-      .then(async (data) => {
-        const applicants = await get_Reviewer_applications(data.country)
+      // Wait for all axios requests to complete
+      const membership_applicationsKyc = await Promise.all(axiosRequestsKyc)
+      dispatch(setKYCApplicants({ data: membership_applicationsKyc }))
+      // setMembershipApplications(membership_applications)
+      // })
 
-        const axiosRequests = applicants.map(async (applicant) => {
-          const response = await axios.get(applicant.data as string)
-          const kyc_details = await getKycReveiwerDetails(
-            response.data.address,
-            data.country
-          )
-          const result = addKycReviewerState(response.data, kyc_details)
-          const userFirebaseDetails = await getUserDetails(
-            response.data.address
-          )
-          result.id = applicant.id
-          result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
-          result.canModifyKYC = userFirebaseDetails.canModifyKYC
-          result.ipfsHash = applicant.data
-          result.kycReviewDone = userFirebaseDetails.kycReviewDone
-          return result
-        })
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const applicants = await get_Reviewer_applications('NG')
 
-        // Wait for all axios requests to complete
-        const membership_applications = await Promise.all(axiosRequests)
-        dispatch(setKYCReviewerApplicants({ data: membership_applications }))
-        // setReviewerApplications(membership_applications)
+      const axiosRequests = applicants.map(async (applicant) => {
+        const response = await axios.get(applicant.data as string)
+        const kyc_details = await getKycReveiwerDetails(
+          response.data.address,
+          'NG'
+        )
+        const result = addKycReviewerState(response.data, kyc_details)
+        const userFirebaseDetails = await getUserDetails(response.data.address)
+        result.id = applicant.id
+        result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
+        result.canModifyKYC = userFirebaseDetails.canModifyKYC
+        result.ipfsHash = applicant.data
+        result.kycReviewDone = userFirebaseDetails.kycReviewDone
+        return result
       })
-  }, [dispatch, user])
+
+      // Wait for all axios requests to complete
+      const membership_applications = await Promise.all(axiosRequests)
+      dispatch(setKYCReviewerApplicants({ data: membership_applications }))
+      // setReviewerApplications(membership_applications)
+      // })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getData()
+  }, [user])
 
   const handleThemeSwitch = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark')

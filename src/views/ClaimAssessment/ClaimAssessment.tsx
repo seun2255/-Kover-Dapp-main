@@ -678,7 +678,7 @@ function ClaimAssessment() {
 
               <div>
                 <h6 className="vote dark:vote-dark mb-[22px]">
-                  Votes ({validationData.validators.length}))
+                  Votes ({validationData.validators.length})
                 </h6>
                 <div className="grid grid-cols-3 pr-[15px] pl-[32px] mb-4 items-center">
                   <InfoText
@@ -769,19 +769,33 @@ function ClaimAssessment() {
                 <div className="flex flex-col gap-4 mb-4">
                   <WeightRow
                     name="For"
-                    value={`${validationData.votesFor} (${Math.round(
-                      (validationData.votesFor * 100) /
-                        validationData.totalVotePower
-                    )}%)`}
+                    value={`${validationData.votesFor} (${
+                      Math.round(
+                        (validationData.votesFor * 100) /
+                          validationData.totalVotePower
+                      )
+                        ? Math.round(
+                            (validationData.votesFor * 100) /
+                              validationData.totalVotePower
+                          )
+                        : 0
+                    }%)`}
                     titleclassname={titleClassName}
                     textclassname={textClassName}
                   />
                   <div>
                     <Progress
-                      current={Math.round(
-                        (validationData.votesFor * 100) /
-                          validationData.totalVotePower
-                      )}
+                      current={
+                        Math.round(
+                          (validationData.votesFor * 100) /
+                            validationData.totalVotePower
+                        )
+                          ? Math.round(
+                              (validationData.votesFor * 100) /
+                                validationData.totalVotePower
+                            )
+                          : 0
+                      }
                       color={
                         theme === 'dark'
                           ? 'rgb(42, 43, 49)'
@@ -793,10 +807,17 @@ function ClaimAssessment() {
                 <div className="flex flex-col gap-4">
                   <WeightRow
                     name="Against"
-                    value={`${validationData.votesAgainst} (${Math.round(
-                      (validationData.votesAgainst * 100) /
-                        validationData.totalVotePower
-                    )}%)`}
+                    value={`${validationData.votesAgainst} (${
+                      Math.round(
+                        (validationData.votesAgainst * 100) /
+                          validationData.totalVotePower
+                      )
+                        ? Math.round(
+                            (validationData.votesAgainst * 100) /
+                              validationData.totalVotePower
+                          )
+                        : 0
+                    }%)`}
                     titleclassname={titleClassName}
                     textclassname={textClassName}
                   />
@@ -807,10 +828,17 @@ function ClaimAssessment() {
                           ? 'rgb(42, 43, 49)'
                           : 'rgba(193, 30, 15, 0.8)'
                       }
-                      current={Math.round(
-                        (validationData.votesAgainst * 100) /
-                          validationData.totalVotePower
-                      )}
+                      current={
+                        Math.round(
+                          (validationData.votesAgainst * 100) /
+                            validationData.totalVotePower
+                        )
+                          ? Math.round(
+                              (validationData.votesAgainst * 100) /
+                                validationData.totalVotePower
+                            )
+                          : 0
+                      }
                     />
                   </div>
                 </div>

@@ -127,7 +127,7 @@ function ValidateClaim(
           dispatch(closeAlert())
         }, 10000)
       } else {
-        await validateClaim(
+        const hash = await validateClaim(
           claimDetails.poolName,
           claimDetails.address,
           lockAmount.toString(),
@@ -144,6 +144,7 @@ function ValidateClaim(
               title: 'Submission Successful',
               tag1: 'Claim validation Decision submitted',
               tag2: 'View on etherscan',
+              hash: hash,
             },
           })
         )
@@ -190,7 +191,7 @@ function ValidateClaim(
         }, 10000)
       } else {
         console.log('Claim Details: ', claimDetails)
-        await submitClaimAssesmentDecision(
+        const hash = await submitClaimAssesmentDecision(
           claimDetails.poolName,
           claimDetails.address,
           isYes,
@@ -206,6 +207,7 @@ function ValidateClaim(
               title: 'Submission Successful',
               tag1: 'Claim assesment Decision submitted',
               tag2: 'View on etherscan',
+              hash: hash,
             },
           })
         )

@@ -321,68 +321,6 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "_pool_name",
-          "type": "string"
-        },
-        {
-          "internalType": "address",
-          "name": "_member_address",
-          "type": "address"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "_reviewed_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "_reviewed_credentials_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "internalType": "bool",
-          "name": "_is_approved",
-          "type": "bool"
-        },
-        {
-          "internalType": "address",
-          "name": "source",
-          "type": "address"
-        }
-      ],
-      "name": "submit_policy_application_result",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "validation_params",
       "outputs": [

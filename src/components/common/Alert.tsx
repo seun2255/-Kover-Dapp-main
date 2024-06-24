@@ -10,6 +10,7 @@ interface AlertProps {
   title: String
   tag1: string
   tag2: string
+  hash?: string
   onClose?: () => void
 }
 
@@ -20,6 +21,7 @@ function Alert({
   title,
   tag1,
   tag2,
+  hash,
   onClose,
 }: AlertProps) {
   const { theme } = React.useContext(UserContext)
@@ -68,11 +70,22 @@ function Alert({
           {tag1}
         </p>
         <div className="flex items-center gap-1.5">
-          <Link to={'/'} className="hover:no-underline">
+          {hash ? (
+            <a
+              href={hash}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:no-underline"
+            >
+              <span className="hover:no-underline text-xl alert-sub-content">
+                {tag2}
+              </span>
+            </a>
+          ) : (
             <span className="hover:no-underline text-xl alert-sub-content">
               {tag2}
             </span>
-          </Link>
+          )}
           {/* <img src="/images/Group 169.svg" className="material-icons" alt="" /> */}
         </div>
       </div>

@@ -51,33 +51,30 @@ function Claims() {
 
   const getData = async () => {
     if (account) {
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          const claims = await get_claims(data.country)
-          const axiosRequests = claims.map(async (claim) => {
-            const user = await getUser(claim.address)
-            const response = await axios.get(user.data as string)
-            var result = response.data
-            console.log('Got here 10')
-            const claim_details = await getClaimData(
-              claim.poolName,
-              claim.address
-            )
-            result = {
-              ...result,
-              ...claim,
-              ...claim_details,
-              userData: user.data,
-            }
-            return result
-          })
-          const allClaims = await Promise.all(axiosRequests)
-          const validationClaims = allClaims.filter(
-            (item) => item.stage === 'validation'
-          )
-          setClaims(validationClaims)
-        })
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const claims = await get_claims('NG')
+      const axiosRequests = claims.map(async (claim) => {
+        const user = await getUser(claim.address)
+        const response = await axios.get(user.data as string)
+        var result = response.data
+        console.log('Got here 10')
+        const claim_details = await getClaimData(claim.poolName, claim.address)
+        result = {
+          ...result,
+          ...claim,
+          ...claim_details,
+          userData: user.data,
+        }
+        return result
+      })
+      const allClaims = await Promise.all(axiosRequests)
+      const validationClaims = allClaims.filter(
+        (item) => item.stage === 'validation'
+      )
+      setClaims(validationClaims)
+      // })
     }
   }
 

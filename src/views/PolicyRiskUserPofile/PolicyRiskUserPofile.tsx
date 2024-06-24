@@ -207,68 +207,64 @@ function RiskPolicyUserProfile() {
     console.log(formFilled)
 
     if (formFilled) {
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          const formData = {
-            ...formState,
-            date: date,
-            address: account,
-            region: data.country,
-          }
-          const dataString = convertJsonToString(formData)
-          const userData = await uploadJsonData(dataString)
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const formData = {
+        ...formState,
+        date: date,
+        address: account,
+        region: 'NG',
+      }
+      const dataString = convertJsonToString(formData)
+      const userData = await uploadJsonData(dataString)
 
-          const durationIndex = findIndex(
-            coverDurations,
-            formData.coverDuration
-          )
+      const durationIndex = findIndex(coverDurations, formData.coverDuration)
 
-          const premiumQuote = calculatePremiumQuote(formData)
+      const premiumQuote = calculatePremiumQuote(formData)
 
-          //Come update this after redeploying
-          await modifyPolicy('Car Insurance', userData, durationIndex)
-          await updateCoverQuote(account, 'Car Insurance', premiumQuote)
+      //Come update this after redeploying
+      const hash = await modifyPolicy('Car Insurance', userData, durationIndex)
+      await updateCoverQuote(account, 'Car Insurance', premiumQuote)
 
-          dispatch(
-            openAlert({
-              displayAlert: true,
-              data: {
-                id: 1,
-                variant: 'Successful',
-                classname: 'text-black',
-                title: 'Submission Successful',
-                tag1: 'Cover application modified',
-                tag2: 'modfifications made',
-              },
-            })
-          )
-          setTimeout(() => {
-            dispatch(closeAlert())
-          }, 10000)
-          setApplicant(formData)
-          switchCoverModifyState(applicant.address, applicant.poolName).then(
-            () => {
-              var temp = [...coverApplications]
-              var placeholder = {}
-              for (var i = 0; i < temp.length; i++) {
-                if (temp[i].id === applicant.id) {
-                  placeholder = {
-                    ...temp[i],
-                    canModify: !temp[i].canModify,
-                  }
-                  temp.splice(i, 1)
-                  i--
-                }
-              }
-              temp.push(placeholder)
-              dispatch(setCoverApplications({ data: temp }))
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 1,
+            variant: 'Successful',
+            classname: 'text-black',
+            title: 'Submission Successful',
+            tag1: 'Cover application modified',
+            tag2: 'modfifications made',
+            hash: hash,
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+      setApplicant(formData)
+      switchCoverModifyState(applicant.address, applicant.poolName).then(() => {
+        var temp = [...coverApplications]
+        var placeholder = {}
+        for (var i = 0; i < temp.length; i++) {
+          if (temp[i].id === applicant.id) {
+            placeholder = {
+              ...temp[i],
+              canModify: !temp[i].canModify,
             }
-          )
-        })
-        .catch((error) => {
-          console.log('Error fetching IP address information: ', error)
-        })
+            temp.splice(i, 1)
+            i--
+          }
+        }
+        temp.push(placeholder)
+        dispatch(setCoverApplications({ data: temp }))
+      })
+      // })
+      // .catch((error) => {
+      //   console.log('Error fetching IP address information: ', error)
+      // })
     }
   }
 

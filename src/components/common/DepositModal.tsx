@@ -22,7 +22,6 @@ import moment from 'moment'
 import { getPolicyData } from '../../api'
 import { useWeb3React } from '@web3-react/core'
 import TransactionProgress from './TransactionProgress'
-import { raiseClaim } from '../../api'
 
 interface CommonPopConfirmProps {
   id?: Number

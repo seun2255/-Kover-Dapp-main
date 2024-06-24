@@ -40,11 +40,11 @@ function InputMax({
     if (e.target.value === amount) {
       setAmount(true)
       setValue(e.target.value)
-      setDepositAmount(parseInt(e.target.value))
+      setDepositAmount?.(parseInt(e.target.value))
     } else {
       setAmount(false)
       setValue(e.target.value)
-      setDepositAmount(parseInt(e.target.value))
+      setDepositAmount?.(parseInt(e.target.value))
     }
   }
 
@@ -52,7 +52,7 @@ function InputMax({
     setAmount(false)
     const maxBalance = await getTokenBalance(account)
     setValue(parseInt(maxBalance).toString())
-    setDepositAmount(parseInt(maxBalance))
+    setDepositAmount?.(parseInt(maxBalance))
   }
 
   const handleApprove = async () => {

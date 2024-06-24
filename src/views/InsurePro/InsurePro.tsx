@@ -9,6 +9,7 @@ import VerifyIdentity from './membership/VerifyIdentity'
 import { useWeb3React } from '@web3-react/core'
 import { getUserDetails } from '../../database'
 import { useNavigate } from 'react-router-dom'
+import { getAdminAddress } from '../../api'
 
 import Alert from '../../components/common/Alert'
 
@@ -20,18 +21,26 @@ function InsurePro() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (account) {
-      getUserDetails(account).then((user) => {
-        if (user) {
-          if (user.kycVerificationState === 'verified') {
-            setKycVerified(true)
+    const initiate = async () => {
+      if (account) {
+        const adminAddress = await getAdminAddress()
+        getUserDetails(account).then((user) => {
+          if (user) {
+            if (user.kycVerificationState === 'verified') {
+              setKycVerified(true)
+            }
+            if (
+              user.insureProVerificationState === 'verified' ||
+              account === adminAddress
+            ) {
+              navigate('/kyc-application')
+            }
           }
-          if (user.insureProVerificationState === 'verified') {
-            navigate('/kyc-application')
-          }
-        }
-      })
+        })
+      }
     }
+
+    initiate()
   }, [account])
 
   return (

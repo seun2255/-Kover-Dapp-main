@@ -22,16 +22,12 @@ import { convertJsonToString } from '../../../utils/helpers'
 import { getCurrentDateTime } from '../../../utils/dateTime'
 import lighthouse from '@lighthouse-web3/sdk'
 import { uploadJsonData } from '../../../lighthouse'
-import {
-  is_kyc_reviewer,
-  apply_for_membership,
-  apply_for_InsurePro,
-  getUserData,
-} from '../../../api'
+import { is_kyc_reviewer, apply_for_InsurePro, getUserData } from '../../../api'
 import {
   createUser,
   updateInsureProVerificationState,
   createChatRoom,
+  applicationsUpdate,
 } from '../../../database'
 import { getUser } from '../../../tableland'
 import { removeItemFromArray } from '../../../utils/helpers'
@@ -174,79 +170,78 @@ function InsureProCommunity(
     // }
     // if (formFilled && verificationState === 'verified') {
     if (formFilled) {
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          const formData = {
-            ...formState,
-            date: date,
-            address: account,
-            region: data.country,
-            ...user,
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const formData = {
+        ...formState,
+        date: date,
+        address: account,
+        region: 'NG',
+        ...user,
+      }
+      const dataString = convertJsonToString(formData)
+      const userData = await uploadJsonData(dataString)
+      // const isReviwer = await is_kyc_reviewer(signer);
+
+      await apply_for_InsurePro(
+        userData,
+        formState.workField,
+        'NG',
+        'Car Insurance'
+      )
+        .then(async (result) => {
+          if (result.success) {
+            const userInfo = await getUser(account as string)
+            const userId = userInfo.id
+
+            await createChatRoom('insure-pro', 'NG', userId as number, {
+              [account as string]: formData.firstName,
+              // eslint-disable-next-line no-useless-computed-key
+              ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266']: 'Admin',
+            })
+            await updateInsureProVerificationState(account, 'verifying')
+            await applicationsUpdate()
+            dispatch(
+              openAlert({
+                displayAlert: true,
+                data: {
+                  id: 1,
+                  variant: 'Successful',
+                  classname: 'text-black',
+                  title: 'Submission Successful',
+                  tag1: 'Insure Pro application submitted',
+                  tag2: 'View on etherscan',
+                  hash: result.hash,
+                },
+              })
+            )
+            setTimeout(() => {
+              dispatch(closeAlert())
+            }, 10000)
+            setUserVerificationState('verifying')
+            if (onClose !== undefined) onClose()
+          } else {
+            dispatch(
+              openAlert({
+                displayAlert: true,
+                data: {
+                  id: 2,
+                  variant: 'Failed',
+                  classname: 'text-black',
+                  title: 'Transaction Failed',
+                  tag1: result.reason ? result.reason : '',
+                  tag2: 'View on etherscan',
+                  hash: result.hash,
+                },
+              })
+            )
+            setTimeout(() => {
+              dispatch(closeAlert())
+            }, 10000)
           }
-          const dataString = convertJsonToString(formData)
-          const userData = await uploadJsonData(dataString)
-          // const isReviwer = await is_kyc_reviewer(signer);
-
-          await apply_for_InsurePro(
-            userData,
-            formState.workField,
-            data.country,
-            'Car Insurance'
-          ).then(async (result) => {
-            if (result.success) {
-              const userInfo = await getUser(account as string)
-              const userId = userInfo.id
-
-              await createChatRoom(
-                'insure-pro',
-                data.country,
-                userId as number,
-                {
-                  [account as string]: formData.firstName,
-                  // eslint-disable-next-line no-useless-computed-key
-                  ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266']: 'Admin',
-                }
-              )
-              await updateInsureProVerificationState(account, 'verifying')
-              dispatch(
-                openAlert({
-                  displayAlert: true,
-                  data: {
-                    id: 1,
-                    variant: 'Successful',
-                    classname: 'text-black',
-                    title: 'Submission Successful',
-                    tag1: 'Insure Pro application submitted',
-                    tag2: 'View on etherscan',
-                  },
-                })
-              )
-              setTimeout(() => {
-                dispatch(closeAlert())
-              }, 10000)
-              setUserVerificationState('verifying')
-              if (onClose !== undefined) onClose()
-            } else {
-              dispatch(
-                openAlert({
-                  displayAlert: true,
-                  data: {
-                    id: 2,
-                    variant: 'Failed',
-                    classname: 'text-black',
-                    title: 'Transaction Failed',
-                    tag1: result.reason ? result.reason : '',
-                    tag2: 'View on etherscan',
-                  },
-                })
-              )
-              setTimeout(() => {
-                dispatch(closeAlert())
-              }, 10000)
-            }
-          })
         })
+        // })
         .catch((error) => {
           console.log('Error fetching IP address information: ', error)
         })

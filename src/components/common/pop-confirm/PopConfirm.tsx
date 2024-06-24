@@ -19,7 +19,7 @@ import RiskMnagamentMotorbike from '../../../views/RiskMnagament/RiskMnagamentMo
 import WeightRow from '../WeightRow'
 import WeightTitle from '../WeightTitle'
 import moment from 'moment'
-import { getPolicyData } from '../../../api'
+import { getPolicyData, getTokenBalance } from '../../../api'
 import { useWeb3React } from '@web3-react/core'
 import TransactionProgress from '../TransactionProgress'
 import DepositModal from '../DepositModal'
@@ -105,9 +105,10 @@ function PopConfirm(props: PopConfirmProps) {
   const textClassNameDark = 'summary-dark-text'
   const titleClassNameLight = 'summary-light-title'
   const textClassNameLight = 'summary-light-text'
+  const [balance, setBalance] = useState<any>(0)
 
   const [day, setDay] = useState(1)
-  const { warning, dayTab, cover, prpInput, inputMax, balance, disclaimer } =
+  const { warning, dayTab, cover, prpInput, inputMax, disclaimer } =
     datam?.data?.[tab] || props
   const { width } = useWindowDimensions()
   const changeDay = (index: number) => {
@@ -122,7 +123,7 @@ function PopConfirm(props: PopConfirmProps) {
     discount: '-',
     cost: '-',
   })
-  const [depositAmount, setDepositAmount] = useState(0)
+  const [depositAmount, setDepositAmount] = useState<any>(0)
   const [policyData, setPolicyData] = useState<any>()
   const [stage, setStage] = useState(1)
   const [policyActive, setPolicyActive] = useState(false)
@@ -157,6 +158,8 @@ function PopConfirm(props: PopConfirmProps) {
           discount: '-',
           cost: policyDetails.premiumQuote,
         })
+        const tokenBalance = await getTokenBalance(account)
+        setBalance(Math.round(parseFloat(tokenBalance)))
       }
     }
     getData()

@@ -189,69 +189,69 @@ function Profile() {
     setFormFilled(formFilled)
 
     if (formFilled) {
-      fetch('https://ipinfo.io/json')
-        .then((response) => response.json())
-        .then(async (data) => {
-          console.log('Country: ' + data.country)
-          const formData = {
-            ...formState,
-            date: date,
-            address: account,
-            region: data.country,
-          }
-          const dataString = convertJsonToString(formData)
-          const userData = await uploadJsonData(dataString)
-          await modifyMembershipApplication(data.country, userData)
+      // fetch('https://ipinfo.io/json')
+      //   .then((response) => response.json())
+      //   .then(async (data) => {
+      const formData = {
+        ...formState,
+        date: date,
+        address: account,
+        region: 'NG',
+      }
+      const dataString = convertJsonToString(formData)
+      const userData = await uploadJsonData(dataString)
+      const hash = await modifyMembershipApplication('NG', userData)
 
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 1,
+            variant: 'Successful',
+            classname: 'text-black',
+            title: 'Submission Successful',
+            tag1: 'KYC application modified',
+            tag2: 'modfifications made',
+            hash: hash,
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+      setApplicant(formData)
+      switchKYCModify(user.address).then(() => {
+        var temp = [...kycApplicants]
+        var placeholder = {}
+        for (var i = 0; i < temp.length; i++) {
+          if (temp[i].id === user.id) {
+            placeholder = {
+              ...temp[i],
+              canModifyKYC: !temp[i].canModifyKYC,
+            }
+            temp.splice(i, 1)
+            i--
+          }
+        }
+        temp.push(placeholder)
+        dispatch(setKYCApplicants({ data: temp }))
+        getUserDetails(account).then(async (user) => {
+          var data = { ...user }
+          if (user.kycVerificationState !== 'unverified') {
+            const apiData = await getUserData(account)
+            data = { ...apiData, ...data }
+          }
           dispatch(
-            openAlert({
-              displayAlert: true,
-              data: {
-                id: 1,
-                variant: 'Successful',
-                classname: 'text-black',
-                title: 'Submission Successful',
-                tag1: 'KYC application modified',
-                tag2: 'modfifications made',
-              },
+            updateUser({
+              data: data,
             })
           )
-          setTimeout(() => {
-            dispatch(closeAlert())
-          }, 10000)
-          setApplicant(formData)
-          switchKYCModify(user.address).then(() => {
-            var temp = [...kycApplicants]
-            var placeholder = {}
-            for (var i = 0; i < temp.length; i++) {
-              if (temp[i].id === user.id) {
-                placeholder = {
-                  ...temp[i],
-                  canModifyKYC: !temp[i].canModifyKYC,
-                }
-                temp.splice(i, 1)
-                i--
-              }
-            }
-            temp.push(placeholder)
-            dispatch(setKYCApplicants({ data: temp }))
-            getUserDetails(account).then(async (user) => {
-              var data = { ...user }
-              if (user.kycVerificationState !== 'unverified') {
-                const apiData = await getUserData(account)
-                data = { ...apiData, ...data }
-              }
-              dispatch(
-                updateUser({
-                  data: data,
-                })
-              )
-            })
-          })
         })
-        .catch((error) => {
-          console.log('Error fetching IP address information: ', error)
-        })
+      })
+      // })
+      // .catch((error) => {
+      //   console.log('Error fetching IP address information: ', error)
+      // })
     }
   }
 

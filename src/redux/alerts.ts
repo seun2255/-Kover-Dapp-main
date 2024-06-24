@@ -22,6 +22,7 @@ interface Alert {
       title: string
       tag1: string
       tag2: string
+      hash?: string
     }
   }
 }

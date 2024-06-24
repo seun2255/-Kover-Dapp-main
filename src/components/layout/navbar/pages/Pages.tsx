@@ -1,11 +1,12 @@
 import { Link, useLocation } from 'react-router-dom'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import pages from './pages.json'
 import { UserContext } from '../../../../App'
 import useWindowDimensions from '../../../global/UserInform/useWindowDimensions'
 import { useSelector, useDispatch } from 'react-redux'
 import { displayKycModal } from '../../../../redux/app'
 import { useWeb3React } from '@web3-react/core'
+import { getAdminAddress } from '../../../../api'
 
 function Pages() {
   const location = useLocation()
@@ -15,6 +16,15 @@ function Pages() {
   const { connected, user } = useSelector((state: any) => state.user)
   const { width } = useWindowDimensions()
   const { account } = useWeb3React()
+  const [admin, setAdmin] = useState('')
+
+  useEffect(() => {
+    const getData = async () => {
+      const adminAdrress = await getAdminAddress()
+      setAdmin(adminAdrress)
+    }
+    getData()
+  })
 
   return (
     <ul
@@ -24,7 +34,16 @@ function Pages() {
     >
       {pages.map(({ id, icon, url, name }, index) => {
         const current = index === 0 ? url === path : path.indexOf(url) >= 0
-        const activeLink = connected ? url : '/'
+        var activeLink = connected ? url : '/'
+        if (
+          (url === '/dashboard' ||
+            url === '/profile' ||
+            url === '/insurance') &&
+          account === admin
+        ) {
+          activeLink = '/'
+        }
+
         return (
           <div key={index}>
             <li key={id} className="">

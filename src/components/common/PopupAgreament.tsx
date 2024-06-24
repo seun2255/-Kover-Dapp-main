@@ -72,7 +72,10 @@ function PopupAgreament({
         handleStake()
       } else if (active) {
         setTransferring(true)
-        await depositIntoPolicy(coverDetails.poolName, depositAmount)
+        const hash = await depositIntoPolicy(
+          coverDetails.poolName,
+          depositAmount
+        )
         setStage(2)
         setTimeout(() => {
           setStage(3)
@@ -86,6 +89,7 @@ function PopupAgreament({
                 title: 'Deposit Succesful',
                 tag1: 'policy deposit process completetd',
                 tag2: 'cover balance toped up',
+                hash: hash,
               },
             })
           )
@@ -95,7 +99,7 @@ function PopupAgreament({
         }, 1000)
       } else {
         if (id === 1) {
-          await acceptPolicy(
+          const hash = await acceptPolicy(
             coverDetails.poolName,
             coverDetails.data,
             coverDetails.address,
@@ -114,6 +118,7 @@ function PopupAgreament({
                   title: 'Policy Accepted',
                   tag1: 'policy purchase process completetd',
                   tag2: 'cover bought',
+                  hash: hash,
                 },
               })
             )
@@ -125,6 +130,23 @@ function PopupAgreament({
           setId(1)
         }
       }
+    } else if (!amountApproved) {
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 2,
+            variant: 'Failed',
+            classname: 'text-black',
+            title: 'Transaction Failed',
+            tag1: 'Amount not approved',
+            tag2: 'please first approve the required amount',
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
     }
   }
 
