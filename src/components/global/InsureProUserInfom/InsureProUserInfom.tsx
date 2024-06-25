@@ -37,6 +37,12 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
     setCanEdit(
       variant === 'personal' ? user.canModifyKYC : user.canModifyKYCReviewer
     )
+    if (user.resultStatus === 'approved' || user.resultStatus === 'rejected') {
+      setCanEdit(false)
+      if (user.canModifyKYC === true) {
+        switchKYCModify(user.address)
+      }
+    }
   }, [user])
 
   return (
@@ -212,24 +218,48 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
                       className="min-w-[125px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
                       text={canEdit ? 'Stop Edit' : 'Allow Edit'}
                       onClick={() => {
+                        console.log('clicked')
                         if (user.reviewer === account) {
-                          switchKYCModify(user.address).then(() => {
-                            setCanEdit(!canEdit)
-                            var temp = [...kycApplicants]
-                            var placeholder = {}
-                            for (var i = 0; i < temp.length; i++) {
-                              if (temp[i].id === user.id) {
-                                placeholder = {
-                                  ...temp[i],
-                                  canModifyKYC: !temp[i].canModifyKYC,
+                          if (
+                            user.resultStatus === 'approved' ||
+                            user.resultStatus === 'rejected'
+                          ) {
+                            console.log('reached here')
+                            dispatch(
+                              openAlert({
+                                displayAlert: true,
+                                data: {
+                                  id: 2,
+                                  variant: 'Failed',
+                                  classname: 'text-black',
+                                  title: "Application can't be modified",
+                                  tag1: 'application already assesed',
+                                  tag2: 'modifications no longer possible',
+                                },
+                              })
+                            )
+                            setTimeout(() => {
+                              dispatch(closeAlert())
+                            }, 10000)
+                          } else {
+                            switchKYCModify(user.address).then(() => {
+                              setCanEdit(!canEdit)
+                              var temp = [...kycApplicants]
+                              var placeholder = {}
+                              for (var i = 0; i < temp.length; i++) {
+                                if (temp[i].id === user.id) {
+                                  placeholder = {
+                                    ...temp[i],
+                                    canModifyKYC: !temp[i].canModifyKYC,
+                                  }
+                                  temp.splice(i, 1)
+                                  i--
                                 }
-                                temp.splice(i, 1)
-                                i--
                               }
-                            }
-                            temp.push(placeholder)
-                            dispatch(setKYCApplicants({ data: temp }))
-                          })
+                              temp.push(placeholder)
+                              dispatch(setKYCApplicants({ data: temp }))
+                            })
+                          }
                         } else {
                           dispatch(
                             openAlert({

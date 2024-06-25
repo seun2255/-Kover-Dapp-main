@@ -125,7 +125,6 @@ const addContractState = (application: any, kyc_details: any) => {
 const addKycReviewerState = (application: any, kyc_details: any) => {
   application.has_applied = kyc_details.has_applied
   application.is_expert = kyc_details.is_expert
-  console.log('Is Expert: ', kyc_details.is_expert)
 
   return application
 }

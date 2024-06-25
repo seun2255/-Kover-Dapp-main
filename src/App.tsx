@@ -58,7 +58,6 @@ import { addContractState, addKycReviewerState } from './utils/helpers'
 import { setKYCApplicants, setKYCReviewerApplicants } from './redux/kyc'
 import { updateUser } from './redux/user'
 import { getUserDetails } from './database'
-import { useNavigate } from 'react-router-dom'
 import { useWeb3React } from '@web3-react/core'
 import { getUserData } from './api'
 
@@ -253,7 +252,6 @@ function App() {
   const [connectwallet, setConnectWallet] = useState('')
   const { displayAlert, alertData } = useSelector((state: any) => state.alerts)
   const { user } = useSelector((state: any) => state.user)
-  const { account } = useWeb3React()
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -289,6 +287,7 @@ function App() {
         result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
         result.ipfsHash = applicant.data
         result.kycReviewDone = userFirebaseDetails.kycReviewDone
+        result.kycVerificationState = userFirebaseDetails.kycVerificationState
         return result
       })
 
@@ -352,12 +351,6 @@ function App() {
   // const showToast = () => {
   //   toast(<Alert {...alertData} />)
   // }
-
-  // useEffect(() => {
-  //   if (displayAlert) {
-  //     showToast()
-  //   }
-  // }, [displayAlert])
 
   return (
     <UserContext.Provider

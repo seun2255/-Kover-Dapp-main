@@ -10,22 +10,37 @@ import { useNavigate } from 'react-router-dom'
 import TermOfUsePopup from '../global/TermOfUsePopup'
 import Popup from '../templates/Popup'
 import Dashboard from '../../views/Dashboard/Dashboard'
+import { useWeb3React } from '@web3-react/core'
+import { getUserDetails } from '../../database'
 
 function Layout() {
   const { width } = useWindowDimensions()
   const { kycModal } = useSelector((state: any) => state.app)
   const [userVerificationState, setUserVerificationState] =
     useState('unverified')
+  const { account } = useWeb3React()
   const navigate = useNavigate()
-  const [terms, setTerms] = useState<boolean>(true)
+  const [terms, setTerms] = useState<boolean>(false)
   const toggleTerms = () => setTerms((v) => !v)
+  const [canDisplay, setCanDisplay] = useState(false)
+
+  const setup = async (account: string) => {
+    const user = await getUserDetails(account)
+    console.log(user)
+    setCanDisplay(true)
+  }
 
   useEffect(() => {
     var agreed = localStorage.getItem('agreed')
-    if (agreed && agreed === 'true') {
-      setTerms(false)
+    if (!agreed || agreed !== 'true') {
+      setTerms(true)
     }
-    // navigate('/')
+    if (!account) {
+      navigate('/')
+      setCanDisplay(true)
+    } else {
+      setup(account)
+    }
   }, [])
 
   return (
@@ -46,20 +61,6 @@ function Layout() {
                     </div>
                   </div>
                   <div className="w-full flex flex-col gap-[20px] claim-side-data mt-[22px]">
-                    {/* {width > 600 ? (
-                    <>
-                      <div>
-                        <h6 className="text-dark-300">Overview</h6>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <span className="dashboard-sm">Dashboard</span>
-                        <span className="text-dark-300">Overview</span>
-                      </div>
-                    </>
-                  )} */}
                     <div className="flex flex-col gap-[20px] mt-[2px]">
                       <MarketStatus />
                     </div>
@@ -67,7 +68,7 @@ function Layout() {
                 </div>
               </div>
             ) : (
-              <Outlet />
+              <>{canDisplay ? <Outlet /> : <></>}</>
             )}
           </div>
         </div>

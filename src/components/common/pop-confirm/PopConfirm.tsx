@@ -533,6 +533,7 @@ function PopConfirm(props: PopConfirmProps) {
                     setStage={setStage}
                     active={false}
                     amountApproved={amountApproved}
+                    onClose={onClose}
                   />
                 </div>
               </div>

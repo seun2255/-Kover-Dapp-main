@@ -9,6 +9,7 @@ export interface SelectRootFieldProps {
   filled?: boolean
   initialValue?: string
   disabled?: boolean
+  pools?: string[]
 }
 
 const dayOptions = [
@@ -599,6 +600,7 @@ function SelectRootField({
   filled,
   initialValue,
   disabled,
+  pools,
 }: SelectRootFieldProps) {
   const [open, setOpen] = useState(false)
   const toggleOpen = () => setOpen((v) => !v)
@@ -637,7 +639,7 @@ function SelectRootField({
   } else if (name === 'workField') {
     options = workFields
   } else if (name === 'pool') {
-    options = policyTypes
+    options = pools as string[]
   } else if (name === 'claimType') {
     options = claimTypes
   } else if (name === 'eventType') {

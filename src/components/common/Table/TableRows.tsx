@@ -190,7 +190,7 @@ function TableRows({
                     key={index}
                     className="flex items-center gap-6 py-5 rounded bg-dark-800 px-7 dark:text-dark-800 dark:text-primary-100 dark:bg-white dark:box-border general-box-border"
                   >
-                    {/* <div className="w-6 -mr-6 min-w-[1.5rem]">
+                    <div className="w-6 -mr-6 min-w-[1.5rem]">
                       {options.length > 0 ? (
                         <>
                           <TableOptions
@@ -203,7 +203,7 @@ function TableRows({
                       ) : (
                         <> </>
                       )}
-                    </div> */}
+                    </div>
                     {rowDatam.map((value, index) => (
                       <div
                         key={index}

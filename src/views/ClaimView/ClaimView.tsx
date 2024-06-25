@@ -60,6 +60,7 @@ function ClaimView() {
     const notes = await getNotes(claimId as string)
     console.log('Data: ', { ...data, notes: notes })
     setClaimdetails({ ...data, notes: notes })
+    console.log(claimdetails)
     setLoading(false)
   }
 
@@ -370,7 +371,7 @@ function ClaimView() {
 
           <div className="flex flex-col w-full gap-5 sm:flex claim-side-data">
             <h6 className="text-dark-300">Overview</h6>
-            <div className="bg-dark-600 rounded p-[30px] dark:bg-white box-border-2x-light dark:box-border-2x-dark">
+            {/* <div className="bg-dark-600 rounded p-[30px] dark:bg-white box-border-2x-light dark:box-border-2x-dark">
               <div className="mb-[30px] flex justify-between items-center">
                 <span className="current-result">Current Result</span>
                 <div className="relative">
@@ -447,7 +448,7 @@ function ClaimView() {
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
             <div className="rounded bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
               <div className="mb-7">
                 <WeightTitle title="Summary" />
@@ -516,6 +517,20 @@ function ClaimView() {
                   value="2000"
                   titleclassname={titleClassName}
                   textclassname={textClassName}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-5 mt-[30px]">
+                <button
+                  type="button"
+                  className={` medium dark  dark:bg-white  square  button focus:bg-[#4C4D55] focus:border-[#4C4D55] border-[#4C4D55] border-2`}
+                >
+                  <span className="">Cancel Cover</span>
+                </button>
+                <Button
+                  to={`/chat/claim-NG-${claimdetails.claimId}`}
+                  text="Contact User"
+                  color={theme === 'dark' ? '' : 'dark'}
+                  className="dark:bg-light-1100 focus:bg-[#4C4D55] "
                 />
               </div>
             </div>

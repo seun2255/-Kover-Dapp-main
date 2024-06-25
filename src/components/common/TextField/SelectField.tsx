@@ -16,6 +16,7 @@ interface SelectField {
   filled?: boolean
   initialValue?: any
   disabled?: boolean
+  pools?: string[]
 }
 
 function SelectField({
@@ -29,6 +30,7 @@ function SelectField({
   filled,
   initialValue,
   disabled,
+  pools,
   ...rest
 }: SelectField) {
   const { theme } = React.useContext(UserContext)
@@ -90,6 +92,7 @@ function SelectField({
           filled={filled}
           disabled={disabled}
           initialValue={initialValue}
+          pools={pools}
         />
       )}
     </div>

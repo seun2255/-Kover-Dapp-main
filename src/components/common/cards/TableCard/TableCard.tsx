@@ -139,7 +139,7 @@ function TableCard({
           {id === 5
             ? data.map((item: any, index: string) => {
                 return (
-                  <>
+                  <div key={index}>
                     <div className=" flex justify-between  h-[13px]">
                       <div className="flex items-center gap-[3px]">
                         <span className="card-item-titles dark:card-item-titles">
@@ -211,12 +211,12 @@ function TableCard({
                       place="bottom"
                       content="This is the total amount available for  you to borrow. You can borrow based on your collateral and until the borrowcap is reached."
                     />
-                  </>
+                  </div>
                 )
               })
             : data.map((item: any, index: string) => {
                 return (
-                  <>
+                  <div key={index}>
                     <div className="flex justify-between ">
                       <div className="flex items-center gap-[3px]">
                         <span className="card-item-titles dark:card-item-titles">
@@ -254,7 +254,7 @@ function TableCard({
                       place="bottom"
                       content="This is the total amount available for  you to borrow. You can borrow based on your collateral and until the borrowcap is reached."
                     />
-                  </>
+                  </div>
                 )
               })}
         </div>

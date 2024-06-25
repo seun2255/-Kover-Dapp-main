@@ -13,6 +13,7 @@ import { depositIntoPolicy, stake } from '../../api'
 export interface PopupAgreamentProps {
   mainClass?: String
   classname?: String
+  onClose?: () => void
   agree: string
   agreeURL: string
   setId: any
@@ -56,6 +57,7 @@ function PopupAgreament({
   amountApproved,
   isStake,
   handleStake,
+  onClose,
 }: PopupAgreamentProps) {
   const [value, setValue] = useState(checked)
   const [checkbox, setCheckbox] = useState(true)
@@ -93,6 +95,7 @@ function PopupAgreament({
               },
             })
           )
+          onClose?.()
           setTimeout(() => {
             dispatch(closeAlert())
           }, 10000)
@@ -122,6 +125,7 @@ function PopupAgreament({
                 },
               })
             )
+            onClose?.()
             setTimeout(() => {
               dispatch(closeAlert())
             }, 10000)

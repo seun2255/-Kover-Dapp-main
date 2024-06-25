@@ -93,7 +93,6 @@ const getPolicyContract = async (policyAddress: any) => {
 const getPolicyMembersContract = async (policyAddress: any) => {
   const policyContract = await getPolicyContract(policyAddress)
   const policyAddresses = await policyContract.addresses()
-  console.log('Address: ', policyAddresses.members)
 
   const signer = await getSigner()
   const contract = new ethers.Contract(
@@ -230,7 +229,6 @@ const apply_for_InsurePro = async (
 
   if (type === 'KYC Reviewer') {
     await approveReviewer(fee)
-    console.log('Succesfully paid the fee')
 
     const tx = await contract.apply_for_KYC_reviewer(region, [data, data])
     // await contract.createUser(data)
@@ -238,10 +236,8 @@ const apply_for_InsurePro = async (
     return { success: true, hash: createTransactionLink(tx.hash) }
   } else if (type === 'Policy Reviewer') {
     try {
-      console.log('Started process of policy reviewer')
       var newFee = ethers.parseEther('15')
       await approvePolicyMembers(poolName, newFee)
-      console.log('Policy approved to spend')
 
       const tx = await contract.apply_for_policy_reviewer(poolName, [
         data,
@@ -322,7 +318,6 @@ const assignMembershipApplication = async (
 const modifyMembershipApplication = async (region: string, data: string) => {
   const contract = await getContract()
 
-  console.log(data)
   const tx = await contract.modify_membership_application(region, [data, data])
   await tx.wait()
   return createTransactionLink(tx.hash)
@@ -404,7 +399,6 @@ const concludeInsureproApplication = async (
     await tx.wait()
     return createTransactionLink(tx.hash)
   } else if (type === 'Policy Reviewer') {
-    console.log('A policy Reviewer')
     const tx = await contract.conclude_policy_reviewer_application(
       poolName,
       address,
@@ -445,9 +439,7 @@ const get_applications = async (region: string) => {
   const addressesArray = Object.values(applicants || {}).map((address: any) =>
     address.toLowerCase()
   )
-  // console.log(applicants)
   const membershipApplicants = await get_membership_appliants(addressesArray)
-  // console.log(membershipApplicants)
   // const membershipApplicants = await getAllUsers()
   return membershipApplicants
 }
@@ -484,9 +476,7 @@ const get_Reviewer_applications = async (region: string) => {
   const addressesArray = Object.values(applicants || {}).map((address: any) =>
     address.toLowerCase()
   )
-  // console.log(applicants)
   const membershipApplicants = await get_membership_appliants(addressesArray)
-  // console.log(membershipApplicants)
   // const membershipApplicants = await getAllUsers()
   return membershipApplicants
 }
@@ -777,6 +767,15 @@ const depositIntoPolicy = async (poolName: string, depositAmount: number) => {
   return createTransactionLink(tx.hash)
 }
 
+const getPolicyBalance = async (poolName: string, address: string) => {
+  const addresses = await getPoolAddresses(poolName)
+
+  const policyContract = await getPolicyContract(addresses.policy)
+
+  const balance = await policyContract.policy_account_balance(address)
+  return balance
+}
+
 const isPoolPolicyReviewer = async (address: any, pool: string) => {
   const addresses = await getPoolAddresses(pool)
   const contract = await getPolicyMembersContract(addresses.policy)
@@ -816,7 +815,6 @@ const getClaimAddress = async (poolName: string, userAddress: string) => {
 
 const getClaimDetails = async (poolName: string, address: any) => {
   const claimAddress = await getClaimAddress(poolName, address)
-  console.log('Claim Address: ', claimAddress)
   const claimContract = await getClaimContract(claimAddress)
 
   const claim_data = await claimContract.claim_data()
@@ -844,11 +842,8 @@ const getClaimValidationData = async (poolName: string, address: any) => {
   const totalVotePowerContract = await claimContract.total_vote_power()
   const yesVotePowerContract = await claimContract.yes_vote_power()
 
-  console.log('Reached here 1')
-  console.log('Total: ', ethers.formatEther(totalVotePowerContract))
   const totalVotePower = Number(ethers.formatEther(totalVotePowerContract))
   const yesVotePower = Number(ethers.formatEther(yesVotePowerContract))
-  console.log('Reached here 2')
 
   for (let i = 0; i < validatorsCount; i++) {
     const validatorAddress = await claimContract.validators(i)
@@ -878,7 +873,6 @@ const getClaimValidationData = async (poolName: string, address: any) => {
 
 const getClaimDataById = async (claimId: string) => {
   const applicant: any = await getClaimById(Number(claimId))
-  console.log('Applicant; ', applicant)
   const contract_data = await getClaimDetails(
     applicant.poolName,
     applicant.address
@@ -903,21 +897,17 @@ const approveClaim = async (poolName: string, amount: any, user: string) => {
 
 const raiseClaim = async (poolName: string, data: string, address: string) => {
   const addresses = await getPoolAddresses(poolName)
-  console.log('Reached here 1')
 
   const policyContract = await getPolicyContract(addresses.policy)
   const policyAddresses = await policyContract.addresses()
-  console.log('Reached here 2')
 
   const policyClaimContract = await getPolicyClaimContract(addresses.policy)
-  console.log('Reached here 3')
 
   const raiseClaimTx = await policyClaimContract.raise_claim(
     process.env.REACT_APP_CLAIMS_TABLE_CONTRACT_ADDRESS,
     policyAddresses.members
   )
   await raiseClaimTx.wait()
-  console.log('Created Claim!')
 
   const claimAddress = await getClaimAddress(poolName, address)
   const claimContract = await getClaimContract(claimAddress)
@@ -929,7 +919,6 @@ const raiseClaim = async (poolName: string, data: string, address: string) => {
     address
   )
   await initaiateClaimTx.wait()
-  console.log('Car Policy Claim Contract Initiated')
 
   const fee = ethers.parseEther('1000000')
 
@@ -937,7 +926,6 @@ const raiseClaim = async (poolName: string, data: string, address: string) => {
 
   const payDuesTx = await claimContract.clearOutstandingDues()
   await payDuesTx.wait()
-  console.log('Payed Outsanding Claim dues')
   return createTransactionLink(payDuesTx.hash)
 }
 
@@ -947,13 +935,10 @@ const assignClaimApplication = async (
   user: string
 ) => {
   const claimContractAddress = await getClaimAddress(poolName, claimant)
-  console.log('Reached here 1')
   const claimContract = await getClaimContract(claimContractAddress)
   const fee = ethers.parseEther('250')
-  console.log('Reached here 2')
 
   await approveClaim(poolName, fee, claimant)
-  console.log('Approved claim to spend')
 
   const tx = await claimContract.assign_adjustor()
   await tx.wait()
@@ -969,19 +954,14 @@ const submitClaimAssesment = async (
 ) => {
   const claimContractAddress = await getClaimAddress(poolName, claimantAddress)
   const claimContract = await getClaimContract(claimContractAddress)
-  console.log('Contract: ', claimContract)
 
   const approved_payout = ethers.parseEther(amount)
-  console.log('Approved: ', approved_payout)
-
-  console.log('Assesement Data: ', data)
 
   const tx = await claimContract.submit_adjustor_assessment(
     decision,
     approved_payout,
     data
   )
-  console.log('Reached here')
   await tx.wait()
   return createTransactionLink(tx.hash)
 }
@@ -1029,18 +1009,15 @@ const validateClaim = async (
   const stakeEther = ethers.parseEther(stake)
 
   await approveStakingContract(stakeEther)
-  console.log('Approved')
 
   const txStake = await stakingPoolContract.stake(stakeEther)
   await txStake.wait()
-  console.log('Staked')
 
   const approveStakeLock = await stakingPoolContract.approve_stake_lock(
     claimContractAddress,
     stakeEther
   )
   await approveStakeLock.wait()
-  console.log('Locked stake')
 
   const tx = await UserManagerContract.validate(
     poolName,
@@ -1050,7 +1027,6 @@ const validateClaim = async (
     decision
   )
   await tx.wait()
-  console.log('Validated claim')
   return createTransactionLink(tx.hash)
 }
 
@@ -1124,4 +1100,5 @@ export {
   approveKoverToStake,
   getStakeBalance,
   getAdminAddress,
+  getPolicyBalance,
 }

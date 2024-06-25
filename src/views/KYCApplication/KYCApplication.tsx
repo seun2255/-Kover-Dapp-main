@@ -192,7 +192,6 @@ function KYCApplication() {
         setKYCReviewerApplicants({ data: membership_applicationsReviewer })
       )
       setReviewerApplications(membership_applicationsReviewer)
-      console.log(reviewerApplications)
       // })
 
       // fetch('https://ipinfo.io/json')
@@ -213,7 +212,6 @@ function KYCApplication() {
         return result
       })
       const allCovers = await Promise.all(axiosRequestsCovers)
-      console.log('Covers: ', allCovers)
       dispatch(setCoverApplications({ data: allCovers }))
       setPolicyApplications(allCovers)
       // })
@@ -226,7 +224,6 @@ function KYCApplication() {
         const user = await getUser(claim.address)
         const response = await axios.get(user.data as string)
         var result = response.data
-        console.log('Got here 10')
         const claim_details = await getClaimData(claim.poolName, claim.address)
         result = {
           ...result,
@@ -237,7 +234,6 @@ function KYCApplication() {
         return result
       })
       const allClaims = await Promise.all(axiosRequests)
-      console.log('Claims: ', allClaims)
       dispatch(setClaimsApplications({ data: allClaims }))
       setClaimApplications(allClaims)
       // })
@@ -266,20 +262,16 @@ function KYCApplication() {
   }
 
   useEffect(() => {
-    getData()
-    if (account && account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD') {
-      setIsAdmin(true)
-    }
-  }, [account])
-
-  useEffect(() => {
     const unsub = onSnapshot(
       doc(db, 'realtime', 'applications'),
       (doc: any) => {
         getData()
       }
     )
-  })
+    if (account && account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD') {
+      setIsAdmin(true)
+    }
+  }, [])
 
   const [popup, setPopup] = useState<PopConfirmProps | null>(null)
   const popupHandle = (data?: PopConfirmProps) =>
@@ -523,7 +515,6 @@ function KYCApplication() {
                 theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
               } px-[19.5px] py-[11.5px] w-full`}
               onClick={async () => {
-                console.log('Was clicked')
                 if (kycDecisionMade) {
                   const hash = await submitApplicationReviewResult(
                     application.address,
@@ -790,8 +781,6 @@ function KYCApplication() {
           ) : (
             <Button
               onClick={async () => {
-                console.log(kycReviewerDecision)
-                console.log(application.pool)
                 const hash = await concludeInsureproApplication(
                   application.address,
                   application.region,
@@ -876,12 +865,7 @@ function KYCApplication() {
               : ''
           }
         >
-          <span
-            className="prp dark:prp-dark"
-            onClick={() => {
-              console.log('Account: ', account)
-            }}
-          >{`${application.firstName} ${application.lastName}`}</span>
+          <span className="prp dark:prp-dark">{`${application.firstName} ${application.lastName}`}</span>
         </Link>,
         <span className="prp dark:prp-dark">{application.dob}</span>,
         <Status
@@ -1007,7 +991,6 @@ function KYCApplication() {
               } px-[19.5px] py-[11.5px] w-full`}
               onClick={async () => {
                 if (policyDecisionMade) {
-                  console.log('Decision: ', policyDecision)
                   const hash = await submitPolicyApplicationResult(
                     application.poolName,
                     application.address,
@@ -1187,6 +1170,7 @@ function KYCApplication() {
   const claims: TableProps = {
     tabs: tabs,
     options: [{ name: 'Hide' }, { name: 'Rewards' }],
+    data: claimApplications,
     columns: [
       {
         name: 'POLICY TYPE',
@@ -1506,12 +1490,7 @@ function KYCApplication() {
               : ''
           }
         >
-          <span
-            className="prp dark:prp-dark"
-            onClick={() => {
-              console.log('Account: ', account)
-            }}
-          >{`${result.firstName} ${result.lastName}`}</span>
+          <span className="prp dark:prp-dark">{`${result.firstName} ${result.lastName}`}</span>
         </Link>,
         <CarInsurance />,
         <Status
@@ -2174,25 +2153,23 @@ function KYCApplication() {
                   {['Declined', 'Active', 'Withdrawn', 'Inactive'].map(
                     (item: any, index) => {
                       return (
-                        <>
-                          <div>
-                            <TableCard
-                              id={Tabkyc.id}
-                              title={Tabkyc.title}
-                              icon={Tabkyc.icon}
-                              status={item}
-                              subIcon={Tabkyc.subIcon}
-                              menuIcon={Tabkyc.menuIcon}
-                              data={Tabkyc.data}
-                              btnText={Tabkyc.btnText}
-                              btnIcon={Tabkyc.btnIcon}
-                              drawerTitle={Tabkyc.drawerTitle}
-                              option={Tabkyc.options}
-                              //   popupData={myCoverPopup}
-                              index={index}
-                            />
-                          </div>
-                        </>
+                        <div key={index}>
+                          <TableCard
+                            id={Tabkyc.id}
+                            title={Tabkyc.title}
+                            icon={Tabkyc.icon}
+                            status={item}
+                            subIcon={Tabkyc.subIcon}
+                            menuIcon={Tabkyc.menuIcon}
+                            data={Tabkyc.data}
+                            btnText={Tabkyc.btnText}
+                            btnIcon={Tabkyc.btnIcon}
+                            drawerTitle={Tabkyc.drawerTitle}
+                            option={Tabkyc.options}
+                            //   popupData={myCoverPopup}
+                            index={index}
+                          />
+                        </div>
                       )
                     }
                   )}
@@ -2319,23 +2296,21 @@ function KYCApplication() {
                   {['Declined', 'Active', 'Withdrawn', 'Inactive'].map(
                     (item: any, index) => {
                       return (
-                        <>
-                          <div>
-                            <TableCard
-                              id={TabInsurePro.id}
-                              title={TabInsurePro.title}
-                              icon={TabInsurePro.icon}
-                              status={item}
-                              subIcon={TabInsurePro.subIcon}
-                              menuIcon={TabInsurePro.menuIcon}
-                              data={TabInsurePro.data}
-                              btnText={TabInsurePro.btnText}
-                              btnIcon={TabInsurePro.btnIcon}
-                              drawerTitle={TabInsurePro.drawerTitle}
-                              option={TabInsurePro.options}
-                            />
-                          </div>
-                        </>
+                        <div key={index}>
+                          <TableCard
+                            id={TabInsurePro.id}
+                            title={TabInsurePro.title}
+                            icon={TabInsurePro.icon}
+                            status={item}
+                            subIcon={TabInsurePro.subIcon}
+                            menuIcon={TabInsurePro.menuIcon}
+                            data={TabInsurePro.data}
+                            btnText={TabInsurePro.btnText}
+                            btnIcon={TabInsurePro.btnIcon}
+                            drawerTitle={TabInsurePro.drawerTitle}
+                            option={TabInsurePro.options}
+                          />
+                        </div>
                       )
                     }
                   )}

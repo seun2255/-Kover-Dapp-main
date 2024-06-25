@@ -22,7 +22,12 @@ import { convertJsonToString } from '../../../utils/helpers'
 import { getCurrentDateTime } from '../../../utils/dateTime'
 import lighthouse from '@lighthouse-web3/sdk'
 import { uploadJsonData } from '../../../lighthouse'
-import { is_kyc_reviewer, apply_for_InsurePro, getUserData } from '../../../api'
+import {
+  is_kyc_reviewer,
+  apply_for_InsurePro,
+  getUserData,
+  getPools,
+} from '../../../api'
 import {
   createUser,
   updateInsureProVerificationState,
@@ -61,6 +66,7 @@ function InsureProCommunity(
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
   const [fileUploadInitated, setFileUploadInitiated] = useState(false)
   const [showPools, setShowPools] = useState(false)
+  const [policyPools, setPolicyPools] = useState([])
 
   type ProgressData = {
     total: number
@@ -74,6 +80,14 @@ function InsureProCommunity(
       setShowPools(false)
     }
   }, [formState.workField])
+
+  useEffect(() => {
+    const setPools = async () => {
+      const pools = await getPools()
+      setPolicyPools(pools)
+    }
+    setPools()
+  }, [])
 
   const progressCallback = (progressData: ProgressData) => {
     let percentageDone = Math.round(
@@ -314,6 +328,7 @@ function InsureProCommunity(
                         label="Pool"
                         placeholder="Please select"
                         name="pool"
+                        pools={policyPools}
                       />
                     )}
                   </div>
