@@ -3,14 +3,14 @@ import { ethers } from 'ethers'
 import { convertJsonStringToObject } from './utils/helpers'
 
 //Live
-// const usersTableName = 'kover_finance_421614_780'
-// const coversTableName = 'kover_finance_421614_781'
-// const claimsTableName = 'kover_finance_421614_782'
+const usersTableName = 'kover_finance_421614_780'
+const coversTableName = 'kover_finance_421614_781'
+const claimsTableName = 'kover_finance_421614_782'
 
 //Localhost
-const usersTableName = ' kover_finance_31337_2'
-const coversTableName = 'kover_finance_31337_3'
-const claimsTableName = 'kover_finance_31337_4'
+// const usersTableName = ' kover_finance_31337_2'
+// const coversTableName = 'kover_finance_31337_3'
+// const claimsTableName = 'kover_finance_31337_4'
 
 const createTable = async (signer: any) => {
   const db = new Database({ signer })
