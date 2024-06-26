@@ -5,23 +5,20 @@ import { is_kyc_reviewer } from '../../../../api'
 
 export interface TableOptionsProps {
   options: { name: string; action?: Function }[]
-  title?: string
-  data?: any
-  index?: any
 }
-function TableOptions({ options, title, data, index }: TableOptionsProps) {
+function TableOptions({ options }: TableOptionsProps) {
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(false)
   const toggle = () => setOpen((v) => !v)
   const { theme } = React.useContext(UserContext)
 
-  const optionLinks: any = {
-    // Chat: `/chat/${title}-${index}`,
-    Chat: null,
-    Profile: `/kyc-user-profile/${index}`,
-    Revert: null,
-    Cancel: null,
-  }
+  // const optionLinks: any = {
+  //   // Chat: `/chat/${title}-${index}`,
+  //   Chat: null,
+  //   Profile: `/kyc-user-profile/${index}`,
+  //   Revert: null,
+  //   Cancel: null,
+  // }
 
   return (
     <React.Fragment>
@@ -58,19 +55,18 @@ function TableOptions({ options, title, data, index }: TableOptionsProps) {
             />
             <div className="bg-dark-400 w-[88px] flex flex-col gap-[1px] rounded py-2 ml-2 mt-1 dark:text-dark-800 dark:text-primary-100  dark:bg-light-1100 absolute left-[0px]">
               {options.map(({ name, action }, index) => (
-                <Link to={optionLinks[name]}>
-                  <button
-                    type="button"
-                    className="font-medium text-lg pl-2.5 py-2 pr-8 hover:text-dark-550 after: duration-100 w-full whitespace-nowrap text-left"
-                    onClick={() => {
-                      toggle()
-                      if (name === 'Revert')
-                        action?.(data.address, data.region, false, false)
-                    }}
-                  >
-                    {name}
-                  </button>
-                </Link>
+                // <Link to={optionLinks[name]}>
+                <button
+                  type="button"
+                  className="font-medium text-lg pl-2.5 py-2 pr-8 hover:text-dark-550 after: duration-100 w-full whitespace-nowrap text-left"
+                  onClick={() => {
+                    toggle()
+                    action?.()
+                  }}
+                >
+                  {name}
+                </button>
+                // </Link>
               ))}
             </div>
           </div>
@@ -112,18 +108,18 @@ function TableOptions({ options, title, data, index }: TableOptionsProps) {
             />
             <div className="bg-dark-400 flex flex-col gap-[1px] rounded py-1 ml-2 mt-1 dark:text-dark-800 dark:text-primary-100  dark:bg-white absolute right-0">
               {options.map(({ name, action }, index) => (
-                <Link to={optionLinks[name]}>
-                  <button
-                    type="button"
-                    className="font-medium text-lg pl-2.5 py-2 pr-8 hover:text-dark-550 after:duration-100 w-full whitespace-nowrap text-left"
-                    onClick={() => {
-                      toggle()
-                      action?.()
-                    }}
-                  >
-                    {name}
-                  </button>
-                </Link>
+                // <Link to={optionLinks[name]}>
+                <button
+                  type="button"
+                  className="font-medium text-lg pl-2.5 py-2 pr-8 hover:text-dark-550 after:duration-100 w-full whitespace-nowrap text-left"
+                  onClick={() => {
+                    toggle()
+                    action?.()
+                  }}
+                >
+                  {name}
+                </button>
+                // </Link>
               ))}
             </div>
           </div>

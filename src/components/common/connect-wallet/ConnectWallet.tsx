@@ -347,7 +347,7 @@ function ConnectWallet(
             }
           )
           if (
-            account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD' ||
+            account === '0xC5E0a590daDc2129f591f2a539829Dd69b02Aef5' ||
             user.insureProVerificationState === 'verified'
           ) {
             navigate('/kyc-application')

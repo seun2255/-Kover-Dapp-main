@@ -277,8 +277,8 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
         dispatch(closeAlert())
       }, 10000)
       setUserVerificationState('verifying')
-      // const updatedData = await getUserData(account)
-      // dispatch(updateUser({ data: updatedData }))
+      const updatedData = await getUserData(account)
+      dispatch(updateUser({ data: updatedData }))
       if (kycModal) {
         dispatch(displayKycModal({ display: false }))
       }

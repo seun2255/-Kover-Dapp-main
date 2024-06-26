@@ -9,15 +9,23 @@ export interface TableColumnsProps {
   }[]
 }
 
+interface column {
+  name: string
+  width: string
+}
+
 function TableColumns({ columns, tableId }: TableColumnsProps) {
   const [icon, seticon] = useState(-1)
   const [currentIcon, setcurrentIcon] = useState(-1)
   const totalItem = columns.length - 1
+
+  const displayedColumns = columns
+  displayedColumns.shift()
   return (
     <>
       <div className="hidden sm:flex gap-6 px-7 py-5">
         <span className="w-6 -mr-6 min-w-[1.5rem]" />
-        {columns.map(({ name, width }, index) => (
+        {displayedColumns.map(({ name, width }, index) => (
           <div
             key={index}
             className={`flex items-center gap-1 ${width}

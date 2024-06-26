@@ -20,6 +20,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { getClaimDataById } from '../../api'
 import { extractHash } from '../../utils/helpers'
 import CastAssesment from '../Welcome/membership/CastAssesment'
+import Popup from '../../components/templates/Popup'
+import AttachmentPreview from '../../components/common/AttachmentPreview/AttachmentPreview'
 
 function ClaimViewUser() {
   let navigate = useNavigate()
@@ -33,6 +35,8 @@ function ClaimViewUser() {
   const fileList = ['Id_back.png', 'Id_front.png', 'img 001.png', 'doc 002.pdf']
   const [isYes, setIsYes] = useState(false)
   const [icon, setIcon] = useState('')
+  const [popup, setPopup] = useState(false)
+  const togglePopup = () => setPopup((v) => !v)
 
   const options = [
     {
@@ -76,6 +80,10 @@ function ClaimViewUser() {
     } else {
       serZero(false)
     }
+  }
+
+  const handleReportClick = () => {
+    setPopup(true)
   }
 
   const handleSubmit = async () => {}
@@ -163,6 +171,8 @@ function ClaimViewUser() {
                               height={19}
                               width={19}
                               gap={2}
+                              button={true}
+                              handleClick={handleReportClick}
                             />
                           </div>
                         </div>
@@ -643,6 +653,13 @@ function ClaimViewUser() {
           </>
         )}
       </div>
+      <Popup visible={popup} onClose={togglePopup} maxWidth="max-w-[824px]">
+        <AttachmentPreview
+          attachmentName={claimdetails.report.name}
+          attachmentLink={claimdetails.report.link}
+          onClose={togglePopup}
+        />
+      </Popup>
     </>
   )
 }

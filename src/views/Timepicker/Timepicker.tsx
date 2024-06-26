@@ -76,6 +76,7 @@ function Timepicker({ onClose, setTime }: timePickerProps) {
                 onClose()
               }}
               onChange={(newValue: any) => {
+                setValue(newValue)
                 setTime(createTimeString(newValue))
               }}
               renderInput={(params: any) => <TextField {...params} />}

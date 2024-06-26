@@ -18,6 +18,7 @@ function InsurePro() {
   const { connected, verified, user } = useSelector((state: any) => state.user)
   const { account } = useWeb3React()
   const [kycVerified, setKycVerified] = useState(false)
+  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -34,6 +35,8 @@ function InsurePro() {
               account === adminAddress
             ) {
               navigate('/kyc-application')
+            } else {
+              setLoading(false)
             }
           }
         })
@@ -43,7 +46,9 @@ function InsurePro() {
     initiate()
   }, [account])
 
-  return (
+  return loading ? (
+    <></>
+  ) : (
     <div className="pb-5">
       <Header name="InsurePro" />
 

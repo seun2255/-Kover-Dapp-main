@@ -457,9 +457,21 @@ const getNotes = async (claimId: string) => {
   return details.notes
 }
 
+const getVotes = async (claimId: string) => {
+  var data: any = {}
+  const claimsData = await getDocs(collection(db, 'claims'))
+  claimsData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var details = data[claimId]
+  return details.votes
+}
+
 const createClaim = async (claimId: number) => {
   const claim = {
     notes: [],
+    votes: [],
   }
   var data: any = {}
   const claimData = await getDocs(collection(db, 'claims'))
@@ -497,6 +509,22 @@ const addNote = async (
   var temp = data[claimId]
   temp.notes.push(note)
   await setDoc(doc(db, 'claims', claimId), temp)
+}
+
+const addVote = async (claimId: any, details: any) => {
+  const vote = details
+  var data: any = {}
+  const claimsData = await getDocs(collection(db, 'claims'))
+
+  claimsData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+
+  var temp = data[claimId]
+  temp.votes.push(vote)
+  console.log(temp)
+  await setDoc(doc(db, 'claims', claimId.toString()), temp)
 }
 
 const applicationsUpdate = async () => {
@@ -537,6 +565,8 @@ export {
   updateCoverClaimState,
   getNotes,
   addNote,
+  getVotes,
+  addVote,
   createClaim,
   applicationsUpdate,
 }

@@ -4,6 +4,8 @@ import { UserContext } from '../../../App'
 import { approveKoverToStake, getTokenBalance } from '../../../api'
 import { useWeb3React } from '@web3-react/core'
 import { approvePoolToSpend } from '../../../api'
+import { useDispatch } from 'react-redux'
+import { openAlert, closeAlert } from '../../../redux/alerts'
 
 export interface InputMaxProps
   extends React.DetailedHTMLProps<
@@ -28,6 +30,8 @@ function InputMax({
   const [amount, setAmount] = useState(false)
   const [value, setValue] = useState('')
   const { account } = useWeb3React()
+  const dispatch = useDispatch()
+
   useEffect(() => {
     if (rest.defaultValue === '00.00' || '50.00') {
       setAmount(true)
@@ -59,10 +63,41 @@ function InputMax({
     if (poolName) {
       await approvePoolToSpend(poolName, parseInt(value))
       setAmountApproved(true)
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 1,
+            variant: 'Successful',
+            classname: 'text-black',
+            title: 'Amount Approved',
+            tag1: 'approved token use',
+            tag2: 'amount can now be deposited',
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
     } else if (isStake) {
       await approveKoverToStake(value)
       setAmountApproved(true)
-      console.log('Approved to Stake')
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 1,
+            variant: 'Successful',
+            classname: 'text-black',
+            title: 'Amount Approved',
+            tag1: 'approved token use',
+            tag2: 'amount can now be deposited',
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
     }
   }
 

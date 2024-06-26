@@ -760,7 +760,6 @@ const depositIntoPolicy = async (poolName: string, depositAmount: number) => {
   const policyContract = await getPolicyManagementContract(addresses.policy)
 
   const fee = ethers.parseEther(depositAmount.toString())
-  await approvePolicyManagement(poolName, fee)
 
   const tx = await policyContract.depositIntoPolicyBalance(fee)
   await tx.wait()

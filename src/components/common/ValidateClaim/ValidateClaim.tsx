@@ -26,6 +26,7 @@ import {
 import { useDispatch } from 'react-redux'
 import { openAlert, closeAlert } from '../../../redux/alerts'
 import { useWeb3React } from '@web3-react/core'
+import { addVote } from '../../../database'
 
 interface popupProps {
   onClose?: () => void
@@ -75,7 +76,24 @@ function ValidateClaim(
 
   const handleSubmit = async () => {
     if (type === 'validation') {
-      if (lockAmount === 0) {
+      if (account === claimDetails.address) {
+        dispatch(
+          openAlert({
+            displayAlert: true,
+            data: {
+              id: 2,
+              variant: 'Failed',
+              classname: 'text-black',
+              title: "Can't Vote",
+              tag1: "claimant can't vote on claim",
+              tag2: 'please wait for validation result',
+            },
+          })
+        )
+        setTimeout(() => {
+          dispatch(closeAlert())
+        }, 10000)
+      } else if (lockAmount === 0) {
         dispatch(
           openAlert({
             displayAlert: true,
@@ -134,6 +152,16 @@ function ValidateClaim(
           isYes,
           rating
         )
+        const vote = {
+          voter: account,
+          status: claimDetails.resultStatus,
+          id: claimDetails.claimId.toString(),
+          stage: claimDetails.stage,
+          claimAmount: claimDetails.estimatedLossAmount,
+          verdict: isYes,
+          finalVerdict: '----',
+        }
+        await addVote(claimDetails.claimId, vote)
         dispatch(
           openAlert({
             displayAlert: true,

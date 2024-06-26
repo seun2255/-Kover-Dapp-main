@@ -212,7 +212,7 @@ function InsureProCommunity(
             await createChatRoom('insure-pro', 'NG', userId as number, {
               [account as string]: formData.firstName,
               // eslint-disable-next-line no-useless-computed-key
-              ['0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD']: 'Admin',
+              ['0xC5E0a590daDc2129f591f2a539829Dd69b02Aef5']: 'Admin',
             })
             await updateInsureProVerificationState(account, 'verifying')
             await applicationsUpdate()

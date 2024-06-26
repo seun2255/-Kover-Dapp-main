@@ -151,6 +151,10 @@ function Staking() {
     },
   }
 
+  // const stakingPools = [
+  //   {name: "KVER Pool", interestRate: '10%', date: '2022/06/01 10:26:20'}
+  // ]
+
   const validatorTable: TableProps = {
     options: [{ name: 'Deposit' }, { name: 'Withdraw' }],
     columns: [

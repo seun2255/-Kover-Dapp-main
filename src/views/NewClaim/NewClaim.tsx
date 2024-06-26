@@ -383,8 +383,9 @@ function NewClaim() {
                     <span>$</span>
                     <input
                       type="text"
+                      color="white"
                       placeholder="e.g. 5000"
-                      className="w-full placeholder:text-dark-650 placeholder:text dark:bg-light-800"
+                      className="w-full text-white placeholder:text-dark-650"
                       name="estimatedLossAmount"
                       onChange={handleChange}
                     />

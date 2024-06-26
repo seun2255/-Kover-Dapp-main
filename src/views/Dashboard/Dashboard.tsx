@@ -31,6 +31,8 @@ import { getUser } from '../../tableland'
 import axios from 'axios'
 import { useDispatch } from 'react-redux'
 import { openAlert, closeAlert } from '../../redux/alerts'
+import TableOptions from '../../components/common/Table/TableOptions/TableOptions'
+import { getVotes } from '../../database'
 
 function Dashboard() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
@@ -54,6 +56,7 @@ function Dashboard() {
   const [popup, setPopup] = useState<PopConfirmProps | null>(null)
   const [covers, setCovers] = useState<any[]>([])
   const [claims, setClaims] = useState<any[]>([])
+  const [votes, setVotes] = useState<any[]>([])
   const dispatch = useDispatch()
 
   const popupHandle = (data: any) => {
@@ -69,6 +72,7 @@ function Dashboard() {
       const covers = await get_covers('NG')
       const axiosRequestsCovers = covers.map(async (cover) => {
         if (cover.address === account.toLowerCase()) {
+          console.log('Here')
           const user = await getUser(cover.address)
           const response = await axios.get(user.data as string)
           var result = response.data
@@ -82,13 +86,15 @@ function Dashboard() {
           return result
         }
       })
-      const allCovers = await Promise.all(axiosRequestsCovers)
+      var allCovers = await Promise.all(axiosRequestsCovers)
+      if (allCovers[0] === undefined) allCovers = []
       setCovers(allCovers)
       // })
 
       // fetch('https://ipinfo.io/json')
       //   .then((response) => response.json())
       //   .then(async (data) => {
+      const everyClaim: any = []
       const claims = await get_claims('NG')
       const axiosRequests = claims.map(async (claim) => {
         const user = await getUser(claim.address)
@@ -102,13 +108,34 @@ function Dashboard() {
           ...claim_details,
           userData: user.data,
         }
-        return result
+        everyClaim.push(result)
+        if (claim.address === account.toLowerCase()) {
+          return result
+        }
       })
-      const allClaims = await Promise.all(axiosRequests)
-      console.log('Claims: ', allClaims)
+      var allClaims = await Promise.all(axiosRequests)
+      if (allClaims[0] === undefined) allClaims = []
       setClaims(allClaims)
       // })
+
+      const myVotes: any[] = []
+      everyClaim.map(async (claim: any) => {
+        const allVotes = await getVotes(claim.claimId)
+        console.log('ALL VOTES: ', allVotes)
+        console.log(account)
+        allVotes.map((vote: any) => {
+          if (vote.voter === account) {
+            myVotes.push(vote)
+          }
+        })
+        console.log('Votes: ', myVotes)
+        setVotes(myVotes)
+      })
     }
+  }
+
+  function capitalizeFirstLetter(inputString: any) {
+    return inputString.charAt(0).toUpperCase() + inputString.slice(1)
   }
 
   const checkClaim = (application: any) => {
@@ -151,6 +178,10 @@ function Dashboard() {
     data: covers,
     columns: [
       {
+        name: '',
+        width: '',
+      },
+      {
         name: 'NAME',
         width: 'w-[16%] ',
       },
@@ -177,6 +208,9 @@ function Dashboard() {
     ],
     rows: covers.map((cover, index) => {
       return [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions options={[{ name: 'Claim' }, { name: 'Pause' }]} />
+        </div>,
         <CarInsurance />,
         <Status type="Active" text="Active" />,
         <span className="prp dark:prp-dark">80%</span>,
@@ -208,6 +242,10 @@ function Dashboard() {
     options: [{ name: 'Claim' }, { name: 'Appeal' }],
     columns: [
       {
+        name: '',
+        width: '',
+      },
+      {
         name: 'POLICY TYPE',
         width: 'w-[16%]',
       },
@@ -238,6 +276,9 @@ function Dashboard() {
     ],
     rows: claims.map((application: any, index: number) => {
       return [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions options={[{ name: 'Claim' }, { name: 'Appeal' }]} />
+        </div>,
         <CarInsurance />,
         <Status type="Active" />,
         <span>{application.claimId}</span>,
@@ -273,6 +314,10 @@ function Dashboard() {
     options: [{ name: 'Deposit' }, { name: 'Withdraw' }],
     columns: [
       {
+        name: '',
+        width: '',
+      },
+      {
         name: 'NAME',
         width: 'w-[16%]',
       },
@@ -299,6 +344,9 @@ function Dashboard() {
     ],
     rows: [
       [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions options={[{ name: 'Deposit' }, { name: 'Withdraw' }]} />
+        </div>,
         <CarInsurance />,
         <Status type="Active" />,
         <span>10%</span>,
@@ -354,6 +402,10 @@ function Dashboard() {
     options: [{ name: 'Hide' }, { name: 'Rewards' }],
     columns: [
       {
+        name: '',
+        width: '',
+      },
+      {
         name: 'POLICY TYPE',
         width: 'w-[16%]',
       },
@@ -386,15 +438,18 @@ function Dashboard() {
         width: 'w-[9%]',
       },
     ],
-    rows: [
-      [
+    rows: votes.map((vote: any, index: number) => {
+      return [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions options={[{ name: 'Hide' }, { name: 'Rewards' }]} />
+        </div>,
         <CarInsurance />,
-        <Status type="Accepted" />,
-        <span>10</span>,
-        <span>Payout</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <span>No</span>,
-        <span>Yes</span>,
+        <Status type={vote.status === 'rejected' ? 'Declined' : 'Accepted'} />,
+        <span>{vote.id}</span>,
+        <span>{vote.stage}</span>,
+        <LargeText primary={vote.claimAmount} secondary="USDC" />,
+        <span>{vote.verdict ? 'Yes' : 'No'}</span>,
+        <span>{vote.finalVerdict}</span>,
         <div>
           <Button
             to="/new-claim"
@@ -408,60 +463,18 @@ function Dashboard() {
             }
           />
         </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Declined" />,
-        <span>10</span>,
-        <span>Appeal</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <span>No</span>,
-        <span>No</span>,
-        <div>
-          <Button
-            to="/new-claim"
-            className=" dark:bg-white dark:box-border"
-            text="View"
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-            btnText="table-action"
-            color={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-          />
-        </div>,
-      ],
-      [
-        <CarInsurance />,
-        <Status type="Ongoing" />,
-        <span>10</span>,
-        <span>Vote</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <span>Yes</span>,
-        <span>----</span>,
-        <div>
-          <Button
-            to="/new-claim"
-            className=" dark:bg-white dark:box-border"
-            text="View"
-            endIcon={
-              theme === 'dark'
-                ? '/images/light-btn-icon.svg'
-                : '/images/dark-btn-icon.svg'
-            }
-            btnText="table-action"
-            color={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-          />
-        </div>,
-      ],
-    ],
+      ]
+    }),
   }
 
   const WithdrawalRequests: TableProps = {
     tabs: tabs,
     options: [{ name: 'Cancel' }, { name: 'Claim' }],
     columns: [
+      {
+        name: '',
+        width: '',
+      },
       {
         name: 'NAME',
         width: 'w-[16%]',
@@ -489,6 +502,9 @@ function Dashboard() {
     ],
     rows: [
       [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions options={[{ name: 'Cancel' }, { name: 'Claim' }]} />
+        </div>,
         <CarInsurance />,
         <Status type="Active" text="Withdrawn" />,
         <span>2022/06/01 10:26:20</span>,

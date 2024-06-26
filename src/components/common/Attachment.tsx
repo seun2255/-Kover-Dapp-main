@@ -11,6 +11,7 @@ interface AttachmentProps {
   gap?: Number
   className?: string
   button?: boolean
+  handleClick?: () => void
 }
 
 function Attachment({
@@ -23,6 +24,7 @@ function Attachment({
   gap,
   className,
   button,
+  handleClick,
 }: AttachmentProps) {
   const { theme } = React.useContext(UserContext)
   return (
@@ -34,6 +36,7 @@ function Attachment({
               fullWidth ? 'flex' : 'inline-flex'
             } justify-between gap-${gap || 4}`}
             role={button ? 'button' : ''}
+            onClick={handleClick}
           >
             <div className="flex gap-[10px]">
               <img
@@ -42,15 +45,15 @@ function Attachment({
                 src={icon}
                 alt=""
               />
-              <Link to="/">
-                <span
-                  className={`basis-1/2 flex-grow ${
-                    className || 'font-medium text-lg'
-                  }`}
-                >
-                  {name}
-                </span>
-              </Link>
+              {/* <Link to="/"> */}
+              <span
+                className={`basis-1/2 flex-grow ${
+                  className || 'font-medium text-lg'
+                }`}
+              >
+                {name}
+              </span>
+              {/* </Link> */}
             </div>
             <img
               src={status}

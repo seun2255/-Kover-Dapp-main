@@ -24,7 +24,7 @@ function TableRows({
   data,
   title,
 }: TableRowsProps) {
-  const totalItem = columns.length - 1
+  const totalItem = columns.length - 2
   const { theme } = React.useContext(UserContext)
   const [claimSwitch, setClaimSwitch] = useState([
     {
@@ -98,11 +98,7 @@ function TableRows({
                 {claimSwitch.map((item, index) => (
                   <div className="flex items-center gap-6 py-5 rounded dark:box-border bg-dark-800 px-7 dark:text-dark-800 dark:text-primary-100 dark:bg-white general-box-border">
                     <div className="">
-                      <TableOptions
-                        options={options}
-                        data={data[index]}
-                        index={data[index].id}
-                      />
+                      <TableOptions options={options} />
                     </div>
 
                     <div className={columns[0].width}> {item.carInsurance}</div>
@@ -190,24 +186,19 @@ function TableRows({
                     key={index}
                     className="flex items-center gap-6 py-5 rounded bg-dark-800 px-7 dark:text-dark-800 dark:text-primary-100 dark:bg-white dark:box-border general-box-border"
                   >
-                    <div className="w-6 -mr-6 min-w-[1.5rem]">
+                    {/* <div className="w-6 -mr-6 min-w-[1.5rem]">
                       {options.length > 0 ? (
                         <>
-                          <TableOptions
-                            options={options}
-                            title={title}
-                            data={data[index]}
-                            index={data[index].id}
-                          />
+                          <TableOptions options={options} />
                         </>
                       ) : (
                         <> </>
                       )}
-                    </div>
+                    </div> */}
                     {rowDatam.map((value, index) => (
                       <div
                         key={index}
-                        className={`${columns[index]?.width}
+                        className={`${columns[index - 1]?.width}
                ${
                  tableId === 3
                    ? `${

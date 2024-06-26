@@ -20,6 +20,8 @@ import CastVoteWallet from '../Welcome/membership/CastVoteWallet'
 import { getClaimDataById, getClaimValidationData } from '../../api'
 import { extractHash } from '../../utils/helpers'
 import { useWeb3React } from '@web3-react/core'
+import Popup from '../../components/templates/Popup'
+import AttachmentPreview from '../../components/common/AttachmentPreview/AttachmentPreview'
 
 function shortenAddress(address: string) {
   const firstPart = address.slice(0, 8)
@@ -47,6 +49,8 @@ function ClaimAssessment() {
   }
   let { claimId } = useParams()
   const [validationData, setValidationData] = useState<any>({})
+  const [popup, setPopup] = useState(false)
+  const togglePopup = () => setPopup((v) => !v)
 
   const getRecommendation = (status: string) => {
     if (status === 'approved') {
@@ -56,6 +60,10 @@ function ClaimAssessment() {
     } else {
       return 'Pending'
     }
+  }
+
+  const handleReportClick = () => {
+    setPopup(true)
   }
 
   const handleSubmit = async () => {
@@ -308,6 +316,8 @@ function ClaimAssessment() {
                           height={19}
                           width={19}
                           gap={2}
+                          button={true}
+                          handleClick={handleReportClick}
                         />
                       </div>
                     </div>
@@ -562,6 +572,8 @@ function ClaimAssessment() {
                             height={19}
                             width={19}
                             gap={2}
+                            button={true}
+                            handleClick={handleReportClick}
                           />
                         </div>
                       </div>
@@ -920,6 +932,13 @@ function ClaimAssessment() {
           </div>
         </>
       )}
+      <Popup visible={popup} onClose={togglePopup} maxWidth="max-w-[824px]">
+        <AttachmentPreview
+          attachmentName={claimdetails.report.name}
+          attachmentLink={claimdetails.report.link}
+          onClose={togglePopup}
+        />
+      </Popup>
     </div>
   )
 }

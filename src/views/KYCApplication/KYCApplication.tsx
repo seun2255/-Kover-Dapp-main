@@ -65,6 +65,7 @@ import CountdownTimer from '../../components/common/CountdownTimer'
 import { getUser } from '../../tableland'
 import { doc, onSnapshot, getDocs, collection } from 'firebase/firestore'
 import { db } from '../../database'
+import TableOptions from '../../components/common/Table/TableOptions/TableOptions'
 
 function KYCApplication() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
@@ -265,10 +266,11 @@ function KYCApplication() {
     const unsub = onSnapshot(
       doc(db, 'realtime', 'applications'),
       (doc: any) => {
+        console.log('This Ran!!!!!')
         getData()
       }
     )
-    if (account && account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD') {
+    if (account && account === '0xC5E0a590daDc2129f591f2a539829Dd69b02Aef5') {
       setIsAdmin(true)
     }
   }, [])
@@ -358,6 +360,10 @@ function KYCApplication() {
       : [{ name: 'Chat' }, { name: 'Profile' }],
     columns: [
       {
+        name: '',
+        width: '',
+      },
+      {
         name: 'LEGAL NAME',
         width: 'w-[16%] ',
       },
@@ -384,6 +390,15 @@ function KYCApplication() {
     ],
     rows: membershipApplications.map((application: any, index: any) => {
       return [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions
+            options={
+              isAdmin
+                ? [{ name: 'Revert', action: revert }, { name: 'Cancel' }]
+                : [{ name: 'Chat' }, { name: 'Profile' }]
+            }
+          />
+        </div>,
         <Link
           to={
             application.reviewer === account ||
@@ -696,6 +711,10 @@ function KYCApplication() {
     options: [{ name: 'Deactivate' }, { name: 'Profile' }],
     columns: [
       {
+        name: '',
+        width: '',
+      },
+      {
         name: 'LEGAL NAME',
         width: 'w-[16%]',
       },
@@ -722,6 +741,11 @@ function KYCApplication() {
     ],
     rows: reviewerApplications.map((application: any, index: number) => {
       return [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions
+            options={[{ name: 'Deactivate' }, { name: 'Profile' }]}
+          />
+        </div>,
         <Link
           to={
             application.address === account || isAdmin
@@ -831,6 +855,10 @@ function KYCApplication() {
     options: [{ name: 'Revert' }, { name: 'Cancel' }],
     columns: [
       {
+        name: '',
+        width: '',
+      },
+      {
         name: 'LEGAL NAME',
         width: 'w-[16%] ',
       },
@@ -857,6 +885,15 @@ function KYCApplication() {
     ],
     rows: policyApplications.map((application: any, index: number) => {
       return [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions
+            options={
+              isAdmin
+                ? [{ name: 'Revert', action: revert }, { name: 'Cancel' }]
+                : [{ name: 'Chat' }, { name: 'Profile' }]
+            }
+          />
+        </div>,
         <Link
           to={
             // application.reviewer === account ||
@@ -1173,6 +1210,10 @@ function KYCApplication() {
     data: claimApplications,
     columns: [
       {
+        name: '',
+        width: '',
+      },
+      {
         name: 'POLICY TYPE',
         width: 'w-[16%]',
       },
@@ -1203,6 +1244,9 @@ function KYCApplication() {
     ],
     rows: claimApplications.map((application: any, index: number) => {
       return [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions options={[{ name: 'Hide' }, { name: 'Rewards' }]} />
+        </div>,
         <CarInsurance />,
         <Status type="Active" />,
         <span>{application.claimId}</span>,

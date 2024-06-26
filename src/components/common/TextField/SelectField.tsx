@@ -42,7 +42,6 @@ function SelectField({
 
   // Generic change handler for all inputs
   const handleSelect = (title: string, value: any) => {
-    console.log('name: ', name, ' value: ', value)
     if (
       (name === 'dob' || name === 'eventDate') &&
       typeof handleDobChange === 'function'
