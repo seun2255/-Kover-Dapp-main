@@ -1041,6 +1041,38 @@ const stake = async (amount: number, network?: string) => {
   return createTransactionLink(txStake.hash)
 }
 
+const getUsersStake = async (user: string) => {
+  const stakingPoolContract = await getStakingPoolContract()
+
+  const stakedAmount = await stakingPoolContract.stakes(user)
+  const stakedAmountEther = ethers.formatEther(stakedAmount)
+
+  var timestamp = await stakingPoolContract.stake_rewards_initiation_timestamp(
+    user
+  )
+  timestamp = Number(timestamp)
+
+  // Convert the timestamp to milliseconds
+  const date = new Date(timestamp * 1000)
+
+  // Function to pad single digit numbers with a leading zero
+  const pad = (num: number) => (num < 10 ? '0' : '') + num
+
+  // Extract the date components
+  const year = date.getFullYear()
+  const month = pad(date.getMonth() + 1) // Months are zero-based in JS
+  const day = pad(date.getDate())
+
+  const hours = pad(date.getHours())
+  const minutes = pad(date.getMinutes())
+  const seconds = pad(date.getSeconds())
+
+  // Construct the formatted date string
+  const formattedDate = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`
+
+  return { amount: stakedAmountEther, date: formattedDate }
+}
+
 const approveKoverToStake = async (amount: string) => {
   const stakeEther = ethers.parseEther(amount)
   await approveStakingContract(stakeEther)
@@ -1100,4 +1132,5 @@ export {
   getStakeBalance,
   getAdminAddress,
   getPolicyBalance,
+  getUsersStake,
 }

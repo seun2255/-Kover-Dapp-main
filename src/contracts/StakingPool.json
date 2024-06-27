@@ -225,7 +225,13 @@
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
       "name": "stake_rewards_initiation_timestamp",
       "outputs": [
         {

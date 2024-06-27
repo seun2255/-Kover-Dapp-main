@@ -37,6 +37,7 @@ interface CommonPopConfirmProps {
   defaultTab?: number
   coverDetails?: any
   data?: string
+  action: any
 }
 
 interface GlobalProps {
@@ -97,7 +98,7 @@ const table = {
 export type PopConfirmProps = CommonPopConfirmProps & (NormalProps | TabProps)
 function StakingPopup(props: PopConfirmProps) {
   const { theme } = React.useContext(UserContext)
-  var { datam, title, onClose, defaultTab } = props
+  var { datam, title, onClose, defaultTab, action } = props
   const [id, setId] = useState(6)
   const [tab, setTab] = useState<number>(defaultTab || 0)
   const titleClassNameDark = 'summary-dark-title'
@@ -144,6 +145,7 @@ function StakingPopup(props: PopConfirmProps) {
   const handleStake = async () => {
     const hash = await stake(depositAmount)
     await getData()
+    await action()
     dispatch(
       openAlert({
         displayAlert: true,
@@ -158,6 +160,7 @@ function StakingPopup(props: PopConfirmProps) {
         },
       })
     )
+    onClose?.()
     setTimeout(() => {
       dispatch(closeAlert())
     }, 10000)

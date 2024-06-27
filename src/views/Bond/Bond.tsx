@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import CoverCard from '../../components/common/cards/StatusCard/StatusCard'
 import FilterTabs from '../../components/common/FilterTabs'
 import Header from '../../components/common/header/Header'
@@ -11,16 +11,27 @@ import { UserContext } from '../../App'
 import useWindowDimensions from '../../../src/components/global/UserInform/useWindowDimensions'
 import Drawer from 'react-modern-drawer'
 import Card from '../../components/common/cards/StatusCard/Card'
+import { getPools } from '../../api'
 function Bond() {
   const { width } = useWindowDimensions()
   const { theme } = React.useContext(UserContext)
   const [selectItem, setselectItem] = useState()
-
-  const [bondPopup, serbondPopup] = useState(false)
+  const [bondPopup, setbondPopup] = useState(false)
+  const [pools, setPools] = useState<any>([])
 
   const handlerLink = (item: any) => {
     setselectItem(item)
   }
+
+  const getData = async () => {
+    // const pools = await getPools()
+    // console.log(pools)
+    setPools(['Car Insurance'])
+  }
+
+  useEffect(() => {
+    getData()
+  }, [])
 
   const coverCard = {
     id: 2,
@@ -346,7 +357,12 @@ function Bond() {
         </div>
       </Drawer>
       <Popup maxWidth="max-w-[860px]" onClose={toggleSelect} visible={select}>
-        <PopConfirm onClose={toggleSelect} {...selectBond} />
+        <PopConfirm
+          onClose={toggleSelect}
+          {...selectBond}
+          coverDetails={{ status: '', poolName: 'Car Insurance' }}
+          id={2}
+        />
       </Popup>
     </div>
   )

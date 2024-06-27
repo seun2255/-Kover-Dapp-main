@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../../components/common/Button'
 import FilterTabs from '../../components/common/FilterTabs'
@@ -20,6 +20,9 @@ import ClaimsCard from '../../components/common/cards/ClaimsCard'
 import Pagination from '../../components/common/Pagination'
 import Drawer from 'react-modern-drawer'
 import StakingPopup from './StakePopup'
+import TableOptions from '../../components/common/Table/TableOptions/TableOptions'
+import { getUsersStake } from '../../api'
+import { useWeb3React } from '@web3-react/core'
 
 function Staking() {
   const [select, setSelect] = useState(false)
@@ -38,6 +41,68 @@ function Staking() {
   const handlerLink = (item: any) => {
     setselectItem(item)
   }
+  const { account } = useWeb3React()
+  const [stakingPools, setStakingPools] = useState<any[]>([])
+
+  const stakingPoolsDetails = [
+    {
+      name: 'KVER Pool',
+      interestRate: '10%',
+      entryDate: '------------------',
+      capital: '0',
+      action: 'Stake',
+      active: true,
+      iconLight: '/images/light-diamond.svg',
+      iconDark: '/images/logo-start.svg',
+    },
+    {
+      name: 'KVER Pool',
+      interestRate: '10%',
+      entryDate: '------------------',
+      capital: '0',
+      action: 'Stake',
+      active: false,
+      iconLight: '/images/58.svg',
+      iconDark: '/images/59.svg',
+    },
+    {
+      name: 'KVER Pool',
+      interestRate: '10%',
+      entryDate: '------------------',
+      capital: '0',
+      action: 'Stake',
+      active: false,
+      iconLight: '/images/light-diamond.svg',
+      iconDark: '/images/logo-start.svg',
+    },
+    {
+      name: 'KVER Pool',
+      interestRate: '10%',
+      entryDate: '------------------',
+      capital: '0',
+      action: 'Stake',
+      active: false,
+      iconLight: '/images/58.svg',
+      iconDark: '/images/59.svg',
+    },
+  ]
+
+  const getData = async () => {
+    const stake = await getUsersStake(account as string)
+
+    if (stake.amount !== '0.0') {
+      stakingPoolsDetails[0].capital = stake.amount
+      stakingPoolsDetails[0].entryDate = stake.date
+      stakingPoolsDetails[0].active = false
+      stakingPoolsDetails[0].action = 'Unstake'
+    }
+
+    setStakingPools(stakingPoolsDetails)
+  }
+
+  useEffect(() => {
+    getData()
+  }, [])
 
   const stakePopup: PopConfirmProps = {
     id: 4,
@@ -151,13 +216,13 @@ function Staking() {
     },
   }
 
-  // const stakingPools = [
-  //   {name: "KVER Pool", interestRate: '10%', date: '2022/06/01 10:26:20'}
-  // ]
-
   const validatorTable: TableProps = {
     options: [{ name: 'Deposit' }, { name: 'Withdraw' }],
     columns: [
+      {
+        name: '',
+        width: '',
+      },
       {
         name: 'NAME',
         width: 'w-[16%]',
@@ -183,128 +248,52 @@ function Staking() {
         width: 'w-[9%]',
       },
     ],
-    rows: [
-      [
-        <CarInsurance
-          text="KVER Pool"
-          icon={
-            theme === 'dark'
-              ? '/images/logo-start.svg'
-              : '/images/logo-start.svg'
-          }
-        />,
-        <img
-          src={
-            theme === 'dark'
-              ? '/images/dark-diamond.svg'
-              : '/images/light-diamond.svg'
-          }
-          alt=""
-        />,
-        <span>10%</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            className="gap-2.5 dark:bg-white dark:box-border w-[120px]"
-            text="Stake"
-            endIcon={theme === 'dark' ? '/images/62.svg' : '/images/61.svg'}
-            onClick={toggleStake}
-            color={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            btnText="stake"
-          />
+    rows: stakingPools.map((pool: any, index: number) => {
+      return [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions options={[{ name: 'Deposit' }, { name: 'Withdraw' }]} />
         </div>,
-      ],
-      [
         <CarInsurance
-          text="KVER Pool"
+          text={pool.name}
           icon={
             theme === 'dark'
               ? '/images/logo-start.svg'
               : '/images/logo-start.svg'
           }
         />,
-        <img
-          src={theme === 'dark' ? '/images/59.svg' : '/images/58.svg'}
-          alt=""
-        />,
-        <span>10%</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
+        <img src={theme === 'dark' ? pool.iconDark : pool.iconLight} alt="" />,
+        <span>{pool.interestRate}</span>,
+        <span>{pool.entryDate}</span>,
+        <LargeText primary={pool.capital} secondary="USDC" />,
         <div>
           <Button
             className="gap-2.5 dark:bg-white dark:box-border w-[120px]"
-            text="Unstake"
-            endIcon={theme === 'dark' ? '/images/63.svg' : '/images/64.svg'}
-            onClick={toggleStake}
-            color={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            btnText="stake"
-          />
-        </div>,
-      ],
-      [
-        <CarInsurance
-          text="KVER Pool"
-          icon={
-            theme === 'dark'
-              ? '/images/logo-start.svg'
-              : '/images/logo-start.svg'
-          }
-        />,
-        <img
-          src={
-            theme === 'dark'
-              ? '/images/dark-diamond.svg'
-              : '/images/light-diamond.svg'
-          }
-          alt=""
-        />,
-        <span>10%</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            className="gap-2.5 dark:bg-white dark:box-border w-[120px]"
-            text="Stake"
-            endIcon={theme === 'dark' ? '/images/62.svg' : '/images/61.svg'}
-            onClick={toggleStake}
-            color={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
-            btnText="stake"
-          />
-        </div>,
-      ],
-      [
-        <CarInsurance
-          text="KVER Pool"
-          icon={
-            theme === 'dark'
-              ? '/images/logo-start.svg'
-              : '/images/logo-start.svg'
-          }
-        />,
-        <img
-          src={theme === 'dark' ? '/images/59.svg' : '/images/58.svg'}
-          alt=""
-        />,
-        <span>10%</span>,
-        <span>2022/06/01 10:26:20</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
-        <div>
-          <Button
-            className="gap-2.5 dark:bg-white dark:box-border w-[120px]"
-            text="Unstake"
+            text={pool.action}
             endIcon={
-              theme === 'dark'
+              pool.action === 'Stake'
+                ? theme === 'dark'
+                  ? '/images/62.svg'
+                  : '/images/61.svg'
+                : theme === 'dark'
                 ? '/images/63.svg'
                 : '/images/grey-ok-circle-btn.svg'
             }
             onClick={toggleStake}
-            btnText="stake text-[#78797E]"
-            color={theme === 'dark' ? 'whiteBgBtn' : 'grey-gradient'}
+            color={
+              pool.action === 'Stake' && pool.active === true
+                ? theme === 'dark'
+                  ? 'whiteBgBtn'
+                  : 'greenGradient'
+                : theme === 'dark'
+                ? 'whiteBgBtn'
+                : 'grey-gradient'
+            }
+            disabled={!pool.active}
+            btnText="stake"
           />
         </div>,
-      ],
-    ],
+      ]
+    }),
   }
 
   return (
@@ -379,6 +368,7 @@ function Staking() {
           defaultTab={stake === 2 ? 1 : 0}
           onClose={toggleStake}
           {...stakePopup}
+          action={getData}
         />
       </Popup>
     </div>

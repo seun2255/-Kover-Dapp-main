@@ -26,9 +26,13 @@ function Welcome() {
       getUserDetails(account).then((user) => {
         if (user) {
           setUserVerificationState(user.kycVerificationState)
-          if (user.kycVerificationState === 'verified') {
+          if (user.insureProVerificationState === 'verified') {
             navigate('/kyc-application')
           }
+          // Add this later
+          // else if (user.kycVerificationState === 'verified') {
+          //   navigate('/dashboard')
+          // }
         }
       })
     }
