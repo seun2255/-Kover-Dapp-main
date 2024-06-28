@@ -50,12 +50,12 @@ function RiskPoolMnagamentHome() {
               </div>
               <SelectField
                 label="Admin Address"
-                placeholder="e.g. 0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2"
+                placeholder="e.g. 0xC5E0a590daDc2129f591f2a539829Dd69b02Aef5"
               />
               <TextField
                 label="Risk Module Address"
                 field="$"
-                placeholder="e.g. 0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2"
+                placeholder="e.g. 0xC5E0a590daDc2129f591f2a539829Dd69b02Aef5"
                 outline={true}
                 classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
               />

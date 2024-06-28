@@ -266,11 +266,10 @@ function KYCApplication() {
     const unsub = onSnapshot(
       doc(db, 'realtime', 'applications'),
       (doc: any) => {
-        console.log('This Ran!!!!!')
         getData()
       }
     )
-    if (account && account === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2') {
+    if (account && account === '0xC5E0a590daDc2129f591f2a539829Dd69b02Aef5') {
       setIsAdmin(true)
     }
   }, [])
