@@ -29,7 +29,9 @@ function Insurance() {
 
   useEffect(() => {
     const getData = async () => {
+      console.log('This started running in Insurance')
       const poolnames = await getPools()
+      console.log('Pool Names: ', poolnames)
       setPools(poolnames)
     }
 

@@ -388,9 +388,11 @@ const concludeInsureproApplication = async (
   isApproved: boolean,
   poolName?: string
 ) => {
+  console.log('Started running')
   const contract = await getReviewerContract()
 
   if (type === 'KYC Reviewer') {
+    ;('running KYC Reviewer')
     const tx = await contract.conclude_KYC_reviewer_application(
       address,
       region,
@@ -399,6 +401,7 @@ const concludeInsureproApplication = async (
     await tx.wait()
     return createTransactionLink(tx.hash)
   } else if (type === 'Policy Reviewer') {
+    ;('running Policy Reviewer')
     const tx = await contract.conclude_policy_reviewer_application(
       poolName,
       address,
@@ -407,6 +410,7 @@ const concludeInsureproApplication = async (
     await tx.wait()
     return createTransactionLink(tx.hash)
   } else {
+    ;('running Adjustor Reviewer')
     const tx = await contract.conclude_adjustor_application(
       poolName,
       address,
