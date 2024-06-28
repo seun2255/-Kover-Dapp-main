@@ -60,12 +60,16 @@ function Profile() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
   const [selectedDocument, setSelectedDocument] = useState(
-    applicant.documents[0]
+    user.documents[0]
+      ? user.documents[0]
+      : { name: 'Danny.png', link: 'http://something' }
   )
   const [documentsDisplayed, setDocumentsDisplayed] = useState(
-    applicant.documents
+    applicant.documents ? applicant.documents : []
   )
   const originalFilesLength = applicant.documents.length
+    ? applicant.documents.length
+    : 0
 
   const handleDobChange = (value: any) => {
     const dateString = createDateString(value)
@@ -76,7 +80,6 @@ function Profile() {
   }
 
   useEffect(() => {
-    console.log('User got updated, Value: ', user)
     setApplicant(user)
     setDocumentsDisplayed(user.documents)
     setSelectedFiles([])

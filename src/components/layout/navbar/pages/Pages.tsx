@@ -50,12 +50,6 @@ function Pages() {
               <Link
                 to={activeLink}
                 onClick={() => {
-                  console.log(account)
-                  console.log(
-                    connected &&
-                      user.kycVerificationState === 'unverified' &&
-                      account !== '0xC5E0a590daDc2129f591f2a539829Dd69b02Aef5'
-                  )
                   connected &&
                   user.kycVerificationState === 'unverified' &&
                   account !== '0xC5E0a590daDc2129f591f2a539829Dd69b02Aef5'

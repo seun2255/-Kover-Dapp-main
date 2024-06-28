@@ -344,6 +344,10 @@ function ConnectWallet(
                   data: { ...data, ...doc.data() },
                 })
               )
+              var tempData = { ...data, ...doc.data() }
+              if (tempData.insureProVerificationState === 'verified') {
+                navigate('/kyc-application')
+              }
             }
           )
           if (
