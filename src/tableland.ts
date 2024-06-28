@@ -10,7 +10,7 @@ const claimsTableName = 'kover_finance_421614_830'
 //Localhost
 // const usersTableName = ' kover_finance_31337_2'
 // const coversTableName = 'kover_finance_31337_3'
-// const claimsTableName = 'kover_finance_31337_4'
+// const claimsTableName = 'kover_finance_31337_5'
 
 const createTable = async (signer: any) => {
   const db = new Database({ signer })
