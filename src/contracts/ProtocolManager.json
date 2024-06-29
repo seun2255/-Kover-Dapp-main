@@ -1271,6 +1271,19 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_admin_address",
+          "type": "address"
+        }
+      ],
+      "name": "set_admin_address",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "string",
           "name": "_pool_name",
           "type": "string"
