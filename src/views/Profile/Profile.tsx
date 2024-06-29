@@ -60,7 +60,7 @@ function Profile() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
   const [selectedDocument, setSelectedDocument] = useState(
-    user.documents[0]
+    user.documents
       ? user.documents[0]
       : { name: 'Danny.png', link: 'http://something' }
   )
