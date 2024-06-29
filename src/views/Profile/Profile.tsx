@@ -67,7 +67,7 @@ function Profile() {
   const [documentsDisplayed, setDocumentsDisplayed] = useState(
     applicant.documents ? applicant.documents : []
   )
-  const originalFilesLength = applicant.documents.length
+  const originalFilesLength = applicant.documents
     ? applicant.documents.length
     : 0
 
