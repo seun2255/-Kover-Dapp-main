@@ -9,7 +9,7 @@ import Web3 from 'web3'
 import { EthereumProvider } from '@walletconnect/ethereum-provider'
 import { useSelector, useDispatch } from 'react-redux'
 import { login, updateUser } from '../../../redux/user'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { getUser } from '../../../tableland'
 import { doc, onSnapshot, getDocs, collection } from 'firebase/firestore'
 import {
@@ -275,6 +275,7 @@ function ConnectWallet(
   const [newNetwork, setNetwork] = useState({})
   const [newChainId, setNewChainId] = useState('')
   const [title, setTitle] = useState(true)
+  const location = useLocation()
 
   useEffect(() => {
     const storedSignature = localStorage.getItem('signature')
@@ -345,7 +346,10 @@ function ConnectWallet(
                 })
               )
               var tempData = { ...data, ...doc.data() }
-              if (tempData.insureProVerificationState === 'verified') {
+              if (
+                tempData.insureProVerificationState === 'verified' &&
+                location.pathname === '/insure-pro'
+              ) {
                 navigate('/kyc-application')
               }
             }

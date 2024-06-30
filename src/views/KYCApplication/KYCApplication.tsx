@@ -44,6 +44,7 @@ import {
   getClaimData,
   assignClaimApplication,
   isPoolAdjustor,
+  is_kyc_reviewer,
 } from '../../api'
 import axios from 'axios'
 import { addContractState, addKycReviewerState } from '../../utils/helpers'
@@ -305,6 +306,34 @@ function KYCApplication() {
               workfield === 'KYC Reviewer'
                 ? 'Only Admin can asses application'
                 : 'Only Pool Operator can asses application',
+            tag2: 'dont have the authority to review',
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+      return false
+    } else {
+      return true
+    }
+  }
+
+  const canReviewKyc = async () => {
+    const isReviewer = await is_kyc_reviewer('NG')
+    if (
+      account !== '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2' ||
+      isReviewer
+    ) {
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 2,
+            variant: 'Failed',
+            classname: 'text-black',
+            title: "Can't review application!",
+            tag1: 'Only KYC reviewer can asses application',
             tag2: 'dont have the authority to review',
           },
         })
@@ -651,7 +680,10 @@ function KYCApplication() {
                     dispatch(closeAlert())
                   }, 10000)
                 } else {
-                  setAssignPopup(true)
+                  const canAssign = await canReviewKyc()
+                  if (canAssign) {
+                    setAssignPopup(true)
+                  }
                 }
               }}
               text="Assign"
@@ -953,8 +985,7 @@ function KYCApplication() {
         </div>,
         <Link
           to={
-            // application.reviewer === account ||
-            application.address === account || isAdmin
+            application.reviewer === account || isAdmin
               ? `/policy-risk-user-profile/${application.id}`
               : ''
           }

@@ -196,7 +196,7 @@ const getTokenBalance = async (sender: any) => {
 }
 
 // User Manager
-const is_kyc_reviewer = async (signer: any, region: string) => {
+const is_kyc_reviewer = async (region: string) => {
   const contract = await getContract()
 
   const isReviewer = await contract.is_kyc_reviewer(region)
