@@ -782,6 +782,13 @@ const isPoolPolicyReviewer = async (address: any, pool: string) => {
   return policyRevierDetails.is_expert
 }
 
+const isPoolAdjustor = async (address: any, pool: string) => {
+  const addresses = await getPoolAddresses(pool)
+  const contract = await getPolicyMembersContract(addresses.policy)
+  var adjustorDetails = await contract.pool_adjustor_map(address)
+  return adjustorDetails.is_expert
+}
+
 const approvePoolToSpend = async (poolName: string, amount: number) => {
   const fee = ethers.parseEther(amount.toString())
 
@@ -1133,4 +1140,5 @@ export {
   getAdminAddress,
   getPolicyBalance,
   getUsersStake,
+  isPoolAdjustor,
 }

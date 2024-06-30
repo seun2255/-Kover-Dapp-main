@@ -43,6 +43,7 @@ import {
   get_claims,
   getClaimData,
   assignClaimApplication,
+  isPoolAdjustor,
 } from '../../api'
 import axios from 'axios'
 import { addContractState, addKycReviewerState } from '../../utils/helpers'
@@ -262,6 +263,34 @@ function KYCApplication() {
     }
   }
 
+  const canAssignClaim = async (address: string, poolName: string) => {
+    const isAnAdjustor = await isPoolAdjustor(address, poolName)
+    if (
+      address === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2' ||
+      isAnAdjustor
+    ) {
+      return true
+    } else {
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 2,
+            variant: 'Failed',
+            classname: 'text-black',
+            title: 'Only Adjustors can Assign!',
+            tag1: 'Your not an ajustor for this pool',
+            tag2: 'cannot assign claim to yourself',
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+      return false
+    }
+  }
+
   const canReview = (workfield: string) => {
     if (account !== '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2') {
       dispatch(
@@ -274,8 +303,8 @@ function KYCApplication() {
             title: "Can't review application!",
             tag1:
               workfield === 'KYC Reviewer'
-                ? 'Only Admin can assign application'
-                : 'Only Pool Operator can assign application',
+                ? 'Only Admin can asses application'
+                : 'Only Pool Operator can asses application',
             tag2: 'dont have the authority to review',
           },
         })
@@ -1304,7 +1333,13 @@ function KYCApplication() {
                     dispatch(closeAlert())
                   }, 10000)
                 } else {
-                  setClaimAssignPopup(true)
+                  const canAssign = await canAssignClaim(
+                    account as string,
+                    application.poolName
+                  )
+                  if (canAssign) {
+                    setClaimAssignPopup(true)
+                  }
                 }
               }}
               text="Assign"
