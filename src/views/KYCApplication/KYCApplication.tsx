@@ -279,7 +279,7 @@ function KYCApplication() {
             variant: 'Failed',
             classname: 'text-black',
             title: 'Only Adjustors can Assign!',
-            tag1: 'Your not an ajustor for this pool',
+            tag1: 'Your not an adjustor for this pool',
             tag2: 'cannot assign claim to yourself',
           },
         })
@@ -1352,12 +1352,9 @@ function KYCApplication() {
           ) : (
             <Button
               to={
-                application.address === account
-                  ? `/claim-view-user/${application.claimId}`
-                  : application.reviewer === account
-                  ? application.resultStatus === 'pending'
-                    ? `/claim-view/${application.claimId}`
-                    : undefined
+                application.reviewer === account &&
+                application.resultStatus === 'pending'
+                  ? `/claim-view/${application.claimId}`
                   : undefined
               }
               className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
