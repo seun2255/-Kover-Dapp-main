@@ -322,9 +322,11 @@ function KYCApplication() {
   const canReviewKyc = async () => {
     const isReviewer = await is_kyc_reviewer('NG')
     if (
-      account !== '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2' ||
+      account === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2' ||
       isReviewer
     ) {
+      return true
+    } else {
       dispatch(
         openAlert({
           displayAlert: true,
@@ -333,7 +335,7 @@ function KYCApplication() {
             variant: 'Failed',
             classname: 'text-black',
             title: "Can't review application!",
-            tag1: 'Only KYC reviewer can asses application',
+            tag1: 'Only KYC reviewers can asses application',
             tag2: 'dont have the authority to review',
           },
         })
@@ -342,8 +344,6 @@ function KYCApplication() {
         dispatch(closeAlert())
       }, 10000)
       return false
-    } else {
-      return true
     }
   }
 
