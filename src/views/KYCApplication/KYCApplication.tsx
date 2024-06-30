@@ -262,6 +262,33 @@ function KYCApplication() {
     }
   }
 
+  const canReview = (workfield: string) => {
+    if (account !== '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2') {
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 2,
+            variant: 'Failed',
+            classname: 'text-black',
+            title: "Can't review application!",
+            tag1:
+              workfield === 'KYC Reviewer'
+                ? 'Only Admin can assign application'
+                : 'Only Pool Operator can assign application',
+            tag2: 'dont have the authority to review',
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+      return false
+    } else {
+      return true
+    }
+  }
+
   useEffect(() => {
     const unsub = onSnapshot(
       doc(db, 'realtime', 'applications'),
@@ -804,36 +831,38 @@ function KYCApplication() {
           ) : (
             <Button
               onClick={async () => {
-                const hash = await concludeInsureproApplication(
-                  application.address,
-                  application.region,
-                  application.workField,
-                  kycReviewerDecision,
-                  application.pool
-                )
-                await updateInsureProVerificationState(
-                  application.address,
-                  'verified'
-                )
-                await insureProVerificationDone(application.address)
-                dispatch(
-                  openAlert({
-                    displayAlert: true,
-                    data: {
-                      id: 1,
-                      variant: 'Successful',
-                      classname: 'text-black',
-                      title: 'Submission Successful',
-                      tag1: `${application.workField} Review concluded`,
-                      tag2: 'View on etherscan',
-                      hash: hash,
-                    },
-                  })
-                )
-                getData()
-                setTimeout(() => {
-                  dispatch(closeAlert())
-                }, 10000)
+                if (canReview(application.workField)) {
+                  const hash = await concludeInsureproApplication(
+                    application.address,
+                    application.region,
+                    application.workField,
+                    kycReviewerDecision,
+                    application.pool
+                  )
+                  await updateInsureProVerificationState(
+                    application.address,
+                    'verified'
+                  )
+                  await insureProVerificationDone(application.address)
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 1,
+                        variant: 'Successful',
+                        classname: 'text-black',
+                        title: 'Submission Successful',
+                        tag1: `${application.workField} Review concluded`,
+                        tag2: 'View on etherscan',
+                        hash: hash,
+                      },
+                    })
+                  )
+                  getData()
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                }
               }}
               text="Submit"
               btnText="table-action"
