@@ -45,6 +45,7 @@ import PolicyRiskUserPofile from './views/PolicyRiskUserPofile/PolicyRiskUserPof
 import RiskPoolMnagamentHome from './views/RiskMnagament/RiskPoolMnagamentHome'
 import Staking from './views/Staking/Staking'
 import AlertModal from './components/common/Alert'
+import TransactionLoader from './components/common/TransactionLoader'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import {
@@ -250,7 +251,8 @@ export const UserContext = React.createContext<{
 function App() {
   const [theme, setTheme] = useState('')
   const [connectwallet, setConnectWallet] = useState('')
-  const { displayAlert, alertData } = useSelector((state: any) => state.alerts)
+  const { displayAlert, alertData, displaytransactionLoader, loaderText } =
+    useSelector((state: any) => state.alerts)
   const { user } = useSelector((state: any) => state.user)
   const dispatch = useDispatch()
 
@@ -375,6 +377,13 @@ function App() {
               style={{ position: 'fixed', right: 30, top: 30, zIndex: 10000 }}
             >
               <AlertModal {...alertData} />
+            </div>
+          )}
+          {displaytransactionLoader && (
+            <div
+              style={{ position: 'fixed', right: 30, top: 30, zIndex: 10000 }}
+            >
+              <TransactionLoader {...alertData} text={loaderText} />
             </div>
           )}
           {/* <ToastContainer autoClose={false} draggablePercent={60} limit={1} /> */}

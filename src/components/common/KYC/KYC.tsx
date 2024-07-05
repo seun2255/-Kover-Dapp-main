@@ -256,7 +256,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
       console.log('KYC Data: ', userData)
       // const isReviwer = await is_kyc_reviewer(signer);
 
-      const hash = await apply_for_membership(userData, 'NG')
+      const hash = await apply_for_membership(userData, 'NG', dispatch)
       await updateVerificationState(account, 'verifying')
       await applicationsUpdate()
       dispatch(
@@ -277,6 +277,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
         dispatch(closeAlert())
       }, 10000)
       setUserVerificationState('verifying')
+      console.log('Account: ', account)
       const updatedData = await getUserData(account)
       dispatch(updateUser({ data: updatedData }))
       if (kycModal) {

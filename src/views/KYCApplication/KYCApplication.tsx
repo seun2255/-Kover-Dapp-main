@@ -267,7 +267,7 @@ function KYCApplication() {
   const canAssignClaim = async (address: string, poolName: string) => {
     const isAnAdjustor = await isPoolAdjustor(address, poolName)
     if (
-      address === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD' ||
+      address === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2' ||
       isAnAdjustor
     ) {
       return true
@@ -293,7 +293,7 @@ function KYCApplication() {
   }
 
   const canReview = (workfield: string) => {
-    if (account !== '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD') {
+    if (account !== '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2') {
       dispatch(
         openAlert({
           displayAlert: true,
@@ -322,7 +322,7 @@ function KYCApplication() {
   const canReviewKyc = async () => {
     const isReviewer = await is_kyc_reviewer('NG')
     if (
-      account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD' ||
+      account === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2' ||
       isReviewer
     ) {
       return true
@@ -354,7 +354,7 @@ function KYCApplication() {
         getData()
       }
     )
-    if (account && account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD') {
+    if (account && account === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2') {
       setIsAdmin(true)
     }
   }, [])
@@ -750,7 +750,8 @@ function KYCApplication() {
                   const hash = await assignMembershipApplication(
                     signer,
                     application.address,
-                    application.region
+                    application.region,
+                    dispatch
                   )
                   await createChatRoom(
                     'kyc',

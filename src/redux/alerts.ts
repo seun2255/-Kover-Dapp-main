@@ -2,6 +2,8 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   displayAlert: false,
+  displaytransactionLoader: false,
+  loaderText: 'Approving Token use',
   alertData: {
     id: 1,
     variant: 'Successful',
@@ -27,6 +29,13 @@ interface Alert {
   }
 }
 
+interface TransactionLoader {
+  payload: {
+    displaytransactionLoader: boolean
+    text: string
+  }
+}
+
 export const alertsSlice = createSlice({
   name: 'alerts',
   initialState,
@@ -38,10 +47,18 @@ export const alertsSlice = createSlice({
     closeAlert: (state: any) => {
       state.displayAlert = false
     },
+    openLoader: (state: any, action: TransactionLoader) => {
+      state.displaytransactionLoader = true
+      state.loaderText = action.payload.text
+    },
+    closeLoader: (state: any) => {
+      state.displaytransactionLoader = false
+    },
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { openAlert, closeAlert } = alertsSlice.actions
+export const { openAlert, closeAlert, openLoader, closeLoader } =
+  alertsSlice.actions
 
 export default alertsSlice.reducer

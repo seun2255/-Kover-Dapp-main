@@ -29,6 +29,7 @@ import {
   formatValidatorData,
 } from './utils/helpers'
 import { toNumber } from 'ethers'
+import { openLoader, closeLoader } from './redux/alerts'
 
 /**
  * Blockchain Integration
@@ -203,16 +204,33 @@ const is_kyc_reviewer = async (region: string) => {
   return isReviewer
 }
 
-const apply_for_membership = async (data: string, region: string) => {
+const apply_for_membership = async (
+  data: string,
+  region: string,
+  dispatch: any
+) => {
   const contract = await getContract()
   const feeParams = await contract.membership_fee_params()
 
   var fee = ethers.parseEther(feeParams.fee.toString())
 
+  dispatch(
+    openLoader({
+      displaytransactionLoader: true,
+      text: 'Approving Token use',
+    })
+  )
   await approve(fee)
 
+  dispatch(
+    openLoader({
+      displaytransactionLoader: true,
+      text: 'Applying for kyc',
+    })
+  )
   const tx = await contract.apply_for_membership(region, [data, data])
   await tx.wait()
+  dispatch(closeLoader())
   return createTransactionLink(tx.hash)
 }
 
@@ -298,20 +316,34 @@ const apply_for_InsurePro = async (
 const assignMembershipApplication = async (
   signer: any,
   address: any,
-  region: string
+  region: string,
+  dispatch: any
 ) => {
   const contract = await getContract()
 
   const fee = ethers.parseEther('25')
 
+  dispatch(
+    openLoader({
+      displaytransactionLoader: true,
+      text: 'Approving Token use',
+    })
+  )
   await approve(fee)
 
+  dispatch(
+    openLoader({
+      displaytransactionLoader: true,
+      text: 'Assigning Application',
+    })
+  )
   const tx = await contract.assign_membership_application(
     address,
     region,
     false
   )
   await tx.wait()
+  dispatch(closeLoader())
   return createTransactionLink(tx.hash)
 }
 
@@ -498,8 +530,12 @@ const getUserData = async (address: any) => {
   // const ip = await data.json()
   const country = 'NG'
 
+  console.log('Got here 1')
   const applicant: any = await getUser(address)
+  console.log('Got here 2')
+  console.log('applicant')
   const response = await axios.get(applicant.data as string)
+  console.log('Got here 3')
   const kyc_details = await getKycDetails(response.data.address, country)
   var result = addContractState(response.data, kyc_details)
   const userFirebaseDetails = await getUserDetails(address)
