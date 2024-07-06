@@ -533,7 +533,7 @@ const getUserData = async (address: any) => {
   console.log('Got here 1')
   const applicant: any = await getUser(address)
   console.log('Got here 2')
-  console.log('applicant')
+  console.log(applicant)
   const response = await axios.get(applicant.data as string)
   console.log('Got here 3')
   const kyc_details = await getKycDetails(response.data.address, country)
