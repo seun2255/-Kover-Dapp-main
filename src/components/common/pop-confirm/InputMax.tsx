@@ -61,7 +61,7 @@ function InputMax({
 
   const handleApprove = async () => {
     if (poolName) {
-      await approvePoolToSpend(poolName, parseInt(value))
+      await approvePoolToSpend(poolName, parseInt(value), dispatch)
       setAmountApproved(true)
       dispatch(
         openAlert({
@@ -80,7 +80,7 @@ function InputMax({
         dispatch(closeAlert())
       }, 10000)
     } else if (isStake) {
-      await approveKoverToStake(value)
+      await approveKoverToStake(value, dispatch)
       setAmountApproved(true)
       dispatch(
         openAlert({

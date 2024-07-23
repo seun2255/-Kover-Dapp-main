@@ -40,6 +40,12 @@
       "type": "constructor"
     },
     {
+      "anonymous": false,
+      "inputs": [],
+      "name": "overnightAccounting",
+      "type": "event"
+    },
+    {
       "inputs": [],
       "name": "cost_of_capital_params_external",
       "outputs": [
@@ -61,6 +67,19 @@
         {
           "internalType": "uint256",
           "name": "max_cost_on_capital_perc",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "count",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
           "type": "uint256"
         }
       ],

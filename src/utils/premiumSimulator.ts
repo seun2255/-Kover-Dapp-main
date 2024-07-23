@@ -173,11 +173,11 @@ const overnightParkingOptions: { [key: string]: number } = {
 }
 
 const coverDurations: { [key: string]: number } = {
-  '2 weeks': 0.1,
-  '30 days': 0.3,
+  '2 weeks': 1.0,
+  '30 days': 0.7,
   '90 days': 0.5,
-  '180 days': 0.7,
-  '365 days': 1.0,
+  '180 days': 0.3,
+  '365 days': 0.1,
 }
 
 const coverTypes: { [key: string]: number } = {
@@ -243,6 +243,47 @@ interface InsuranceValues {
   src: number
   deductiblePerc: number
   riskFactor: number
+  PRP: number
+}
+
+// Function to calculate policy risk points
+function calculatePolicyRiskPoints(options: CarInsuranceOptions): number {
+  // Get the normalized values from the initial option types
+  const yearManufacturedValue = yearManufactured[options.yearManufactured] || 0
+  const engineSizeValue = engineSizes[options.engineSize] || 0
+  const annualMileageValue = annualMileages[options.annualMileage] || 0
+  const overnightParkingValue =
+    overnightParkingOptions[options.overnightParking] || 0
+  const coverDurationValue = coverDurations[options.coverDuration] || 0
+  const coverTypeValue = coverTypes[options.coverType] || 0
+  const usageTypeValue = usageTypes[options.usage] || 0
+  const securityMeasuresValue = securityMeasures[options.securityMeasures] || 0
+  const drivingOffencesValue = drivingOffences[options.drivingOffences] || 0
+  const claimsHistoryValue = claimsHistory[options.claimHistory] || 0
+  const riskAddressValue = riskAddresses[options.riskAddress] || 0
+
+  // Calculate the weighted sum of importance factors
+  const importanceSum =
+    yearManufacturedValue * importanceFactors.yearManufactured +
+    engineSizeValue * importanceFactors.engineSize +
+    annualMileageValue * importanceFactors.annualMileage +
+    overnightParkingValue * importanceFactors.overnightParking +
+    coverDurationValue * importanceFactors.coverDuration +
+    coverTypeValue * importanceFactors.coverType +
+    usageTypeValue * importanceFactors.usageType +
+    securityMeasuresValue * importanceFactors.securityMeasures +
+    drivingOffencesValue * importanceFactors.drivingOffences +
+    claimsHistoryValue * importanceFactors.claimsHistory +
+    riskAddressValue * importanceFactors.riskAddress
+
+  // Normalize the total weighted sum to a scale of 0 to 100
+  const maxImportanceSum = Object.values(importanceFactors).reduce(
+    (acc, curr) => acc + curr,
+    0
+  )
+  const normalizedRiskPoints = (importanceSum / maxImportanceSum) * 100
+
+  return Math.round(normalizedRiskPoints)
 }
 
 function calculatePremiumQuote(options: CarInsuranceOptions): InsuranceValues {
@@ -281,10 +322,10 @@ function calculatePremiumQuote(options: CarInsuranceOptions): InsuranceValues {
   const premiumQuote = modelValue * importanceSum
 
   // Calculate max_exposure based on the value of the car model
-  const maxExposure = carModelValues[options.model] * 1.5 // Assumed to be 1.5 times the value of the car model
+  const maxExposure = carModelValues[options.model] * 2 // Assumed to be 1.5 times the value of the car model
 
   // Calculate src based on the max premium quote
-  const src = maxExposure * 0.2 // Assumed to be 10% of max_exposure
+  const src = maxExposure * 0.4 // Assumed to be 10% of max_exposure
 
   // Calculate deductible_perc as a percentage between 0% and 30%
   const deductiblePerc = Math.random() * 0.3 // Random percentage for deductible between 0% and 30%
@@ -310,6 +351,7 @@ function calculatePremiumQuote(options: CarInsuranceOptions): InsuranceValues {
     src: Math.round(parseFloat(src.toFixed(2))),
     deductiblePerc: Math.round(parseFloat(deductiblePerc.toFixed(2)) * 100),
     riskFactor: Math.round(parseFloat(riskFactor.toFixed(2)) * 100),
+    PRP: calculatePolicyRiskPoints(options),
   }
 }
 

@@ -352,6 +352,51 @@
     {
       "inputs": [
         {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "premium",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "premium_discount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "capital_pool_component_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "pool_operator_component_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "protocol_component_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "risk_module_component_perc",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.PremiumParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "collect_premiums",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "_amount",
           "type": "uint256"
@@ -418,6 +463,32 @@
       "name": "distribute_admin_fees",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "duesAmount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "duesLeft",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -856,283 +927,25 @@
           "type": "address"
         }
       ],
-      "name": "pool_policy_data_map",
+      "name": "premiums_paid",
       "outputs": [
         {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "credentials_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "internalType": "enum Definitions.PolicyStatus",
-          "name": "status",
-          "type": "uint8"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint256",
-              "name": "capital_pool",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "risk_module",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "pool_operator",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "revenue_pool",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct Definitions.Dues",
-          "name": "dues",
-          "type": "tuple"
-        },
-        {
-          "internalType": "enum Definitions.PolicyApplicationStatus",
-          "name": "application_status",
-          "type": "uint8"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint256",
-              "name": "fee",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "reviewer_stake_fee",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assign_timestamp",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "result_timestamp",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assess_timestamp",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address",
-              "name": "reviewer",
-              "type": "address"
-            },
-            {
-              "internalType": "enum Definitions.ResultStatus",
-              "name": "status",
-              "type": "uint8"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assessed_max_exposure",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assessed_src",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assessed_deductible_perc",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assessed_risk_factor",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "reviewer_stake_wait_time",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assessment_wait_time",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "assesment_validity_time",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct Definitions.PolicyResult",
-          "name": "result",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "application_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "credentials_application_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "internalType": "enum Definitions.PolicyApplicationType",
-          "name": "application_type",
-          "type": "uint8"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "termination_request_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint256",
-              "name": "policy_activation_timestamp",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "policy_duration",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "max_exposure",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "src",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "deductible_perc",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "risk_factor",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "policy_pause_day",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "application_policy_duration",
-              "type": "uint256"
-            },
-            {
-              "internalType": "bool",
-              "name": "is_application_policy_modification_or_extension",
-              "type": "bool"
-            },
-            {
-              "internalType": "bool",
-              "name": "has_requested_termination",
-              "type": "bool"
-            },
-            {
-              "internalType": "uint256",
-              "name": "termination_request_fee",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address",
-              "name": "claim_address",
-              "type": "address"
-            }
-          ],
-          "internalType": "struct Definitions.PolicyDataConstants",
-          "name": "policy_constants",
-          "type": "tuple"
-        },
-        {
           "internalType": "uint256",
-          "name": "policy_credit_account",
+          "name": "",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "reachedHere",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -1172,6 +985,19 @@
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "sent",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -1264,302 +1090,6 @@
         }
       ],
       "name": "setPolicyAdjustorRatingData",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_source",
-          "type": "address"
-        },
-        {
-          "components": [
-            {
-              "components": [
-                {
-                  "internalType": "string",
-                  "name": "details",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "proof",
-                  "type": "string"
-                }
-              ],
-              "internalType": "struct Definitions.IpfsHashes",
-              "name": "ipfs_hashes",
-              "type": "tuple"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "string",
-                  "name": "details",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "proof",
-                  "type": "string"
-                }
-              ],
-              "internalType": "struct Definitions.IpfsHashes",
-              "name": "credentials_ipfs_hashes",
-              "type": "tuple"
-            },
-            {
-              "internalType": "enum Definitions.PolicyStatus",
-              "name": "status",
-              "type": "uint8"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "uint256",
-                  "name": "capital_pool",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "risk_module",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "pool_operator",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "revenue_pool",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct Definitions.Dues",
-              "name": "dues",
-              "type": "tuple"
-            },
-            {
-              "internalType": "enum Definitions.PolicyApplicationStatus",
-              "name": "application_status",
-              "type": "uint8"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "uint256",
-                  "name": "fee",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "reviewer_stake_fee",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "assign_timestamp",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "result_timestamp",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "assess_timestamp",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "reviewer",
-                  "type": "address"
-                },
-                {
-                  "internalType": "enum Definitions.ResultStatus",
-                  "name": "status",
-                  "type": "uint8"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "assessed_max_exposure",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "assessed_src",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "assessed_deductible_perc",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "assessed_risk_factor",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "reviewer_stake_wait_time",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "assessment_wait_time",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "assesment_validity_time",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct Definitions.PolicyResult",
-              "name": "result",
-              "type": "tuple"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "string",
-                  "name": "details",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "proof",
-                  "type": "string"
-                }
-              ],
-              "internalType": "struct Definitions.IpfsHashes",
-              "name": "application_ipfs_hashes",
-              "type": "tuple"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "string",
-                  "name": "details",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "proof",
-                  "type": "string"
-                }
-              ],
-              "internalType": "struct Definitions.IpfsHashes",
-              "name": "credentials_application_ipfs_hashes",
-              "type": "tuple"
-            },
-            {
-              "internalType": "enum Definitions.PolicyApplicationType",
-              "name": "application_type",
-              "type": "uint8"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "string",
-                  "name": "details",
-                  "type": "string"
-                },
-                {
-                  "internalType": "string",
-                  "name": "proof",
-                  "type": "string"
-                }
-              ],
-              "internalType": "struct Definitions.IpfsHashes",
-              "name": "termination_request_ipfs_hashes",
-              "type": "tuple"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "uint256",
-                  "name": "policy_activation_timestamp",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "policy_duration",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "max_exposure",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "src",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "deductible_perc",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "risk_factor",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "policy_pause_day",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "application_policy_duration",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "is_application_policy_modification_or_extension",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "bool",
-                  "name": "has_requested_termination",
-                  "type": "bool"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "termination_request_fee",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "address",
-                  "name": "claim_address",
-                  "type": "address"
-                }
-              ],
-              "internalType": "struct Definitions.PolicyDataConstants",
-              "name": "policy_constants",
-              "type": "tuple"
-            },
-            {
-              "internalType": "uint256",
-              "name": "policy_credit_account",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct Definitions.PolicyData",
-          "name": "_data",
-          "type": "tuple"
-        }
-      ],
-      "name": "setPolicyData",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1841,6 +1371,19 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_day",
+          "type": "uint256"
+        }
+      ],
+      "name": "update_policies",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]

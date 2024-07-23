@@ -5,10 +5,11 @@ import TermOfUsePopup from '../global/TermOfUsePopup'
 import Popup from '../templates/Popup'
 import SelectionField from './SelectionField'
 import { UserContext } from '../../App'
-import { acceptPolicy } from '../../api'
-import { openAlert, closeAlert } from '../..//redux/alerts'
+import { acceptPolicy, applyForPolicy, approvePoolToSpend } from '../../api'
+import { openAlert, closeAlert, openLoader } from '../..//redux/alerts'
 import { useDispatch } from 'react-redux'
-import { depositIntoPolicy, stake } from '../../api'
+import { depositIntoPolicy } from '../../api'
+import { disableCoverModify, setCoverBuyDate } from '../../database'
 
 export interface PopupAgreamentProps {
   mainClass?: String
@@ -33,6 +34,19 @@ export interface PopupAgreamentProps {
   setTransferring?: any
   isStake?: boolean
   handleStake?: any
+  filledForm?: boolean
+}
+
+function getCurrentDateTime() {
+  const now = new Date()
+
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
+
+  return `${year}/${month}/${day} ${hours}:${minutes}`
 }
 
 function PopupAgreament({
@@ -58,6 +72,7 @@ function PopupAgreament({
   isStake,
   handleStake,
   onClose,
+  filledForm,
 }: PopupAgreamentProps) {
   const [value, setValue] = useState(checked)
   const [checkbox, setCheckbox] = useState(true)
@@ -71,12 +86,14 @@ function PopupAgreament({
   const handleClick = async () => {
     if (depositAmount === 0 || amountApproved) {
       if (isStake) {
+        console.log('It is stake')
         handleStake()
       } else if (active) {
         setTransferring(true)
         const hash = await depositIntoPolicy(
           coverDetails.poolName,
-          depositAmount
+          depositAmount,
+          dispatch
         )
         setStage(2)
         setTimeout(() => {
@@ -102,34 +119,123 @@ function PopupAgreament({
         }, 1000)
       } else {
         if (id === 1) {
-          const hash = await acceptPolicy(
-            coverDetails.poolName,
-            coverDetails.data,
-            coverDetails.address,
-            depositAmount
-          )
-          setStage(2)
-          setTimeout(() => {
-            setStage(3)
+          if (
+            // coverDetails.resultStatus === 'approved' ||
+            // coverDetails.resultStatus === 'rejected'
+            true
+          ) {
+            setTransferring(true)
             dispatch(
-              openAlert({
-                displayAlert: true,
-                data: {
-                  id: 1,
-                  variant: 'Successful',
-                  classname: 'text-black',
-                  title: 'Policy Accepted',
-                  tag1: 'policy purchase process completetd',
-                  tag2: 'cover bought',
-                  hash: hash,
-                },
+              openLoader({
+                displaytransactionLoader: true,
+                text: 'Approving Token Use',
               })
             )
-            onClose?.()
+            await approvePoolToSpend(
+              coverDetails.poolName,
+              coverDetails.premiumQuote + coverDetails.fee,
+              dispatch
+            )
+            // dispatch(
+            //   openAlert({
+            //     displayAlert: true,
+            //     data: {
+            //       id: 1,
+            //       variant: 'Successful',
+            //       classname: 'text-black',
+            //       title: 'Amount Approved',
+            //       tag1: 'approved token use',
+            //       tag2: 'amount can now be deposited',
+            //     },
+            //   })
+            // )
+            // setTimeout(() => {
+            //   dispatch(closeAlert())
+            // }, 1000)
+
+            // const hash = await acceptPolicy(
+            //   coverDetails.poolName,
+            //   coverDetails.data,
+            //   coverDetails.address,
+            //   depositAmount,
+            //   dispatch
+            // )
+            const hash = await applyForPolicy(
+              coverDetails.poolName,
+              coverDetails.formData,
+              1,
+              coverDetails.premiumQuote + coverDetails.fee,
+              coverDetails,
+              dispatch
+            )
+            await setCoverBuyDate(
+              coverDetails.address,
+              coverDetails.poolName,
+              getCurrentDateTime()
+            )
+            await disableCoverModify(
+              coverDetails.address,
+              coverDetails.poolName
+            )
+            setStage(2)
             setTimeout(() => {
-              dispatch(closeAlert())
-            }, 10000)
-          }, 1000)
+              setStage(3)
+              dispatch(
+                openAlert({
+                  displayAlert: true,
+                  data: {
+                    id: 1,
+                    variant: 'Successful',
+                    classname: 'text-black',
+                    title: 'Cover bought!',
+                    tag1: 'policy is now active',
+                    tag2: 'cover bought',
+                    hash: hash,
+                  },
+                })
+              )
+              onClose?.()
+              setTimeout(() => {
+                dispatch(closeAlert())
+              }, 10000)
+            }, 1000)
+          } else {
+            if (filledForm) {
+              dispatch(
+                openAlert({
+                  displayAlert: true,
+                  data: {
+                    id: 2,
+                    variant: 'Failed',
+                    classname: 'text-black',
+                    title: 'Application still in review',
+                    tag1: "can't accept a pending application",
+                    tag2: 'wait for a policy reviewer to asses your application',
+                  },
+                })
+              )
+              setTimeout(() => {
+                dispatch(closeAlert())
+              }, 10000)
+            } else {
+              dispatch(
+                openAlert({
+                  displayAlert: true,
+                  data: {
+                    id: 2,
+                    variant: 'Failed',
+                    classname: 'text-black',
+                    title: 'Risk data not submitted',
+                    tag1: 'fill the risk data form',
+                    tag2: 'click on edit to open the form',
+                  },
+                })
+              )
+              setTimeout(() => {
+                dispatch(closeAlert())
+              }, 10000)
+            }
+          }
         } else if (id === 6) {
           setId(1)
         }
@@ -173,8 +279,46 @@ function PopupAgreament({
           <div
             className=""
             onClick={() => {
-              if (id === 6) {
+              // if (id === 6) {
+              if (active) {
                 checkbox ? setCheckbox(false) : setCheckbox(true)
+              } else {
+                if (filledForm) {
+                  // dispatch(
+                  //   openAlert({
+                  //     displayAlert: true,
+                  //     data: {
+                  //       id: 2,
+                  //       variant: 'Failed',
+                  //       classname: 'text-black',
+                  //       title: 'Application still in review',
+                  //       tag1: "can't accept a pending application",
+                  //       tag2: 'wait for a policy reviewer to asses your application',
+                  //     },
+                  //   })
+                  // )
+                  // setTimeout(() => {
+                  //   dispatch(closeAlert())
+                  // }, 10000)
+                  checkbox ? setCheckbox(false) : setCheckbox(true)
+                } else {
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 2,
+                        variant: 'Failed',
+                        classname: 'text-black',
+                        title: 'Risk data not submitted',
+                        tag1: 'fill the risk data form',
+                        tag2: 'click on edit to open the form',
+                      },
+                    })
+                  )
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                }
               }
             }}
           >

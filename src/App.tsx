@@ -78,11 +78,11 @@ export const routes = [
     route: 'bond',
     el: <Bond />,
   },
-  {
-    id: 974,
-    route: 'new-claim',
-    el: <NewClaim />,
-  },
+  // {
+  //   id: 974,
+  //   route: 'new-claim',
+  //   el: <NewClaim />,
+  // },
   {
     id: 764,
     route: 'claim-assessment/:claimId',

@@ -23,7 +23,7 @@ import { getCurrentDateTime } from '../../utils/dateTime'
 import { convertJsonToString } from '../../utils/helpers'
 import { uploadJsonData } from '../../lighthouse'
 import { openAlert, closeAlert } from '../..//redux/alerts'
-import { getUserData, modifyPolicy, get_covers } from '../../api'
+import { getUserData, modifyPolicy, get_covers, getPolicyData } from '../../api'
 import {
   switchCoverModifyState,
   switchKYCReviewerModify,
@@ -66,7 +66,7 @@ function RiskPolicyUserProfile() {
   const [applicant, setApplicant] = useState(
     findObjectById(coverApplications, coverId)
   )
-  console.log(applicant)
+  console.log('Applicant: ', applicant)
   const [canModify, setCanModify] = useState(false)
   const [formState, setFormState] = useState(applicant)
   const [summaryData, setSummaryData] = useState({
@@ -224,7 +224,12 @@ function RiskPolicyUserProfile() {
       const premiumQuote = calculatePremiumQuote(formData)
 
       //Come update this after redeploying
-      const hash = await modifyPolicy('Car Insurance', userData, durationIndex)
+      const hash = await modifyPolicy(
+        'Car Insurance',
+        userData,
+        durationIndex,
+        dispatch
+      )
       await updateCoverQuote(account, 'Car Insurance', premiumQuote)
 
       dispatch(
@@ -277,17 +282,17 @@ function RiskPolicyUserProfile() {
         temp.address,
         temp.poolName
       )
-      temp = { ...userData, ...coverFirebaseDetails, ...temp }
-      console.log('Details: ', temp)
+      const policyData = await getPolicyData(temp.address, temp.poolName)
+      temp = { ...userData, ...coverFirebaseDetails, ...temp, ...policyData }
 
       const summaryData = {
-        purchase: '---',
+        purchase: temp.purchaseDate || '---',
         coverId: temp.coverId || '---',
         status: temp.status || '---',
         claimId: temp.claimId || '---',
         claimAmout: temp.claimAmount || '---',
         claimHistory: '---',
-        PRP: '---',
+        PRP: `${temp.PRP} %` || '---',
       }
       setApplicant(temp)
       setSummaryData(summaryData)

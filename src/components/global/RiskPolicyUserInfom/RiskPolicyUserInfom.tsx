@@ -314,28 +314,51 @@ function RiskPolicyUserInform({ variant, user }: UserInformProps) {
                   className="min-w-[120px] dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
                   text={canEdit ? 'Stop Edit' : 'Allow Edit'}
                   onClick={() => {
-                    if (user.status !== 'in review') {
+                    console.log('data: ', user)
+                    if (user.resultStatus === 'pending') {
                       if (user.reviewer === account) {
-                        switchCoverModifyState(
-                          user.address,
-                          user.poolName
-                        ).then(() => {
-                          setCanEdit(!canEdit)
-                          var temp = [...coverApplications]
-                          var placeholder = {}
-                          for (var i = 0; i < temp.length; i++) {
-                            if (temp[i].id === user.id) {
-                              placeholder = {
-                                ...temp[i],
-                                canModify: !temp[i].canModify,
+                        if (
+                          user.resultStatus === 'approved' ||
+                          user.resultStatus === 'rejected'
+                        ) {
+                          dispatch(
+                            openAlert({
+                              displayAlert: true,
+                              data: {
+                                id: 2,
+                                variant: 'Failed',
+                                classname: 'text-black',
+                                title: "Application can't be modified",
+                                tag1: 'application already assesed',
+                                tag2: 'modifications no longer possible',
+                              },
+                            })
+                          )
+                          setTimeout(() => {
+                            dispatch(closeAlert())
+                          }, 10000)
+                        } else {
+                          switchCoverModifyState(
+                            user.address,
+                            user.poolName
+                          ).then(() => {
+                            setCanEdit(!canEdit)
+                            var temp = [...coverApplications]
+                            var placeholder = {}
+                            for (var i = 0; i < temp.length; i++) {
+                              if (temp[i].id === user.id) {
+                                placeholder = {
+                                  ...temp[i],
+                                  canModify: !temp[i].canModify,
+                                }
+                                temp.splice(i, 1)
+                                i--
                               }
-                              temp.splice(i, 1)
-                              i--
                             }
-                          }
-                          temp.push(placeholder)
-                          dispatch(setCoverApplications({ data: temp }))
-                        })
+                            temp.push(placeholder)
+                            dispatch(setCoverApplications({ data: temp }))
+                          })
+                        }
                       } else {
                         dispatch(
                           openAlert({

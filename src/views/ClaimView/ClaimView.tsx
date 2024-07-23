@@ -203,7 +203,8 @@ function ClaimView() {
         claimdetails.address,
         isYes,
         '60',
-        reportData
+        reportData,
+        dispatch
       )
 
       dispatch(

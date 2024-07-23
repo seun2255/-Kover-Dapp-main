@@ -150,7 +150,8 @@ function ValidateClaim(
           claimDetails.address,
           lockAmount.toString(),
           isYes,
-          rating
+          rating,
+          dispatch
         )
         const vote = {
           voter: account,
@@ -223,7 +224,8 @@ function ValidateClaim(
           claimDetails.poolName,
           claimDetails.address,
           isYes,
-          rating
+          rating,
+          dispatch
         )
         dispatch(
           openAlert({

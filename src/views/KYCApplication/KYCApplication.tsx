@@ -55,7 +55,12 @@ import {
   setCoverApplications,
   setClaimsApplications,
 } from '../../redux/kyc'
-import { getUserDetails, updateCoverState } from '../../database'
+import {
+  disableCoverModify,
+  getUserDetails,
+  switchCoverModifyState,
+  updateCoverState,
+} from '../../database'
 import {
   createChatRoom,
   updateVerificationState,
@@ -68,6 +73,7 @@ import { getUser } from '../../tableland'
 import { doc, onSnapshot, getDocs, collection } from 'firebase/firestore'
 import { db } from '../../database'
 import TableOptions from '../../components/common/Table/TableOptions/TableOptions'
+import TableSkeleton from '../../components/common/Table/TableSkeleton'
 
 function KYCApplication() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
@@ -110,6 +116,7 @@ function KYCApplication() {
   const [policyDecision, setPolicyDecision] = useState(true)
   const [claimDecision, setClaimDecision] = useState(true)
   const [searchResults, setSearchResults] = useState<any>([])
+  const [loading, setLoading] = useState(true)
 
   const makeKYCDecision = (decision: boolean) => {
     setKycDecisionMade(true)
@@ -140,6 +147,8 @@ function KYCApplication() {
 
       const axiosRequestsKyc = applicantsKyc.map(async (applicant) => {
         const response = await axios.get(applicant.data as string)
+        console.log(applicant.data)
+        console.log(response)
         const kyc_details = await getKycDetails(response.data.address, 'NG')
         const result = addContractState(response.data, kyc_details)
         const userFirebaseDetails = await getUserDetails(response.data.address)
@@ -217,6 +226,7 @@ function KYCApplication() {
       const allCovers = await Promise.all(axiosRequestsCovers)
       dispatch(setCoverApplications({ data: allCovers }))
       setPolicyApplications(allCovers)
+      console.log('Covers: ', allCovers)
       // })
 
       // fetch('https://ipinfo.io/json')
@@ -240,6 +250,7 @@ function KYCApplication() {
       dispatch(setClaimsApplications({ data: allClaims }))
       setClaimApplications(allClaims)
       // })
+      setLoading(false)
     }
   }
 
@@ -425,7 +436,7 @@ function KYCApplication() {
 
   const revert = async (address: string, region: string) => {
     const signer = library.getSigner(account)
-    await revertMembershipApplication(signer, region, address)
+    await revertMembershipApplication(signer, region, address, dispatch)
     setTimeout(() => {
       getData()
     }, 10000)
@@ -569,7 +580,8 @@ function KYCApplication() {
               onClick={async () => {
                 const hash = await concludeMembershipApplication(
                   application.address,
-                  application.region
+                  application.region,
+                  dispatch
                 )
                 await updateVerificationState(application.address, 'verified')
                 dispatch(
@@ -619,7 +631,8 @@ function KYCApplication() {
                     application.address,
                     application.region,
                     application.ipfsHash,
-                    policyDecision
+                    policyDecision,
+                    dispatch
                   )
                   dispatch(
                     openAlert({
@@ -899,6 +912,7 @@ function KYCApplication() {
                     application.region,
                     application.workField,
                     kycReviewerDecision,
+                    dispatch,
                     application.pool
                   )
                   await updateInsureProVerificationState(
@@ -1068,7 +1082,8 @@ function KYCApplication() {
               onClick={async () => {
                 const hash = await concludePolicyAssesement(
                   application.poolName,
-                  application.address
+                  application.address,
+                  dispatch
                 )
                 await updateCoverState(
                   application.address,
@@ -1089,6 +1104,7 @@ function KYCApplication() {
                     },
                   })
                 )
+                disableCoverModify(application.address, application.poolName)
                 getData()
                 setTimeout(() => {
                   dispatch(closeAlert())
@@ -1124,7 +1140,8 @@ function KYCApplication() {
                     application.data,
                     application.userData,
                     policyDecision,
-                    application
+                    application,
+                    dispatch
                   )
                   dispatch(
                     openAlert({
@@ -1251,7 +1268,12 @@ function KYCApplication() {
                   const hash = await assignPolicyApplication(
                     application.poolName,
                     application.address,
-                    application.region
+                    application.region,
+                    dispatch
+                  )
+                  await disableCoverModify(
+                    application.address,
+                    application.poolNameF
                   )
                   await createChatRoom(
                     'policy',
@@ -1455,7 +1477,8 @@ function KYCApplication() {
                   const hash = await assignClaimApplication(
                     application.poolName,
                     application.address,
-                    account as string
+                    account as string,
+                    dispatch
                   )
                   await createChatRoom(
                     'claim',
@@ -2075,7 +2098,11 @@ function KYCApplication() {
         </div>
 
         <div className="block max-[1200px]:hidden">
-          {tabs === 0 && <Table {...kyc} />}
+          {tabs === 0 && loading ? (
+            <TableSkeleton {...kyc} />
+          ) : (
+            <Table {...kyc} />
+          )}
           {tabs === 1 && <Table {...insurePro} />}
           {tabs === 2 && <Table {...policies} />}
           {tabs === 3 && <Table {...claims} />}

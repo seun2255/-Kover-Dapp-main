@@ -300,6 +300,30 @@ const updateCoverQuote = async (
       cover.deductiblePerc = newValues.deductiblePerc
       cover.maxExposure = newValues.maxExposure
       cover.riskFactor = newValues.riskFactor
+      cover.PRP = newValues.PRP
+      cover.formData = newValues.formData
+    }
+    return cover
+  })
+  temp.covers = newCovers
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
+const setCoverBuyDate = async (
+  address: any,
+  poolName: string,
+  date: string
+) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  const newCovers = temp.covers.map((cover: any) => {
+    if (cover.poolName === poolName) {
+      cover.purchaseDate = date
     }
     return cover
   })
@@ -318,6 +342,42 @@ const switchCoverModifyState = async (address: any, poolName: string) => {
   const newCovers = temp.covers.map((cover: any) => {
     if (cover.poolName === poolName) {
       cover.canModify = !cover.canModify
+    }
+    return cover
+  })
+  temp.covers = newCovers
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
+const disableCoverModify = async (address: any, poolName: string) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  const newCovers = temp.covers.map((cover: any) => {
+    if (cover.poolName === poolName) {
+      cover.canModify = false
+    }
+    return cover
+  })
+  temp.covers = newCovers
+  await setDoc(doc(db, 'users', address.toLowerCase()), temp)
+}
+
+const enableCoverModify = async (address: any, poolName: string) => {
+  var data: any = {}
+  const userData = await getDocs(collection(db, 'users'))
+  userData.forEach((doc) => {
+    // doc.data() is never undefined for query doc snapshots
+    data[doc.id] = doc.data()
+  })
+  var temp = data[address.toLowerCase()]
+  const newCovers = temp.covers.map((cover: any) => {
+    if (cover.poolName === poolName) {
+      cover.canModify = true
     }
     return cover
   })
@@ -569,4 +629,7 @@ export {
   addVote,
   createClaim,
   applicationsUpdate,
+  disableCoverModify,
+  enableCoverModify,
+  setCoverBuyDate,
 }

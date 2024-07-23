@@ -1,36 +1,37 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import Agreament from './Agreament'
-import Button, { ButtonProps } from './Button'
+import Agreament from '../Agreament'
+import Button, { ButtonProps } from '../Button'
 import StatusCardContent, {
   StatusCardContentProps,
-} from './cards/StatusCard/StatusCardContent'
-import InfoText from './InfoText'
-import Input, { InputProps } from './pop-confirm/Input'
-import InputMax, { InputMaxProps } from './pop-confirm/InputMax'
-import { UserContext } from '../../App'
-import useWindowDimensions from '../global/UserInform/useWindowDimensions'
-import PopupAgreament from './PopupAgreament'
+} from '../cards/StatusCard/StatusCardContent'
+import InfoText from '../InfoText'
+import Input, { InputProps } from '../pop-confirm/Input'
+import InputMax, { InputMaxProps } from '../pop-confirm/InputMax'
+import { UserContext } from '../../../App'
+import useWindowDimensions from '../../global/UserInform/useWindowDimensions'
+import PopupAgreament from '../PopupAgreament'
 import Scrollbars from 'react-custom-scrollbars-2'
-import RiskPoolManagement from '../../views/KYCApplication/RiskPoolManagement'
-import RiskPolicyUserProfile from '../../views/PolicyRiskUserPofile/PolicyRiskUserPofile'
-import RiskMnagamentCar from '../../views/RiskMnagament/RiskMnagamentCar'
-import RiskMnagamentMotorbike from '../../views/RiskMnagament/RiskMnagamentMotorbike'
-import WeightRow from './WeightRow'
-import WeightTitle from './WeightTitle'
+import RiskPoolManagement from '../../../views/KYCApplication/RiskPoolManagement'
+import RiskPolicyUserProfile from '../../../views/PolicyRiskUserPofile/PolicyRiskUserPofile'
+import RiskMnagamentCar from '../../../views/RiskMnagament/RiskMnagamentCar'
+import RiskMnagamentMotorbike from '../../../views/RiskMnagament/RiskMnagamentMotorbike'
+import WeightRow from '../WeightRow'
+import WeightTitle from '../WeightTitle'
 import moment from 'moment'
-import { getPolicyData } from '../../api'
+import { getPolicyData } from '../../../api'
 import { useWeb3React } from '@web3-react/core'
-import TransactionProgress from './TransactionProgress'
-import { getDailyCost } from '../../utils/helpers'
-import ActivePolicyStatusCard from './cards/StatusCard/ActivePolicyStatusCard'
-import ModifyCarInsurance from './PolicyRiskForms/modifyCarRisk'
-import Popup from '../../components/templates/Popup'
-import { getCoverDetails } from '../../database'
+import TransactionProgress from '../TransactionProgress'
+import Popup from '../../../components/templates/Popup'
+import CarInsurance from '../../../components/common/PolicyRiskForms/carRisk'
+import ModifyCarInsurance from '../PolicyRiskForms/modifyCarRisk'
+import { getCoverDetails } from '../../../database'
+import { useDispatch } from 'react-redux'
 
 interface CommonPopConfirmProps {
   id?: Number
   title: string
+  filled: boolean
   balance?: string
   onClose?: () => void
   defaultTab?: number
@@ -75,11 +76,30 @@ type NormalProps = GlobalProps &
     datam?: never
   }
 
+const table = {
+  rows: [
+    {
+      text: 'pool Ststus',
+      icon: true,
+    },
+    {
+      text: 'UR',
+      icon: true,
+    },
+    {
+      text: 'Cover Details',
+      icon: false,
+    },
+  ],
+  columns: ['Active', '80%', 'Learn more'],
+}
+
 export type PopConfirmProps = CommonPopConfirmProps & (NormalProps | TabProps)
-function DepositModal(props: PopConfirmProps) {
+function CoverModal(props: PopConfirmProps) {
   const { theme } = React.useContext(UserContext)
-  var { datam, title, onClose, defaultTab, coverDetails } = props
-  const [id, setId] = useState(6)
+  var { datam, title, onClose, defaultTab, coverDetails, filled } = props
+  const [filledForm, setFilledForm] = useState(filled)
+  const [id, setId] = useState(1)
   const [tab, setTab] = useState<number>(defaultTab || 0)
 
   const { dayTab, cover, prpInput, inputMax, balance, disclaimer } =
@@ -94,68 +114,82 @@ function DepositModal(props: PopConfirmProps) {
     fees: '-',
     discount: '-',
     cost: '-',
+    PRP: '00.00',
   })
   const [depositAmount, setDepositAmount] = useState(0)
   const [policyData, setPolicyData] = useState<any>()
   const [stage, setStage] = useState(1)
   const [transferring, setTransferring] = useState(false)
   const [amountApproved, setAmountApproved] = useState(false)
+
+  const titleClassNameDark = 'summary-dark-title'
+  const textClassNameDark = 'summary-dark-text'
+  const titleClassNameLight = 'summary-light-title'
+  const textClassNameLight = 'summary-light-text'
+
   const [riskForm, setRiskForm] = useState(false)
   const toggleForm = () => setRiskForm((v) => !v)
-
-  const table = {
-    rows: [
-      {
-        text: 'Certificate',
-        icon: true,
-      },
-      {
-        text: 'Daily Cost',
-        icon: true,
-      },
-      {
-        text: 'Daily Discount',
-        icon: false,
-      },
-    ],
-    columns: [
-      'Download',
-      `${getDailyCost(
-        Number(coverDetails.premiumQuote) + Number('5'),
-        coverDetails.coverDuration
-      )} USDC`,
-      '0 USDC',
-    ],
-  }
+  const dispatch = useDispatch()
 
   const closeForm = () => {
+    setRiskForm(false)
+  }
+
+  const onSubmit = () => {
     updateFields()
+    setFilledForm(true)
     setRiskForm(false)
   }
 
   const updateFields = async () => {
     const policyDetails = await getPolicyData(account, coverDetails.poolName)
+    // console.log('Details: ', policyDetails)
+    // const policyDetails = await getCoverDetails(account, coverDetails.poolName)
 
     setPolicyData(policyDetails)
+    setFields({
+      date: now
+        .add(durations[policyDetails.coverDuration as string])
+        .format('DD/MM/YYYY'),
+      premium: policyDetails.premiumQuote,
+      fees: '5',
+      discount: '0',
+      cost: (
+        Number(policyDetails.premiumQuote) +
+        Number(policyDetails.fee) -
+        0
+      ).toString(),
+      PRP: policyDetails.PRP,
+    })
   }
 
   useEffect(() => {
-    const getData = async () => {
-      if (coverDetails.policyStatus === 'active' && account) {
-        const policyDetails = await getPolicyData(
-          account,
-          coverDetails.poolName
-        )
-        setPolicyData(policyDetails)
+    console.log(coverDetails)
+    const getData = () => {
+      if (filled && account) {
+        // const policyDetails = await getPolicyData(
+        //   account,
+        //   coverDetails.poolName
+        // )
+        // console.log('Details: ', policyDetails)
+        console.log('PRP: ', coverDetails.PRP)
+        console.log('coverDetails')
+        setPolicyData(coverDetails)
         setFields({
           date: now
-            .add(durations[policyDetails.coverDuration as string])
+            .add(durations[coverDetails.coverDuration as string])
             .format('DD/MM/YYYY'),
-          premium: policyDetails.premiumQuote,
-          fees: policyDetails.fee,
-          discount: '-',
-          cost: policyDetails.premiumQuote,
+          premium: coverDetails.premiumQuote,
+          fees: coverDetails.fee,
+          discount: '0',
+          cost: (
+            Number(coverDetails.premiumQuote) +
+            Number(coverDetails.fee) -
+            0
+          ).toString(),
+          PRP: coverDetails.PRP,
         })
+        console.log('Cover Details in Modal: ', coverDetails)
       }
     }
     getData()
@@ -189,49 +223,17 @@ function DepositModal(props: PopConfirmProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 max-h-[600px] overflow-auto no-scrollbar">
           <div className="flex flex-col gap-5 md:cover-popup-right-content">
             <div className="dark:box-border  border border-dark-75 coverbox-padding md:w-[360px]">
-              <ActivePolicyStatusCard
+              <StatusCardContent
                 dayTab={dayTab}
                 table={table}
                 cover={cover}
                 title={title}
-                coverDetails={coverDetails}
               />
-              <>
-                <div className="flex justify-between gap-5 mt-[31px]">
-                  <Button
-                    color={
-                      theme === 'dark'
-                        ? 'dark-btn-transparent'
-                        : 'btn-transparent'
-                    }
-                    className="w-[130px] h-[30px] fs-500"
-                    text="Cancel"
-                  />
-                  {/* <Link to={'/new-claim'}> */}
-                  <Button
-                    color={
-                      theme === 'dark'
-                        ? 'dark-btn-transparent'
-                        : 'btn-transparent'
-                    }
-                    className="w-[130px] h-[30px] fs-500 bg-[#3F4048]"
-                    text="Cover Details"
-                    // onClick={async () => {
-                    //   console.log(coverDetails)
-                    //   localStorage.setItem(
-                    //     'claimPoolName',
-                    //     coverDetails.poolName
-                    //   )
-                    // }}
-                  />
-                  {/* </Link> */}
-                </div>
-              </>
             </div>
             {prpInput && (
               <Input
                 {...prpInput}
-                defaultValue={coverDetails.PRP}
+                defaultValue={fields.PRP}
                 className={
                   id === 1 || id === 3 || id === 5 ? 'input-border' : ''
                 }
@@ -241,33 +243,48 @@ function DepositModal(props: PopConfirmProps) {
           </div>
           <div className="md:cover-popup-left-content md:cover-center-border md:mt-0 mt-[20px] top-border">
             <div className="dark:box-border  border border-dark-75 coverbox-padding">
-              <div>
-                <>
-                  <InfoText
-                    className="mb-[20px] margin-top"
-                    variant="large"
-                    color={theme === 'dark' ? 'dark' : 'white'}
-                    text={'Deposit'}
-                    icon={true}
-                  />
-                </>
-              </div>
-              <InputMax
-                setDepositAmount={setDepositAmount}
-                {...inputMax}
-                setAmountApproved={setAmountApproved}
-                poolName={coverDetails.poolName}
-                action={true}
+              <InfoText
+                className="mb-[20px] margin-top"
+                variant="large"
+                color={theme === 'dark' ? 'dark' : 'white'}
+                text={'Summary'}
+                icon={true}
               />
 
-              <div className="flex flex-col mt-[15px]">
-                <div className="flex justify-between font-poppins">
-                  <span className="balance-text">Balance</span>
-                  <span className="balance-no dark:balance-no-dark">
-                    {balance}
-                  </span>
-                </div>
+              <>
+                <WeightRow
+                  name="Expiration Date"
+                  value={fields.date}
+                  titleclassname={titleClassNameDark}
+                  textclassname={textClassNameDark}
+                />
+                <WeightRow
+                  name="Estimated Premium"
+                  value={fields.premium}
+                  titleclassname={titleClassNameDark}
+                  textclassname={textClassNameDark}
+                />
+                <WeightRow
+                  name="Policy Fees"
+                  value={fields.fees}
+                  titleclassname={titleClassNameDark}
+                  textclassname={textClassNameDark}
+                />
+                <WeightRow
+                  name="Estimated Discount"
+                  value={fields.discount}
+                  titleclassname={titleClassNameDark}
+                  textclassname={textClassNameDark}
+                />
+                <WeightRow
+                  name="Estimated Cost"
+                  value={fields.cost}
+                  titleclassname={titleClassNameLight}
+                  textclassname={textClassNameLight}
+                />
+              </>
 
+              <div className="flex flex-col mt-[15px]">
                 {transferring ? (
                   <TransactionProgress stage={stage} />
                 ) : (
@@ -302,11 +319,15 @@ function DepositModal(props: PopConfirmProps) {
                   agree="Terms of Use"
                   bntText="Confirm"
                   setId={setId}
-                  id={id}
+                  id={1}
                   coverDetails={policyData}
+                  filledForm={filledForm}
                   depositAmount={depositAmount}
                   setStage={setStage}
-                  active={true}
+                  active={
+                    false
+                    // policyData ? policyData.policyStatus === 'active' : false
+                  }
                   setTransferring={setTransferring}
                   amountApproved={amountApproved}
                   onClose={onClose}
@@ -320,12 +341,21 @@ function DepositModal(props: PopConfirmProps) {
         <div className="kyc-popup">
           <div className="flex gap-5 mb-3.5">
             <div>
-              <ModifyCarInsurance
-                onClose={closeForm}
-                setFilledForm={true}
-                poolName={coverDetails.poolName}
-                coverDetails={policyData}
-              />
+              {filledForm ? (
+                <ModifyCarInsurance
+                  onClose={closeForm}
+                  setFilledForm={setFilledForm}
+                  poolName={coverDetails.poolName}
+                  coverDetails={policyData}
+                  onSubmit={onSubmit}
+                />
+              ) : (
+                <CarInsurance
+                  onClose={closeForm}
+                  poolName={coverDetails.poolName}
+                  onSubmit={onSubmit}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -334,4 +364,4 @@ function DepositModal(props: PopConfirmProps) {
   )
 }
 
-export default DepositModal
+export default CoverModal

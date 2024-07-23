@@ -10,7 +10,7 @@ function Rewards() {
           theme === 'dark'
             ? 'dark:bg-light-200 dark:bg-white'
             : 'claim-btn-greenGradient'
-        } rounded dark:text-dark-800 dark:text-primary-100  box-border-2x-light dark:box-border-2x-dark sm:px-[15px] sm:pt-[10px] sm:pb-[20px] pt-[10px] pb-[20px] sm:py-[20px] px-[30px] rounded-sm  `}
+        } rounded dark:text-dark-800 dark:text-primary-100  box-border-2x-light dark:box-border-2x-dark sm:px-[15px] sm:pt-[10px] sm:pb-[20px] pt-[10px] pb-[20px] sm:py-[20px] px-[30px] rounded-sm leading-none `}
       >
         <div className="flex items-center justify-between gap-1">
           <span className="rewards dark:rewards-dark">REWARDS</span>

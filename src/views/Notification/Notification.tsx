@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { UserContext } from '../../App'
 import Button from '../../components/common/Button'
 import Header from '../../components/common/header/Header'
@@ -10,11 +10,15 @@ import { useSelector, useDispatch } from 'react-redux'
 import { convertLinkToText } from '../../utils/helpers'
 import { updateNotifications } from '../../database'
 import { useWeb3React } from '@web3-react/core'
+import { getUser } from '../../tableland'
+import axios from 'axios'
+import { getPolicyData, get_covers } from '../../api'
 
 function Notification() {
   const { theme } = React.useContext(UserContext)
   const { user } = useSelector((state: any) => state.user)
   const { account } = useWeb3React()
+  const [userDetails, setUserDetails] = useState<any>({ activeCovers: 0 })
 
   interface Document {
     from: any
@@ -36,6 +40,40 @@ function Notification() {
     )}`
     return truncated
   }
+
+  const getData = async () => {
+    if (account) {
+      const covers = await get_covers('NG')
+      const axiosRequestsCovers = covers.map(async (cover: any) => {
+        if (cover.address === account.toLowerCase()) {
+          console.log('Here')
+          const user = await getUser(cover.address)
+          const response = await axios.get(user.data as string)
+          var result = response.data
+          var policyDetails = await getPolicyData(cover.address, cover.poolName)
+          result = {
+            ...result,
+            ...cover,
+            ...policyDetails,
+            userData: user.data,
+          }
+          return result
+        }
+      })
+      var allCovers = await Promise.all(axiosRequestsCovers)
+      if (allCovers[0] === undefined) allCovers = []
+
+      const details = {
+        activeCovers: allCovers.length,
+      }
+
+      setUserDetails(details)
+    }
+  }
+
+  useEffect(() => {
+    getData()
+  }, [])
 
   return (
     <div>
@@ -285,7 +323,7 @@ function Notification() {
           </div>
         </div>
         <div className="hidden xl:flex flex-col gap-5 w-full max-w-[285px] sm:w-[285px] max-[640px]:w-full ">
-          <StatusInfo />
+          <StatusInfo userDetails={userDetails} />
           <Score
             size="w-[140px]"
             text="Response Time"

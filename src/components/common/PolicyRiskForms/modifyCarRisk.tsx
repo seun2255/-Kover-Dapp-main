@@ -30,7 +30,12 @@ import { convertJsonToString } from '../../../utils/helpers'
 import { getCurrentDateTime } from '../../../utils/dateTime'
 import app from '../../../firebaseConfig/firebaseApp'
 import Alert from '../Alert'
-import { openAlert, closeAlert } from '../../../redux/alerts'
+import {
+  openAlert,
+  closeAlert,
+  openLoader,
+  closeLoader,
+} from '../../../redux/alerts'
 import { updateUser } from '../../../redux/user'
 import { useSelector, useDispatch } from 'react-redux'
 import { displayKycModal } from '../../../redux/app'
@@ -42,20 +47,27 @@ import {
   decryptAndHandleFile,
 } from '../../../utils/encryption'
 import { uploadJsonData } from '../../../lighthouse'
-import { is_kyc_reviewer, getUserData, getPoolAddresses } from '../../../api'
+import {
+  is_kyc_reviewer,
+  getUserData,
+  getPoolAddresses,
+  modifyPolicy,
+} from '../../../api'
 import {
   applicationsUpdate,
   createUser,
+  updateCoverQuote,
   updateVerificationState,
 } from '../../../database'
 import { removeItemFromArray } from '../../../utils/helpers'
 import { addCover } from '../../../database'
-import { openLoader, closeLoader } from '../../../redux/alerts'
 
 interface popupProps {
   onClose?: () => void
   onSubmit?: () => void
   poolName: string
+  coverDetails?: any
+  setFilledForm?: any
 }
 interface Document {
   link: string
@@ -75,7 +87,10 @@ function findIndex(array: any, searchText: string) {
   return -1 // Return -1 if no match found
 }
 
-function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
+function ModifyCarInsurance(
+  { onClose, poolName, coverDetails, onSubmit }: popupProps,
+  props: any
+) {
   const { theme } = React.useContext(UserContext)
   const [currentIcon, setcurrentIcon] = useState('')
   const { library, account } = useWeb3React()
@@ -104,17 +119,20 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
     address2: '',
     city: '',
     postCode: '',
-    documents: [] as Document[],
+    documents: (coverDetails.documents as Document[]) || [],
   })
   const [formFilled, setFormFilled] = useState(true)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
-  const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
+  const [uploadProgress, setUploadProgress] = useState([0]) // Tracks progress for each file
   type VerificationState = 'unverified' | 'verifying' | 'verified'
   const [verificationState, setVerificationState] =
     useState<VerificationState>('unverified')
   const [success, setSuccess] = useState(false)
   const [fileUploadInitated, setFileUploadInitiated] = useState(false)
   const [emailRequiredMessage, setEmailRequiredMessage] = useState(false)
+  //   const [canModify, setCanModify] = useState(false)
+  console.log('Details: ', coverDetails)
+  const canModify = coverDetails.canModify
 
   type ProgressData = {
     total: number
@@ -125,7 +143,9 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
     let percentageDone = Math.round(
       (progressData?.uploaded / progressData?.total) * 100
     )
-    setUploadProgress(percentageDone)
+    var all = uploadProgress
+    all[all.length] = percentageDone
+    setUploadProgress(all)
   }
 
   //Uploads File to IPFS
@@ -201,7 +221,12 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
 
   // Handle form submission
   const handleSubmit = async () => {
-    console.log('Button was clicked')
+    dispatch(
+      openLoader({
+        displaytransactionLoader: true,
+        text: 'Modifying Policy',
+      })
+    )
     setFileUploadInitiated(true)
     const date = getCurrentDateTime()
     setFormState((prevState) => ({
@@ -213,111 +238,89 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
       address: account,
     }))
     const formFilled = areAllValuesFilled(formState)
-    setFormFilled(formFilled)
-
-    if (!formFilled) {
-      dispatch(
-        openAlert({
-          displayAlert: true,
-          data: {
-            id: 2,
-            variant: 'Failed',
-            classname: 'text-black',
-            title: 'Transaction Failed',
-            tag1: 'Some fields not filled!',
-            tag2: 'please fill all fields',
-          },
-        })
-      )
-      setTimeout(() => {
-        dispatch(closeAlert())
-      }, 10000)
-    }
+    // setFormFilled(formFilled)
 
     // if (formFilled) {
-    // if (true) {
-    if (formFilled) {
-      // fetch('https://ipinfo.io/json')
-      //   .then((response) => response.json())
-      //   .then(async (data) => {
-      dispatch(
-        openLoader({
-          displaytransactionLoader: true,
-          text: 'Saving Data',
-        })
-      )
-      const formData = {
-        ...formState,
-        date: date,
-        address: account,
-        region: 'NG',
-        poolName: poolName,
-      }
-      const dataString = convertJsonToString(formData)
-      const userData = await uploadJsonData(dataString)
-      // const userData =
-      //   'https://gateway.lighthouse.storage/ipfs/Qmf4rzQkV64hBzkr5M4EsTWKUHMTsioea8fD6JXWu9gsBT'
-
-      console.log('Car Data: ', userData)
-
-      const durationIndex = findIndex(coverDurations, formData.coverDuration)
-      console.log('Durtion: ', durationIndex)
-
-      const premiumQuote = calculatePremiumQuote(formData)
-      console.log('Quote data: ', premiumQuote)
-
-      // await applyForPolicy(poolName, userData, durationIndex)
-      console.log('Name: ', poolName)
-      // const hash = await applyForPolicy(poolName, userData, 1, dispatch)
-      await addCover(account, {
-        status: 'in review',
-        claimState: 'no claims',
-        poolName: poolName,
-        canModify: true,
-        claimHistory: 0,
-        ...premiumQuote,
-        formData: userData,
-      })
-      await applicationsUpdate()
-      dispatch(closeLoader())
-      dispatch(
-        openAlert({
-          displayAlert: true,
-          data: {
-            id: 1,
-            variant: 'Successful',
-            classname: 'text-black',
-            title: 'Submission Successful',
-            tag1: 'risk data submitted',
-            tag2: 'View on etherscan',
-            // hash: hash,
-          },
-        })
-      )
-      setTimeout(() => {
-        dispatch(closeAlert())
-      }, 10000)
-      // setPolicyProcessState('verifying')
-      const updatedData = await getUserData(account)
-      dispatch(updateUser({ data: updatedData }))
-      if (kycModal) {
-        dispatch(displayKycModal({ display: false }))
-      }
-      if (onSubmit !== undefined) onSubmit()
-      // })
-      // .catch((error) => {
-      //   console.log('Error fetching IP address information: ', error)
-      // })
+    // fetch('https://ipinfo.io/json')
+    //   .then((response) => response.json())
+    //   .then(async (data) => {
+    const formData = {
+      ...formState,
+      date: date,
+      address: account,
+      region: 'NG',
+      poolName: poolName,
     }
+    const dataString = convertJsonToString(formData)
+    const userData = await uploadJsonData(dataString)
+    // const userData =
+    //   'https://gateway.lighthouse.storage/ipfs/Qmf4rzQkV64hBzkr5M4EsTWKUHMTsioea8fD6JXWu9gsBT'
+
+    const durationIndex = findIndex(coverDurations, formData.coverDuration)
+    console.log('Duration: ', durationIndex)
+
+    const premiumQuote = calculatePremiumQuote(formData)
+    console.log('Quote data: ', premiumQuote)
+
+    // const hash = await modifyPolicy(poolName, userData, 1, dispatch)
+    var hash
+    if (coverDetails.policyStatus === 'active') {
+      hash = await modifyPolicy(poolName, userData, 1, dispatch)
+    } else {
+      hash = undefined
+    }
+    await updateCoverQuote(account, 'Car Insurance', {
+      ...premiumQuote,
+      formData: userData,
+    })
+    await applicationsUpdate()
+    dispatch(closeLoader())
+    dispatch(
+      openAlert({
+        displayAlert: true,
+        data: {
+          id: 1,
+          variant: 'Successful',
+          classname: 'text-black',
+          title: 'Submission Successful',
+          tag1: 'policy application modified',
+          tag2: 'View on etherscan',
+          hash: hash,
+        },
+      })
+    )
+    // setFilledForm(true)
+    setTimeout(() => {
+      dispatch(closeAlert())
+    }, 10000)
+    // setPolicyProcessState('verifying')
+    const updatedData = await getUserData(account)
+    dispatch(updateUser({ data: updatedData }))
+    if (kycModal) {
+      dispatch(displayKycModal({ display: false }))
+    }
+    if (onSubmit !== undefined) onSubmit()
+    // })
+    // .catch((error) => {
+    //   console.log('Error fetching IP address information: ', error)
+    // })
+    // }
   }
 
   useEffect(() => {
-    const now = async () => {
-      const addresses = await getPoolAddresses('Car Insurance')
-      console.log(addresses.policy)
-    }
+    Object.keys(formState).forEach((key) => {
+      setFormState((prevState) => ({
+        ...prevState,
+        [key]: coverDetails[key],
+      }))
+    })
 
-    now()
+    coverDetails.documents.map((document: any, index: number) => {
+      var all = uploadProgress
+      all[index] = 100
+      setUploadProgress(all)
+      setSelectedFiles(coverDetails.documents)
+    })
   }, [])
 
   return (
@@ -372,6 +375,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         labelIcon={false}
                         placeholder="Please select"
                         filled={formFilled}
+                        initialValue={coverDetails.make}
+                        disabled={!canModify}
                         name="make"
                         handleChange={handleChange}
                       />
@@ -380,6 +385,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         labelIcon={false}
                         placeholder="Please select"
                         carMake={formState.make}
+                        initialValue={coverDetails.model}
+                        disabled={!canModify}
                         filled={formFilled}
                         name="model"
                         handleChange={handleChange}
@@ -391,6 +398,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       label="Year of Manufacture"
                       placeholder="YYYY"
                       filled={formFilled}
+                      initialValue={coverDetails.yearManufactured}
+                      disabled={!canModify}
                       name="yearManufactured"
                       handleChange={handleChange}
                     />
@@ -399,6 +408,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       labelIcon={false}
                       placeholder="Please select"
                       filled={formFilled}
+                      initialValue={coverDetails.engineSize}
+                      disabled={!canModify}
                       name="engineSize"
                       handleChange={handleChange}
                     />
@@ -408,6 +419,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         label="Registration Number"
                         placeholder="654875236"
                         outline={true}
+                        initialValue={coverDetails.registrationNumber}
+                        disabled={!canModify}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
                         filled={formFilled}
@@ -418,6 +431,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         field="$"
                         placeholder="e.g. 5000"
                         outline={true}
+                        initialValue={coverDetails.insurableValue}
+                        disabled={!canModify}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
                         filled={formFilled}
@@ -429,6 +444,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         label="Estimated Annual Mileage"
                         placeholder="Please select"
                         filled={formFilled}
+                        initialValue={coverDetails.annualMileage}
+                        disabled={!canModify}
                         name="annualMileage"
                         handleChange={handleChange}
                       />
@@ -436,6 +453,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         label="Overnight Parking "
                         placeholder="Please select"
                         filled={formFilled}
+                        initialValue={coverDetails.overnightParking}
+                        disabled={!canModify}
                         name="overnightParking"
                         handleChange={handleChange}
                       />
@@ -458,6 +477,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       label="Cover Duration"
                       placeholder="Please select"
                       filled={formFilled}
+                      initialValue={coverDetails.coverDuration}
+                      disabled={!canModify}
                       name="coverDuration"
                       handleChange={handleChange}
                     />
@@ -465,6 +486,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       label="Cover Type"
                       placeholder="Please select"
                       filled={formFilled}
+                      initialValue={coverDetails.coverType}
+                      disabled={!canModify}
                       name="coverType"
                       handleChange={handleChange}
                     />
@@ -472,6 +495,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       label="Usage"
                       placeholder="Please select"
                       filled={formFilled}
+                      initialValue={coverDetails.usage}
+                      disabled={!canModify}
                       name="usage"
                       handleChange={handleChange}
                     />
@@ -479,6 +504,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       label="Security Measures"
                       placeholder="Please select"
                       filled={formFilled}
+                      initialValue={coverDetails.securityMeasures}
+                      disabled={!canModify}
                       name="securityMeasures"
                       handleChange={handleChange}
                     />
@@ -488,6 +515,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         label="Driving Offences"
                         placeholder="Please select"
                         filled={formFilled}
+                        initialValue={coverDetails.drivingOffences}
+                        disabled={!canModify}
                         name="drivingOffences"
                         handleChange={handleChange}
                       />
@@ -495,6 +524,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         label="Claim History"
                         placeholder="Please select"
                         filled={formFilled}
+                        initialValue={coverDetails.claimHistory}
+                        disabled={!canModify}
                         name="claimHistory"
                         handleChange={handleChange}
                       />
@@ -503,6 +534,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         label="Year of Obtaining Licence"
                         placeholder="YYYY"
                         filled={formFilled}
+                        initialValue={coverDetails.yearObtainedLicence}
+                        disabled={!canModify}
                         name="yearObtainedLicence"
                         handleChange={handleChange}
                       />
@@ -511,6 +544,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         label="Driving Licence Number"
                         placeholder="e.g. RJ5852"
                         handleChange={handleChange}
+                        initialValue={coverDetails.drivingLicenceNumber}
+                        disabled={!canModify}
                         filled={formFilled}
                         name="drivingLicenceNumber"
                       />
@@ -519,6 +554,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       label="Risk Address"
                       placeholder="Please select"
                       filled={formFilled}
+                      initialValue={coverDetails.riskAddress}
+                      disabled={!canModify}
                       name="riskAddress"
                       handleChange={handleChange}
                     />
@@ -526,6 +563,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       label="Country/Region"
                       placeholder="e.g. California"
                       filled={formFilled}
+                      initialValue={coverDetails.country}
+                      disabled={!canModify}
                       name="country"
                       handleChange={handleChange}
                     />
@@ -537,6 +576,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         outline={true}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
+                        initialValue={coverDetails.address1}
+                        disabled={!canModify}
                         filled={formFilled}
                         name="address1"
                       />
@@ -547,6 +588,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         outline={true}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
+                        initialValue={coverDetails.address2}
+                        disabled={!canModify}
                         filled={formFilled}
                         name="address2"
                       />
@@ -557,6 +600,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         outline={true}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
+                        initialValue={coverDetails.city}
+                        disabled={!canModify}
                         filled={formFilled}
                         name="city"
                       />
@@ -567,6 +612,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         outline={true}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
+                        initialValue={coverDetails.postCode}
+                        disabled={!canModify}
                         filled={formFilled}
                         name="postCode"
                       />
@@ -641,12 +688,13 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                           e.stopPropagation()
                         }}
                         onChange={handleFileChange}
+                        disabled={!canModify}
                       />
                     </label>
                     {selectedFiles.map((file, index) => (
                       <div className="mb-[5px]" key={index}>
                         <UploadingFile
-                          progress={uploadProgress}
+                          progress={uploadProgress[index]}
                           file={file}
                           handleRemove={() => removeFile(index)}
                         />
@@ -663,21 +711,16 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                   </div>
                 </div>
                 <hr className="my-[24px]" />
-                <div className="lg:grid lg:grid-cols-2">
-                  <div></div>
-                  <div className="flex flex-col gap-2.5">
-                    <FormAgreament
-                      agreeURL="/"
-                      mainClass="flex flex-col"
-                      variety="checkbox"
-                      agree="Terms of Use"
-                      bntText="Submit"
-                      item1Class="w-full flex gap-[12px] items-center"
-                      item2Class="w-full mt-[10px] flex justify-end"
-                      btn="sm:w-fit w-full"
-                      handleSubmit={handleSubmit}
-                    />
-                  </div>
+                <div className="flex justify-end">
+                  <Button
+                    className={`${
+                      theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'
+                    } font-medium px-8 max-[640px]:w-full disabled:opacity-10 disabled:pointer-events-none`}
+                    text="Save"
+                    // color={theme === 'dark' ? 'btn-white' : 'grey-gradient'}
+                    disabled={!canModify}
+                    onClick={canModify ? handleSubmit : () => null}
+                  />
                 </div>
               </div>
             </div>
@@ -687,4 +730,4 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
     </div>
   )
 }
-export default CarInsurance
+export default ModifyCarInsurance

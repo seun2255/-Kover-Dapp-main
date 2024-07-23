@@ -12,6 +12,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { getUserDetails } from '../../database'
 import { useWeb3React } from '@web3-react/core'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 function Welcome() {
   const { width } = useWindowDimensions()
@@ -20,6 +21,56 @@ function Welcome() {
   const [userVerificationState, setUserVerificationState] =
     useState('unverified')
   const navigate = useNavigate()
+  const [currencyData, setCurrencyData] = useState({
+    usdcData: {
+      priceUSD: '---',
+      priceEUR: '---',
+      priceBTC: '---',
+      percentChange: '0',
+    },
+    ethData: {
+      priceUSD: '---',
+      priceEUR: '---',
+      priceBTC: '---',
+      percentChange: '0',
+    },
+    btcData: {
+      priceUSD: '---',
+      priceEUR: '---',
+      priceBTC: 1,
+      percentChange: '0',
+    },
+  })
+
+  const getData = async () => {
+    // const apiData = await axios.get('http://localhost:4000/get-crypto-rates')
+
+    const details = {
+      usdcData: {
+        priceUSD: '1.00',
+        priceEUR: '0.9185',
+        priceBTC: '0.0000',
+        percentChange: '+0.0090',
+      },
+      ethData: {
+        priceUSD: '3514.5930',
+        priceEUR: '3227.9510',
+        priceBTC: '0.0525',
+        percentChange: '+0.8982',
+      },
+      btcData: {
+        priceUSD: '66939.15',
+        priceEUR: '61479.7470',
+        priceBTC: 1,
+        percentChange: '-0.5012',
+      },
+    }
+    setCurrencyData(details)
+  }
+
+  useEffect(() => {
+    getData()
+  }, [])
 
   useEffect(() => {
     if (account) {
@@ -189,7 +240,7 @@ function Welcome() {
                 </div>
               </div>
             </div> */}
-            <MarketStatus />
+            <MarketStatus currencyData={currencyData} />
           </div>
         </div>
       </div>

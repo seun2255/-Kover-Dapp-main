@@ -26,13 +26,26 @@ import { Box } from '@mui/material'
 import useWindowDimensions from '../../components/global/UserInform/useWindowDimensions'
 import Alert from '../../components/common/Alert'
 import { useWeb3React } from '@web3-react/core'
-import { get_covers, getPolicyData, get_claims, getClaimData } from '../../api'
+import {
+  get_covers,
+  getPolicyData,
+  get_claims,
+  getClaimData,
+  getTokenBalance,
+  getPolicyBalanceDetails,
+  getPremiumContractInstance,
+} from '../../api'
 import { getUser } from '../../tableland'
 import axios from 'axios'
 import { useDispatch } from 'react-redux'
 import { openAlert, closeAlert } from '../../redux/alerts'
 import TableOptions from '../../components/common/Table/TableOptions/TableOptions'
 import { getVotes } from '../../database'
+import NewClaim from '../NewClaim/NewClaim'
+import DepositModal from '../../components/common/DepositModal'
+import getCurrencyData from '../../utils/currencyApi'
+import Skeleton from 'react-loading-skeleton'
+import TableSkeleton from '../../components/common/Table/TableSkeleton'
 
 function Dashboard() {
   const label = { inputProps: { 'aria-label': 'Switch demo' } }
@@ -52,16 +65,45 @@ function Dashboard() {
   const { theme } = React.useContext(UserContext)
   const [tabs, setTabs] = useState<number>(0)
   const [dateFilter, setDateFilter] = useState<number>(0)
+  const [loading, setLoading] = useState(true)
 
   const [popup, setPopup] = useState<PopConfirmProps | null>(null)
   const [covers, setCovers] = useState<any[]>([])
   const [claims, setClaims] = useState<any[]>([])
   const [votes, setVotes] = useState<any[]>([])
+  const [claimForm, setClaimForm] = useState(false)
+  const toggleForm = () => setClaimForm((v) => !v)
+  const [balance, setBalance] = useState<any>(0)
   const dispatch = useDispatch()
+  const [userDetails, setUserDetails] = useState<any>({
+    activeCovers: 0,
+    usdcData: {
+      priceUSD: '---',
+      priceEUR: '---',
+      priceBTC: '---',
+      percentChange: 0,
+    },
+    ethData: {
+      priceUSD: '---',
+      priceEUR: '---',
+      priceBTC: '---',
+      percentChange: 0,
+    },
+    btcData: {
+      priceUSD: '---',
+      priceEUR: '---',
+      priceBTC: '---',
+      percentChange: 0,
+    },
+  })
 
   const popupHandle = (data: any) => {
     setSelectedCover(data)
     data === null ? setPopup(null) : setPopup(myCoverPopup)
+  }
+
+  const closeForm = () => {
+    setClaimForm(false)
   }
 
   const getData = async () => {
@@ -131,7 +173,51 @@ function Dashboard() {
         console.log('Votes: ', myVotes)
         setVotes(myVotes)
       })
+
+      const tokenBalance = await getTokenBalance(account)
+      setBalance(Math.round(parseFloat(tokenBalance)))
+
+      // const apiData = await axios.get('http://localhost:4000/get-crypto-rates')
+
+      const policyBalances = await getPolicyBalanceDetails(
+        account,
+        'Car Insurance'
+      )
+
+      const details = {
+        activeCovers: allCovers.length,
+        usdcData: {
+          priceUSD: '1.00',
+          priceEUR: '0.9185',
+          priceBTC: '0.0000',
+          percentChange: '+0.0090',
+        },
+        ethData: {
+          priceUSD: '3514.5930',
+          priceEUR: '3227.9510',
+          priceBTC: '0.0525',
+          percentChange: '+0.8982',
+        },
+        btcData: {
+          priceUSD: '66939.15',
+          priceEUR: '61479.7470',
+          priceBTC: 1,
+          percentChange: '-0.5012',
+        },
+        policyBalance: policyBalances.policyBalance,
+        premiumsPaid: policyBalances.premiumsPaid,
+      }
+      setUserDetails(details)
+      setLoading(false)
     }
+  }
+
+  const attachListeners = async () => {
+    const premiumContract = await getPremiumContractInstance('Car Insurance')
+    premiumContract.on('overnightAccounting', () => {
+      console.log('Performed Overnight Accounting')
+      getData()
+    })
   }
 
   function capitalizeFirstLetter(inputString: any) {
@@ -161,6 +247,7 @@ function Dashboard() {
 
   useEffect(() => {
     getData()
+    attachListeners()
   }, [])
 
   //Policy State
@@ -209,11 +296,21 @@ function Dashboard() {
     rows: covers.map((cover, index) => {
       return [
         <div className="w-6 -mr-6 min-w-[1.5rem]">
-          <TableOptions options={[{ name: 'Claim' }, { name: 'Pause' }]} />
+          <TableOptions
+            options={[
+              {
+                name: 'Claim',
+                action: () => {
+                  setClaimForm(true)
+                },
+              },
+              { name: 'Pause' },
+            ]}
+          />
         </div>,
         <CarInsurance />,
         <Status type="Active" text="Active" />,
-        <span className="prp dark:prp-dark">80%</span>,
+        <span className="prp dark:prp-dark">{cover.PRP}%</span>,
         <span className="prp dark:prp-dark">
           {policyState[cover.policyStatus]}
         </span>,
@@ -857,7 +954,15 @@ function Dashboard() {
         <div>
           <h5 className="hidden sm:flex overview mb-[24px]">Overview</h5>
           <div className="flex flex-col gap-5 h-[305px]">
-            <StatusInfo className="statusInfo" height="h-full" />
+            {loading ? (
+              <Skeleton height={'298px'} />
+            ) : (
+              <StatusInfo
+                className="statusInfo"
+                height="h-full"
+                userDetails={userDetails}
+              />
+            )}
           </div>
         </div>
         <div>
@@ -873,15 +978,23 @@ function Dashboard() {
           {width >= 600 ? (
             <>
               <div className="hidden  sm:grid grid-cols-[36.17%_61.16%] lg:grid-cols-[36.17%_60%] xl:grid-cols-[36.17%_60.1%] xxl:grid-cols-[36.17%_61.16%] gap-[20px]">
-                <Rewardstag />
-                <Score size="w-[90px]" />
-                <Insured />
+                <Rewardstag loading={loading} />
+                {loading ? (
+                  <Skeleton height={'167px'} width={'260px'} />
+                ) : (
+                  <Score size="w-[90px]" />
+                )}
+                {loading ? (
+                  <Skeleton height={'167px'} width={'440px'} />
+                ) : (
+                  <Insured />
+                )}
               </div>
             </>
           ) : (
             <>
               <div className="flex sm:hidden flex-col gap-[20px]">
-                <Rewardstag />
+                <Rewardstag loading={loading} />
                 <Score size="w-[100%]" />
                 <Insured />
               </div>
@@ -891,7 +1004,11 @@ function Dashboard() {
 
         <div className="lg:mt-[43px] xxl:w-[102.15%] xl:w-[100%] lg:w-[98%]">
           <div className="gap-5">
-            <MarketStatus />
+            {loading ? (
+              <Skeleton height={'300px'} width={'338px'} />
+            ) : (
+              <MarketStatus currencyData={userDetails} />
+            )}
           </div>
         </div>
       </div>
@@ -920,7 +1037,11 @@ function Dashboard() {
         </div>
 
         <div className="block max-[1200px]:hidden">
-          {tabs === 0 && <Table {...myCover} tableId={0} />}
+          {tabs === 0 && loading ? (
+            <TableSkeleton {...myCover} tableId={0} />
+          ) : (
+            <Table {...myCover} tableId={0} />
+          )}
           {tabs === 1 && <Table {...myClaims} />}
           {tabs === 2 && <Table {...myBonds} />}
           {tabs === 3 && <Table {...myVotes} />}
@@ -1686,13 +1807,30 @@ function Dashboard() {
           visible
           maxWidth="max-w-[860px]"
         >
-          <PopConfirm
+          <DepositModal
+            warning={popup.warning}
+            dayTab={popup.dayTab}
+            cover={popup.cover}
+            prpInput={popup.prpInput}
+            inputMax={popup.inputMax}
+            balance={balance}
+            disclaimer={popup.disclaimer}
+            title={popup.title}
             onClose={() => popupHandle(null)}
-            {...popup}
             coverDetails={selectedCover}
           />
         </Popup>
       )}
+
+      <Popup visible={claimForm} onClose={toggleForm} maxWidth="max-w-[910px]">
+        <div className="kyc-popup">
+          <div className="flex gap-5 mb-3.5">
+            <div>
+              <NewClaim onClose={closeForm} poolName="Car Insurance" />
+            </div>
+          </div>
+        </div>
+      </Popup>
     </div>
   )
 }

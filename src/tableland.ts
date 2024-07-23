@@ -3,9 +3,9 @@ import { ethers } from 'ethers'
 import { convertJsonStringToObject } from './utils/helpers'
 
 //Live
-const usersTableName = 'kover_finance_421614_855'
-const coversTableName = 'kover_finance_421614_856'
-const claimsTableName = 'kover_finance_421614_857'
+const usersTableName = 'kover_finance_421614_904'
+const coversTableName = 'kover_finance_421614_905'
+const claimsTableName = 'kover_finance_421614_906'
 
 //Localhost
 // const usersTableName = ' kover_finance_31337_2'
@@ -65,22 +65,27 @@ const get_membership_appliants = async (addresses: any[]) => {
 const getUser = async (address: string) => {
   const db = new Database()
   // const address = userAddress.toLowerCase()
+  console.log('Address: ', address)
   const { results } = await db
     .prepare(
       `SELECT * FROM ${usersTableName} WHERE address = "${address.toLowerCase()}";`
     )
     .all()
+  console.log('Result: ', results[0])
   return results[0]
 }
 
 const getCover = async (address: any, poolName: string) => {
   const db = new Database()
   // const address = userAddress.toLowerCase()
+  console.log('Address: ', address.toLowerCase())
+  console.log('Pool Name: ', poolName)
   const { results } = await db
     .prepare(
       `SELECT * FROM ${coversTableName} WHERE address = '${address.toLowerCase()}' AND poolName = '${poolName}';`
     )
     .all()
+  console.log('Results: ', results)
   return results[0]
 }
 

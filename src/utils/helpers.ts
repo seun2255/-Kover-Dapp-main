@@ -1,4 +1,4 @@
-import { ethers, toNumber } from 'ethers'
+import { ethers, formatEther, toNumber } from 'ethers'
 import axios from 'axios'
 
 function convertJsonToString(jsonObject: Object) {
@@ -135,6 +135,7 @@ const addPolicyContractState = (application: any, policy_details: any) => {
   )
   const status = getPolicyStatus(policy_details.status.toString())
   const resultStatus = getResultStatus(policy_details.result.status.toString())
+  const coverId = toNumber(policy_details.policy_constants.coverId)
 
   const currentDate = new Date()
   const unixTimestamp = Math.floor(currentDate.getTime() / 1000)
@@ -160,7 +161,39 @@ const addPolicyContractState = (application: any, policy_details: any) => {
   application.submit_time_left = submit_time_left
   // application.stake_fee = policy_details.result.stake_fee.toString()
   application.stake_fee = 25
+  application.coverId = coverId
   return application
+}
+
+const stakeDurations = ['14 days', '30 days', '60 days']
+
+const formatStakeData = (stake: any) => {
+  const releaseDate = toNumber(stake.stake_end_timestamp)
+
+  // Convert the timestamp to milliseconds
+  const date = new Date(releaseDate * 1000)
+
+  // Function to pad single digit numbers with a leading zero
+  const pad = (num: number) => (num < 10 ? '0' : '') + num
+
+  // Extract the date components
+  const year = date.getFullYear()
+  const month = pad(date.getMonth() + 1) // Months are zero-based in JS
+  const day = pad(date.getDate())
+
+  const hours = pad(date.getHours())
+  const minutes = pad(date.getMinutes())
+  const seconds = pad(date.getSeconds())
+
+  const formattedReleaseDate = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`
+
+  return {
+    amount: formatEther(stake.amount_staked),
+    releaseDate: formattedReleaseDate,
+    dateObject: date,
+    id: Number(stake.stake_id),
+    duration: stakeDurations[Number(stake.stake_duration)],
+  }
 }
 
 const addClaimsContractState = async (application: any, claim_details: any) => {
@@ -257,6 +290,60 @@ function isLinkPresent(array: any, linkToCheck: string) {
   return false // Link not found
 }
 
+let durations: { [key: string]: number } = {
+  '2 weeks': 14,
+  '30 days': 30,
+  '90 days': 90,
+  '180 days': 180,
+  '365 days': 365,
+}
+
+const getDailyCost = (totalCost: number, duration: string) => {
+  var days = durations[duration]
+  const dailyCost = (totalCost / days).toFixed(1)
+  return dailyCost
+}
+
+function formatPremiumsPaid(input: string): string {
+  // Check if the input is a valid number
+  if (isNaN(parseFloat(input))) {
+    return 'Invalid number'
+  }
+
+  // Find the position of the decimal point
+  const decimalIndex = input.indexOf('.')
+
+  // Remove the decimal point from the string
+  const cleanNumber = input.replace('.', '')
+
+  // Take the first 5 digits
+  let limitedNumber = cleanNumber.slice(0, 5)
+
+  // Reinsert the decimal point if it was present and within the first 5 characters
+  if (decimalIndex !== -1 && decimalIndex < 5) {
+    limitedNumber =
+      limitedNumber.slice(0, decimalIndex) +
+      '.' +
+      limitedNumber.slice(decimalIndex)
+  }
+
+  // Remove any trailing zeros after the decimal point and the decimal point if it's at the end
+  return parseFloat(limitedNumber).toString()
+}
+
+function formatPolicyBalance(input: string): string {
+  // Parse the input string to a number
+  const number = parseInt(input, 10)
+
+  // Check if the input is a valid number
+  if (isNaN(number)) {
+    return 'Invalid number'
+  }
+
+  // Use toLocaleString to format the number with commas
+  return number.toLocaleString()
+}
+
 export {
   convertJsonToString,
   convertJsonStringToObject,
@@ -270,4 +357,8 @@ export {
   addClaimsContractState,
   extractHash,
   formatValidatorData,
+  getDailyCost,
+  formatStakeData,
+  formatPremiumsPaid,
+  formatPolicyBalance,
 }

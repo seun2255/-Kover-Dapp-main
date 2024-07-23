@@ -83,6 +83,38 @@
           "internalType": "uint256",
           "name": "_application_policy_duration_index",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_cost",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "_assessed_max_exposure",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_assessed_src",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_assessed_deductible_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_assessed_risk_factor",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.PolicyAssesementData",
+          "name": "_assesement",
+          "type": "tuple"
         }
       ],
       "name": "apply_for_or_modify_policy",

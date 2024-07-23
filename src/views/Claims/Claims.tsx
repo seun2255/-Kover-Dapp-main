@@ -28,8 +28,9 @@ import { openAlert, closeAlert } from '../../redux/alerts'
 import StakingPopup from '../Staking/StakePopup'
 import { getUserDetails } from '../../database'
 import TableOptions from '../../components/common/Table/TableOptions/TableOptions'
-import { getUsersStake } from '../../api'
+import { getUsersStakes } from '../../api'
 import { useWeb3React } from '@web3-react/core'
+import TableSkeleton from '../../components/common/Table/TableSkeleton'
 
 function Claims() {
   const [select, setSelect] = useState(false)
@@ -50,63 +51,56 @@ function Claims() {
   }
   const { account } = useWeb3React()
   const [claims, setClaims] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const [stakingPools, setStakingPools] = useState<any[]>([])
-
-  const stakingPoolsDetails = [
+  const [stakingPools, setStakingPools] = useState<any[]>([
     {
       name: 'KVER Pool',
       interestRate: '10%',
-      entryDate: '------------------',
+      releaseDate: '------------------',
       capital: '0',
       action: 'Stake',
       active: true,
       iconLight: '/images/light-diamond.svg',
       iconDark: '/images/logo-start.svg',
     },
-    {
-      name: 'KVER Pool',
-      interestRate: '10%',
-      entryDate: '------------------',
-      capital: '0',
-      action: 'Stake',
-      active: false,
-      iconLight: '/images/58.svg',
-      iconDark: '/images/59.svg',
-    },
-    {
-      name: 'KVER Pool',
-      interestRate: '10%',
-      entryDate: '------------------',
-      capital: '0',
-      action: 'Stake',
-      active: false,
-      iconLight: '/images/light-diamond.svg',
-      iconDark: '/images/logo-start.svg',
-    },
-    {
-      name: 'KVER Pool',
-      interestRate: '10%',
-      entryDate: '------------------',
-      capital: '0',
-      action: 'Stake',
-      active: false,
-      iconLight: '/images/58.svg',
-      iconDark: '/images/59.svg',
-    },
-  ]
+  ])
 
   const getStakingData = async () => {
-    const stake = await getUsersStake(account as string)
+    const stakes = await getUsersStakes(account as string)
+    var pools = [
+      {
+        name: 'KVER Pool',
+        interestRate: '10%',
+        releaseDate: '------------------',
+        capital: '0',
+        action: 'Stake',
+        active: true,
+        iconLight: '/images/light-diamond.svg',
+        iconDark: '/images/logo-start.svg',
+      },
+    ]
 
-    if (stake.amount !== '0.0') {
-      stakingPoolsDetails[0].capital = stake.amount
-      stakingPoolsDetails[0].entryDate = stake.date
-      stakingPoolsDetails[0].active = false
-      stakingPoolsDetails[0].action = 'Unstake'
-    }
+    stakes.map((stake: any) => {
+      var newStake = stake
+      newStake.capital = stake.amount
+      newStake.action = 'Unstake'
+      newStake.iconLight = '/images/light-diamond.svg'
+      newStake.iconDark = '/images/logo-start.svg'
+      newStake.name = 'KVER Pool'
+      newStake.interestRate = '10%'
 
-    setStakingPools(stakingPoolsDetails)
+      if (stake.dateObject < new Date()) {
+        newStake.active = true
+      } else {
+        newStake.active = false
+      }
+
+      pools.push(newStake)
+    })
+
+    setStakingPools(pools)
+    setLoading(false)
   }
 
   const getData = async () => {
@@ -481,7 +475,12 @@ function Claims() {
         {width >= 1000 ? (
           <>
             <div className="block max-[1000px]:hidden">
-              {tabs === 0 && <Table {...claimsTable} />}
+              {tabs === 0 &&
+                (loading ? (
+                  <TableSkeleton {...claimsTable} />
+                ) : (
+                  <Table {...claimsTable} />
+                ))}
               {tabs === 1 && <Table {...validatorTable} />}
               {tabs === 2 && <Adjustor />}
             </div>
@@ -834,12 +833,12 @@ function Claims() {
         onClose={toggleStake}
         visible={Boolean(stake)}
       >
-        <StakingPopup
+        {/* <StakingPopup
           defaultTab={stake === 2 ? 1 : 0}
           onClose={toggleStake}
           {...stakePopup}
           action={getStakingData}
-        />
+        /> */}
       </Popup>
     </div>
   )

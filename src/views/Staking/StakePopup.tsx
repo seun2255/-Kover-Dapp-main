@@ -108,7 +108,7 @@ function StakingPopup(props: PopConfirmProps) {
 
   const dispatch = useDispatch()
 
-  const [day, setDay] = useState(1)
+  const [day, setDay] = useState(0)
   const { warning, dayTab, cover, prpInput, inputMax, balance, disclaimer } =
     datam?.data?.[tab] || props
   const { width } = useWindowDimensions()
@@ -143,7 +143,7 @@ function StakingPopup(props: PopConfirmProps) {
   }
 
   const handleStake = async () => {
-    const hash = await stake(depositAmount)
+    const hash = await stake(depositAmount, day, dispatch)
     await getData()
     await action()
     dispatch(
@@ -168,15 +168,15 @@ function StakingPopup(props: PopConfirmProps) {
 
   const getData = async () => {
     const balanceKover = await getTokenBalance(account)
-    const balanceStake = await getStakeBalance(account as string)
+    // const balanceStake = await getStakeBalance(account as string)
 
     setKoverBalance(balanceKover)
-    setStakeBalance(balanceStake)
+    // setStakeBalance(balanceStake)
   }
 
-  useEffect(() => {
-    getData()
-  }, [])
+  // useEffect(() => {
+  //   getData()
+  // }, [])
 
   return (
     <div className={`sm:popup-3 mx-[15px] my-[20px] ${id === 4 ? '' : ''}`}>
@@ -231,6 +231,22 @@ function StakingPopup(props: PopConfirmProps) {
                 <div className="flex justify-between gap-[16px] md:mt-0 mt-[15px]">
                   <button
                     className={`stake-popup-btn dark:stake-popup-btn-dark ${
+                      day === 0
+                        ? `${
+                            theme === 'dark' ? 'bg-[#dddddd]' : 'bg-[#3F4048]'
+                          }`
+                        : `${
+                            theme === 'dark' ? 'bg-[#f3f3f3]' : 'bg-[#2A2B31]'
+                          }`
+                    }`}
+                    onClick={() => {
+                      changeDay(0)
+                    }}
+                  >
+                    <span className=""> 14 DAYS </span>
+                  </button>
+                  <button
+                    className={`stake-popup-btn dark:stake-popup-btn-dark ${
                       day === 1
                         ? `${
                             theme === 'dark' ? 'bg-[#dddddd]' : 'bg-[#3F4048]'
@@ -243,7 +259,7 @@ function StakingPopup(props: PopConfirmProps) {
                       changeDay(1)
                     }}
                   >
-                    <span className=""> 14 DAYS </span>
+                    <span className=""> 30 DAYS </span>
                   </button>
                   <button
                     className={`stake-popup-btn dark:stake-popup-btn-dark ${
@@ -259,22 +275,6 @@ function StakingPopup(props: PopConfirmProps) {
                       changeDay(2)
                     }}
                   >
-                    <span className=""> 30 DAYS </span>
-                  </button>
-                  <button
-                    className={`stake-popup-btn dark:stake-popup-btn-dark ${
-                      day === 3
-                        ? `${
-                            theme === 'dark' ? 'bg-[#dddddd]' : 'bg-[#3F4048]'
-                          }`
-                        : `${
-                            theme === 'dark' ? 'bg-[#f3f3f3]' : 'bg-[#2A2B31]'
-                          }`
-                    }`}
-                    onClick={() => {
-                      changeDay(3)
-                    }}
-                  >
                     <span className=""> 60 DAYS </span>
                   </button>
                 </div>
@@ -286,14 +286,14 @@ function StakingPopup(props: PopConfirmProps) {
           {prpInput && (
             <Input
               {...prpInput}
-              defaultValue={stakeBalance}
+              // defaultValue={stakeBalance}
               className={id === 1 || id === 3 || id === 5 ? 'input-border' : ''}
             />
           )}
         </div>
         <div className="md:cover-popup-left-content md:cover-center-border md:mt-0 mt-[20px] top-border">
           <div className="dark:box-border  border border-dark-75 coverbox-padding">
-            <div>
+            {/* <div>
               <div className="my-2">
                 <div className="flex items-center w-full   justify-center gap-[40px]">
                   {datam?.tabs.map(({ ...rest }, index) => (
@@ -319,7 +319,7 @@ function StakingPopup(props: PopConfirmProps) {
                 </div>
                 <hr className="flex sm:hidden" />
               </div>
-            </div>
+            </div> */}
             <InputMax
               setDepositAmount={setDepositAmount}
               {...inputMax}
@@ -390,6 +390,7 @@ function StakingPopup(props: PopConfirmProps) {
                 amountApproved={amountApproved}
                 isStake={true}
                 handleStake={handleStake}
+                filledForm={true}
               />
             </div>
           </div>

@@ -203,7 +203,7 @@ function Profile() {
       }
       const dataString = convertJsonToString(formData)
       const userData = await uploadJsonData(dataString)
-      const hash = await modifyMembershipApplication('NG', userData)
+      const hash = await modifyMembershipApplication('NG', userData, dispatch)
 
       dispatch(
         openAlert({

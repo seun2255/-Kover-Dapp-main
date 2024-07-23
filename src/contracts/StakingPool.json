@@ -56,37 +56,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_locker",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "approve_stake_lock",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "burn_my_locked_stake",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
@@ -113,17 +82,44 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_user",
-          "type": "address"
+          "internalType": "uint256",
+          "name": "_stake_id",
+          "type": "uint256"
         }
       ],
-      "name": "get_stake",
+      "name": "get_stake_details",
       "outputs": [
         {
-          "internalType": "uint256",
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "stake_id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount_staked",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initiation_timestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_duration",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "stake_end_timestamp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct stakingPool.Stake",
           "name": "",
-          "type": "uint256"
+          "type": "tuple"
         }
       ],
       "stateMutability": "view",
@@ -131,33 +127,15 @@
     },
     {
       "inputs": [],
-      "name": "get_uncredited_stake_rewards",
+      "name": "get_stakes",
       "outputs": [
         {
-          "internalType": "uint256",
-          "name": "_uncredited_stake_rewards",
-          "type": "uint256"
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_spender",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "lock_stake",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -176,14 +154,62 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "rewards_recieved",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "duration_index",
           "type": "uint256"
         }
       ],
       "name": "stake",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "stake_ids",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -249,13 +275,38 @@
           "internalType": "address",
           "name": "",
           "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "name": "stakes",
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "",
+          "name": "stake_id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount_staked",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "initiation_timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stake_duration",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "stake_end_timestamp",
           "type": "uint256"
         }
       ],
@@ -291,26 +342,8 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_recipient",
-          "type": "address"
-        },
-        {
           "internalType": "uint256",
-          "name": "_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "unlock_stake",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_amount",
+          "name": "_stake_id",
           "type": "uint256"
         }
       ],

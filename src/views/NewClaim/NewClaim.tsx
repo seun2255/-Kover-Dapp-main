@@ -32,7 +32,13 @@ interface Document {
   name: string
 }
 
-function NewClaim() {
+interface popupProps {
+  onClose?: () => void
+  onSubmit?: () => void
+  poolName: string
+}
+
+function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
   const { theme } = React.useContext(UserContext)
   const [currentIcon, setcurrentIcon] = useState('')
   const [timeValue, settimeValue] = useState()
@@ -195,7 +201,6 @@ function NewClaim() {
       // fetch('https://ipinfo.io/json')
       //   .then((response) => response.json())
       //   .then(async (data) => {
-      const poolName = localStorage.getItem('claimPoolName')
       const formData = {
         ...formState,
         date: date,
@@ -208,7 +213,8 @@ function NewClaim() {
       const hash = await raiseClaim(
         poolName as string,
         userData,
-        account as string
+        account as string,
+        dispatch
       )
       await updateCoverClaimState(account, poolName as string, 'in progress')
       await applicationsUpdate()
@@ -229,8 +235,7 @@ function NewClaim() {
       setTimeout(() => {
         dispatch(closeAlert())
       }, 10000)
-      localStorage.removeItem('claimPoolName')
-      navigate(-1)
+      onClose?.()
       // })
       // .catch((error) => {
       //   console.log('Error fetching IP address information: ', error)
@@ -239,279 +244,314 @@ function NewClaim() {
   }
 
   return (
-    <>
-      <div>
-        <Header name="New Claim" showBackAero={true} />
-        <div className="items-center justify-between hidden mb-5 md:flex black-btn">
-          <Button
-            onClick={() => navigate(-1)}
-            icon={
-              theme === 'dark'
-                ? '/images/leftBlackAero.svg'
-                : '/images/Mask (2ss).svg'
-            }
-            className="dark:text-primary-100 dark:bg-light-1100 bg-dark-800"
-            text="Back"
-          />
-          <Link to="/" className="hidden how-it-work text-brand-300 sm:block">
-            How it works
-          </Link>
-        </div>
-        <div className="mb-10 lg:flex gap-[60px]">
-          <div className="flex-grow">
-            <div className="lg:grid lg:grid-cols-2">
-              <div>
-                <b className="font-normal text-3xl mb-2.5 block">
-                  Incident Details
-                </b>
-                <p className="text-lg text-dark-650 ">
-                  Your information is never to other users.
-                </p>
-              </div>
-              <div className="flex flex-col gap-5 pt-5 lg:pt-2">
-                <TextField
-                  label="Claim Type"
-                  placeholder="Please Select"
-                  handleChange={handleChange}
-                  filled={formFilled}
-                  name="claimType"
-                />
-                <TextField
-                  label="Event Type"
-                  placeholder="Please Select"
-                  borderRight="border-r border-r-primary-700"
-                  handleChange={handleChange}
-                  filled={formFilled}
-                  name="eventType"
-                />
-                <TextField
-                  label="Event Date"
-                  placeholder={['Month', 'Day', 'Year']}
-                  handleDobChange={handleEventDateChange}
-                  filled={formFilled}
-                  name="eventDate"
-                />
-                <div className="grid grid-cols-2 sm:gap-5 gap-2.5 ">
-                  <div className="flex gap-2.5 flex-col">
-                    <div className="flex gap-[5px] ">
-                      <span className="fs-12 lh-14 ls-35 leading-[14px] placeholder:fs-12 text-[#606166]">
-                        Event Time
-                      </span>
-                      <img
-                        src={`${
-                          currentIcon === 'Event-Time'
-                            ? '/images/info-green-icon.svg'
-                            : '/images/Maskd (2).svg'
-                        }`}
-                        width={10}
-                        height={10}
-                        alt=""
-                        id={'Event-Time'}
-                        onMouseEnter={() => {
-                          setcurrentIcon('Event-Time')
-                        }}
-                        onMouseLeave={() => {
-                          setcurrentIcon('')
-                        }}
-                      />
-                      <>
-                        <ReactTooltip
-                          className={`my-tool-tip z-500`}
-                          anchorId={'Event-Time'}
-                          place="bottom"
-                          content="This is the total amount available for  you to borrow. You can borrow based on your collateral and until the borrowcap is reached."
-                        />
-                      </>
-                    </div>
-
-                    <div className="rounded flex gap-[5px] px-[20px] py-[9px] bg-[#2A2B31] box-border-2x-light dark:box-border-2x-dark  items-center justify-between placeholder:text-dark-650 placeholder:fs-12 placeholder:text dark:bg-light-800">
-                      <input
-                        type="text"
-                        placeholder="Set Time"
-                        className="w-full selectTime"
-                        value={formState.eventTime}
-                        onClick={() => popManager()}
-                      />
-                      <img src="/images/clock-icon.svg" alt="" />
-                    </div>
-                  </div>
-                  <TextField
-                    label="Time Zone"
-                    placeholder="Please Select "
-                    borderRight="border-r border-r-brand-100"
-                    handleChange={handleChange}
-                    filled={formFilled}
-                    name="timezone"
+    <div>
+      <div className="mb-10 lg:flex gap-[60px]">
+        <div className="flex-grow">
+          <div className="flex justify-between">
+            <div className="flex gap-[10px] items-center">
+              <p className="popup-heading">New Claim</p>
+            </div>
+            <div className="flex items-center">
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  title="close-modal-button"
+                >
+                  <img
+                    className="w-2.5 h-2.5"
+                    src="/images/Group 144.svg"
+                    alt=""
                   />
-                </div>
-
-                <div className="flex gap-[10px] flex-col">
-                  <div className="flex gap-[5px]">
-                    <span className="fs-12 lh-14 ls-35 text-[#606166]">
-                      Estimated Loss Amount
-                    </span>
-                    <img
-                      src={`${
-                        currentIcon === 'Estimated-Loss-Amount'
-                          ? '/images/info-green-icon.svg'
-                          : '/images/Maskd (2).svg'
-                      }`}
-                      width={10}
-                      height={10}
-                      alt=""
-                      id={'Estimated-Loss-Amount'}
-                      onMouseEnter={() => {
-                        setcurrentIcon('Estimated-Loss-Amount')
-                      }}
-                      onMouseLeave={() => {
-                        setcurrentIcon('')
-                      }}
-                    />
-                    <>
-                      <ReactTooltip
-                        className={`my-tool-tip z-500`}
-                        anchorId={'Estimated-Loss-Amount'}
-                        place="bottom"
-                        content="This is the total amount available for  you to borrow. You can borrow based on your collateral and until the borrowcap is reached."
-                      />
-                    </>
-                  </div>
-                  {/* outline={true}
-                  classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]" */}
-
-                  <div className=" text-[#606166] rounded flex gap-[5px] px-[20px] py-[12px] bg-[#2A2B31] dark:bg-light-800 box-border-2x-light dark:box-border-2x-dark">
-                    <span>$</span>
-                    <input
-                      type="text"
-                      color="white"
-                      placeholder="e.g. 5000"
-                      className="w-full text-white placeholder:text-dark-650"
-                      name="estimatedLossAmount"
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
+                </button>
               </div>
             </div>
-            <hr className="my-[24px]" />
-            <div className="lg:grid lg:grid-cols-2">
-              <div>
-                <InfoText
-                  textClassName="dark:text-dark-600"
-                  variant="large"
-                  color={theme === 'dark' ? 'dark-600' : 'white'}
-                  text="Incident Description"
-                />
-                <p className="text-dark-650 text-lg mt-2.5 ">
-                  Your information is never shared with other users.
-                </p>
-              </div>
-              <div className="mt-[20px] ">
-                <textarea
-                  className={`py-4 px-5 rounded placeholder:text-dark-650  text-lg w-full h-[200px] box-border-2x-light dark:box-border-2x-dark 
+          </div>
+          <div
+            className="scrollbar-customise bg-opacity-20 mt-[45px]"
+            id="style-1"
+          >
+            <div className="force-overflow">
+              <div className="kyc-popup-form">
+                {/* <div className=" w-full mb-[20px]">
+                  <p className="welcome-subtitle">Car cover PRP</p>
+                </div> */}
+                <div className="lg:grid lg:grid-cols-2">
+                  <div className="sm:w-[60%] w-full">
+                    <div className="flex gap-[5px] items-center mb-[10px] ">
+                      <b className="block form-section-title dark:form-section-title-dark">
+                        Incident Details
+                      </b>
+                    </div>
+                    <p className="form-section-subtitle">
+                      Your personal information is never shared with other
+                      users.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-5 pt-5 lg:pt-2">
+                    <TextField
+                      label="Claim Type"
+                      placeholder="Please Select"
+                      handleChange={handleChange}
+                      filled={formFilled}
+                      name="claimType"
+                    />
+                    <TextField
+                      label="Event Type"
+                      placeholder="Please Select"
+                      borderRight="border-r border-r-primary-700"
+                      handleChange={handleChange}
+                      filled={formFilled}
+                      name="eventType"
+                    />
+                    <TextField
+                      label="Event Date"
+                      placeholder={['Month', 'Day', 'Year']}
+                      handleDobChange={handleEventDateChange}
+                      filled={formFilled}
+                      name="eventDate"
+                    />
+                    <div className="grid grid-cols-2 sm:gap-5 gap-2.5 ">
+                      <div className="flex gap-2.5 flex-col">
+                        <div className="flex gap-[5px] ">
+                          <span className="fs-12 lh-14 ls-35 leading-[14px] placeholder:fs-12 text-[#606166]">
+                            Event Time
+                          </span>
+                          <img
+                            src={`${
+                              currentIcon === 'Event-Time'
+                                ? '/images/info-green-icon.svg'
+                                : '/images/Maskd (2).svg'
+                            }`}
+                            width={10}
+                            height={10}
+                            alt=""
+                            id={'Event-Time'}
+                            onMouseEnter={() => {
+                              setcurrentIcon('Event-Time')
+                            }}
+                            onMouseLeave={() => {
+                              setcurrentIcon('')
+                            }}
+                          />
+                          <>
+                            <ReactTooltip
+                              className={`my-tool-tip z-500`}
+                              anchorId={'Event-Time'}
+                              place="bottom"
+                              content="This is the total amount available for  you to borrow. You can borrow based on your collateral and until the borrowcap is reached."
+                            />
+                          </>
+                        </div>
+
+                        <div className="rounded flex gap-[5px] px-[20px] py-[9px] bg-[#2A2B31] box-border-2x-light dark:box-border-2x-dark  items-center justify-between placeholder:text-dark-650 placeholder:fs-12 placeholder:text dark:bg-light-800">
+                          <input
+                            type="text"
+                            placeholder="Set Time"
+                            className="w-full selectTime"
+                            value={formState.eventTime}
+                            onClick={() => popManager()}
+                          />
+                          <img src="/images/clock-icon.svg" alt="" />
+                        </div>
+                      </div>
+                      <TextField
+                        label="Time Zone"
+                        placeholder="Please Select "
+                        borderRight="border-r border-r-brand-100"
+                        handleChange={handleChange}
+                        filled={formFilled}
+                        name="timezone"
+                      />
+                    </div>
+
+                    <div className="flex gap-[10px] flex-col">
+                      <div className="flex gap-[5px]">
+                        <span className="fs-12 lh-14 ls-35 text-[#606166]">
+                          Estimated Loss Amount
+                        </span>
+                        <img
+                          src={`${
+                            currentIcon === 'Estimated-Loss-Amount'
+                              ? '/images/info-green-icon.svg'
+                              : '/images/Maskd (2).svg'
+                          }`}
+                          width={10}
+                          height={10}
+                          alt=""
+                          id={'Estimated-Loss-Amount'}
+                          onMouseEnter={() => {
+                            setcurrentIcon('Estimated-Loss-Amount')
+                          }}
+                          onMouseLeave={() => {
+                            setcurrentIcon('')
+                          }}
+                        />
+                        <>
+                          <ReactTooltip
+                            className={`my-tool-tip z-500`}
+                            anchorId={'Estimated-Loss-Amount'}
+                            place="bottom"
+                            content="This is the total amount available for  you to borrow. You can borrow based on your collateral and until the borrowcap is reached."
+                          />
+                        </>
+                      </div>
+                      {/* outline={true}
+                  classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]" */}
+
+                      <div className=" text-[#606166] rounded flex gap-[5px] px-[20px] py-[12px] bg-[#2A2B31] dark:bg-light-800 box-border-2x-light dark:box-border-2x-dark">
+                        <span>$</span>
+                        <input
+                          type="text"
+                          color="white"
+                          placeholder="e.g. 5000"
+                          className="w-full text-white placeholder:text-dark-650"
+                          name="estimatedLossAmount"
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <hr className="my-[24px]" />
+                <div className="lg:grid lg:grid-cols-2">
+                  <div>
+                    <InfoText
+                      textClassName="dark:text-dark-600"
+                      variant="large"
+                      color={theme === 'dark' ? 'dark-600' : 'white'}
+                      text="Incident Description"
+                    />
+                    <p className="text-dark-650 text-lg mt-2.5 ">
+                      Your information is never shared with other users.
+                    </p>
+                  </div>
+                  <div className="mt-[20px] ">
+                    <textarea
+                      className={`py-4 px-5 rounded placeholder:text-dark-650  text-lg w-full h-[200px] box-border-2x-light dark:box-border-2x-dark 
                   ${
                     theme === 'dark'
                       ? 'dark:bg-light-800 text-dark-800'
                       : 'bg-dark-800 text-white'
                   }
                   `}
-                  placeholder="Type here ..."
-                  onChange={handleChange}
-                  name="incidentDescription"
-                />
-              </div>
-            </div>
-            <hr className="my-[24px]" />
-            <div className="lg:grid lg:grid-cols-2">
-              <div>
-                <InfoText
-                  textClassName="dark:text-dark-600"
-                  variant="large"
-                  color={theme === 'dark' ? 'dark-600' : 'white'}
-                  text="Incident Evidence"
-                />
-                <p className="text-dark-650 text-lg mt-2.5">
-                  Drag and drop one or multiple files (Max size: 1Mb)
-                </p>
-              </div>
-              <div>
-                <label
-                  className={`mb-[20px] mt-[15px] flex justify-center w-full  transition border-2 border-gray-300 dark:dark-light-box-border dark:border-dashed border-dashed appearance-none cursor-pointer hover:border-gray-400 focus:outline-none border-color w-full h-[40px]`}
-                  onClick={(e) => {
-                    console.log('Clicked')
-                  }}
-                  htmlFor="file_upload"
-                >
-                  <span className="flex items-center space-x-2">
-                    <img
-                      className="w-[14px] h-[16px]"
-                      src="/images/uploadAeroBlack.svg"
-                      alt=""
-                    />
-                    <span className="upload-text dark:text-dark-800">
-                      Upload
-                    </span>
-                  </span>
-                  <input
-                    id="file_upload"
-                    type="file"
-                    name="file_upload"
-                    className="hidden"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                    }}
-                    onChange={handleFileChange}
-                  />
-                </label>
-                {selectedFiles.map((file, index) => (
-                  <div className="mb-[5px]" key={index}>
-                    <UploadingFile
-                      progress={uploadProgress}
-                      file={file}
-                      handleRemove={() => removeFile(index)}
+                      placeholder="Type here ..."
+                      onChange={handleChange}
+                      name="incidentDescription"
                     />
                   </div>
-                ))}
-                <div className="my-[20px]">
-                  <Rules padding="py-[20px] px-[20px]" space="ml-[20px]" />
                 </div>
-                {((formState.documents.length === 0 && fileUploadInitated) ||
-                  !formFilled) && (
-                  <span style={{ color: 'red' }}>Document is required</span>
-                )}
+                <hr className="my-[24px]" />
+                <div className="lg:grid lg:grid-cols-2">
+                  <div className="sm:w-[60%]">
+                    <div className="flex gap-[5px] items-center">
+                      <b className="font-normal text-3xl mb-2.5 block">
+                        Insured's Documents
+                      </b>
+
+                      <img
+                        src={`${
+                          currentIcon === 'kyc-Identity-Details'
+                            ? '/images/info-green-icon.svg'
+                            : '/images/Maskd (2).svg'
+                        }`}
+                        alt=""
+                        width={14}
+                        height={14}
+                        id="kyc-Identity-Details"
+                        className="mb-2.5"
+                        onMouseEnter={() => {
+                          setcurrentIcon('kyc-Identity-Details')
+                        }}
+                        onMouseLeave={() => {
+                          setcurrentIcon('')
+                        }}
+                      />
+                      {/* <img className="w-[14px] h-[14px]" src="/images/Mask (11).svg" alt="" /> */}
+                      <ReactTooltip
+                        className="my-tool-tip z-500"
+                        anchorId={'kyc-Identity-Details'}
+                        place="bottom"
+                        content="This is the total amount available for  you to borrow. You can borrow based on your 		collateral and until the borrowcap is reached."
+                      />
+                    </div>
+                    <p className="text-lg text-dark-650 ">
+                      Drag and drop one or multiple files (Max size: 1Mb)
+                    </p>
+                  </div>
+                  <div>
+                    <label
+                      className={`mb-[20px] mt-[15px] flex justify-center w-full  transition border-2 border-gray-300 dark:dark-light-box-border dark:border-dashed border-dashed appearance-none cursor-pointer hover:border-gray-400 focus:outline-none border-color w-full h-[40px]`}
+                      onClick={(e) => {
+                        console.log('Clicked')
+                        // setTimeout(() => {
+                        //   setFileUploadInitiated(true)
+                        // }, 10000)
+                      }}
+                      htmlFor="file_upload"
+                    >
+                      <span className="flex items-center space-x-2">
+                        <img
+                          className="w-[14px] h-[16px]"
+                          src="/images/uploadAeroBlack.svg"
+                          alt=""
+                        />
+                        <span className="upload-text dark:text-dark-800">
+                          Upload
+                        </span>
+                      </span>
+                      <input
+                        id="file_upload"
+                        type="file"
+                        name="file_upload"
+                        className="hidden"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                        }}
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                    {selectedFiles.map((file, index) => (
+                      <div className="mb-[5px]" key={index}>
+                        <UploadingFile
+                          progress={uploadProgress}
+                          file={file}
+                          handleRemove={() => removeFile(index)}
+                        />
+                      </div>
+                    ))}
+                    <div className="my-[20px]">
+                      <Rules padding="py-[20px] px-[20px]" space="ml-[20px]" />
+                    </div>
+                    {((formState.documents.length === 0 &&
+                      fileUploadInitated) ||
+                      !formFilled) && (
+                      <span style={{ color: 'red' }}>Document is required</span>
+                    )}
+                  </div>
+                </div>
+                <hr className="my-[24px]" />
+                <div className="lg:grid lg:grid-cols-2">
+                  <div></div>
+                  <div className="flex flex-col gap-2.5">
+                    <FormAgreament
+                      agreeURL="/"
+                      mainClass="flex flex-col"
+                      variety="checkbox"
+                      agree="Terms of Use"
+                      bntText="Submit"
+                      item1Class="w-full flex gap-[12px] items-center"
+                      item2Class="w-full mt-[10px] flex justify-end"
+                      btn="sm:w-fit w-full"
+                      handleSubmit={handleSubmit}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-            <hr className="my-[24px]" />
-            <div className="lg:grid lg:grid-cols-2">
-              <span />
-              <div className="flex flex-col gap-2.5">
-                <FormAgreament
-                  agreeURL="/"
-                  mainClass="flex flex-col"
-                  variety="checkbox"
-                  agree="Terms of Use"
-                  bntText="Submit"
-                  item1Class="w-full flex gap-[12px] items-center"
-                  item2Class="w-full mt-[10px] flex justify-end"
-                  btn="sm:w-fit w-full"
-                  handleSubmit={handleSubmit}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-center">
-            <div className="flex flex-col gap-5 sm:w-[285px] max-[640px]:w-full pt-8">
-              <QRConnector className="hidden sm:block" />
-              <DownloadBox
-                title="Attachments"
-                classname="box-border-2x-light dark:box-border-2x-dark"
-              />
-              <ProgressWeight current={53} name="Claim" subtitle="Progress" />
             </div>
           </div>
         </div>
       </div>
-      <div></div>
 
       <div>
         <Popup
@@ -526,7 +566,7 @@ function NewClaim() {
           />
         </Popup>
       </div>
-    </>
+    </div>
   )
 }
 export default NewClaim

@@ -12,6 +12,7 @@ import Popup from '../templates/Popup'
 import Dashboard from '../../views/Dashboard/Dashboard'
 import { useWeb3React } from '@web3-react/core'
 import { getUserDetails } from '../../database'
+import axios from 'axios'
 
 function Layout() {
   const { width } = useWindowDimensions()
@@ -23,6 +24,52 @@ function Layout() {
   const [terms, setTerms] = useState<boolean>(false)
   const toggleTerms = () => setTerms((v) => !v)
   const [canDisplay, setCanDisplay] = useState(false)
+  const [currencyData, setCurrencyData] = useState({
+    usdcData: {
+      priceUSD: '---',
+      priceEUR: '---',
+      priceBTC: '---',
+      percentChange: '0',
+    },
+    ethData: {
+      priceUSD: '---',
+      priceEUR: '---',
+      priceBTC: '---',
+      percentChange: '0',
+    },
+    btcData: {
+      priceUSD: '---',
+      priceEUR: '---',
+      priceBTC: 1,
+      percentChange: '0',
+    },
+  })
+
+  const getData = async () => {
+    // const apiData = await axios.get('http://localhost:4000/get-crypto-rates')
+
+    const details = {
+      usdcData: {
+        priceUSD: '1.00',
+        priceEUR: '0.9185',
+        priceBTC: '0.0000',
+        percentChange: '+0.0090',
+      },
+      ethData: {
+        priceUSD: '3514.5930',
+        priceEUR: '3227.9510',
+        priceBTC: '0.0525',
+        percentChange: '+0.8982',
+      },
+      btcData: {
+        priceUSD: '66939.15',
+        priceEUR: '61479.7470',
+        priceBTC: 1,
+        percentChange: '-0.5012',
+      },
+    }
+    setCurrencyData(details)
+  }
 
   const setup = async (account: string) => {
     const user = await getUserDetails(account)
@@ -40,6 +87,7 @@ function Layout() {
       setCanDisplay(true)
     } else {
       setup(account)
+      getData()
     }
   }, [])
 
@@ -62,7 +110,7 @@ function Layout() {
                   </div>
                   <div className="w-full flex flex-col gap-[20px] claim-side-data mt-[22px]">
                     <div className="flex flex-col gap-[20px] mt-[2px]">
-                      <MarketStatus />
+                      <MarketStatus currencyData={currencyData} />
                     </div>
                   </div>
                 </div>

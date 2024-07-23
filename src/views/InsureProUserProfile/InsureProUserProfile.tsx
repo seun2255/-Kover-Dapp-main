@@ -198,6 +198,7 @@ function InsureProUserProfile() {
         'NG',
         userData,
         formData.workField,
+        dispatch,
         formData.pool
       )
 

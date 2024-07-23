@@ -15,10 +15,16 @@ import Card from '../../components/common/cards/StatusCard/Card'
 import { getPools } from '../../api'
 import CarInsurance from '../../components/common/PolicyRiskForms/carRisk'
 import { useSelector } from 'react-redux'
+import { ThreeDots } from 'react-loader-spinner'
+import { useWeb3React } from '@web3-react/core'
+import { getPolicyData, getTokenBalance } from '../../api'
+import CoverModal from '../../components/common/pop-confirm/coverModal'
+import DepositModal from '../../components/common/DepositModal'
 
 function Insurance() {
   const { theme } = React.useContext(UserContext)
   const { width } = useWindowDimensions()
+  const { account } = useWeb3React()
   const { user } = useSelector((state: any) => state.user)
   const [selectItem, setselectItem] = useState()
   const [riskForm, setRiskForm] = useState(false)
@@ -26,6 +32,10 @@ function Insurance() {
   const handlerLink = (item: any) => {
     setselectItem(item)
   }
+  const [loading, setLoading] = useState(false)
+  const [policyActive, setPolicyActive] = useState(false)
+  const [policyData, setPolicyData] = useState<any>()
+  const [balance, setBalance] = useState<any>(0)
 
   useEffect(() => {
     const getData = async () => {
@@ -152,7 +162,8 @@ function Insurance() {
   const toggleDrawer = () => {
     setIsOpen((prevState) => !prevState)
   }
-  const [selectedCover, setSelectedCover] = useState(6)
+  const [selectedCover, setSelectedCover] = useState({})
+  const [formFilled, setFormFilled] = useState(false)
 
   // Function to check if the text matches any poolName
   function checkIfPoolNameExists(array: any, text: string) {
@@ -165,19 +176,39 @@ function Insurance() {
     return false
   }
 
-  const handleCoverClick = (coverName: string) => {
+  const handleCoverClick = async (coverName: string) => {
+    setLoading(true)
+    setSelect(true)
+
     const hasCover = checkIfPoolNameExists(user.covers, coverName)
     if (hasCover) {
-      user.covers.map((cover: any) => {
+      user.covers.map(async (cover: any) => {
         if (coverName === cover.poolName) {
-          setSelectedCover(cover)
+          setFormFilled(true)
+          const policyDetails = await getPolicyData(account, cover.poolName)
+          setPolicyData(policyDetails)
+          if (policyDetails.policyStatus === 'active') {
+            setPolicyActive(true)
+          } else {
+            setPolicyActive(false)
+          }
+          setSelectedCover(policyDetails)
+          const tokenBalance = await getTokenBalance(account)
+          setBalance(Math.round(parseFloat(tokenBalance)))
+          setLoading(false)
         }
       })
-      setSelect(!select)
     } else {
-      setSelectedPool(coverName)
-      setRiskForm(!riskForm)
+      setSelectedCover({ status: 'in review', poolName: 'Car Insurance' })
+      setPolicyActive(false)
+      const tokenBalance = await getTokenBalance(account)
+      setBalance(Math.round(parseFloat(tokenBalance)))
+      setLoading(false)
     }
+    // } else {
+    //   setSelectedPool(coverName)
+    //   setRiskForm(!riskForm)
+    // }
   }
 
   return (
@@ -329,25 +360,53 @@ function Insurance() {
       </Drawer>
 
       <Popup onClose={toggleSelect} visible={select} maxWidth="max-w-[860px]">
-        <PopConfirm
+        {loading ? (
+          <div className={`sm:popup-3 mx-[15px] my-[20px] w-860 h-300`}>
+            <ThreeDots
+              visible={true}
+              height="25"
+              width="75"
+              color="#4fa94d"
+              radius="9"
+              ariaLabel="three-dots-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+            />
+          </div>
+        ) : policyActive ? (
+          <DepositModal
+            warning={selectInsurance.warning}
+            dayTab={selectInsurance.dayTab}
+            cover={selectInsurance.cover}
+            prpInput={selectInsurance.prpInput}
+            inputMax={selectInsurance.inputMax}
+            balance={balance}
+            disclaimer={selectInsurance.disclaimer}
+            title={selectInsurance.title}
+            onClose={toggleSelect}
+            coverDetails={selectedCover}
+          />
+        ) : (
+          <CoverModal
+            warning={selectInsurance.warning}
+            dayTab={selectInsurance.dayTab}
+            cover={selectInsurance.cover}
+            prpInput={selectInsurance.prpInput}
+            inputMax={selectInsurance.inputMax}
+            balance={balance}
+            disclaimer={selectInsurance.disclaimer}
+            title={selectInsurance.title}
+            onClose={toggleSelect}
+            coverDetails={selectedCover}
+            filled={formFilled}
+          />
+        )}
+
+        {/* <PopConfirm
           onClose={toggleSelect}
           {...selectInsurance}
           coverDetails={selectedCover}
-        />
-      </Popup>
-
-      <Popup visible={riskForm} onClose={toggleForm}>
-        <div className="kyc-popup">
-          <div className="flex gap-5 mb-3.5">
-            <div>
-              <CarInsurance
-                onClose={toggleForm}
-                setPolicyProcessState={setPolicyProcessState}
-                poolName={selectedPool}
-              />
-            </div>
-          </div>
-        </div>
+        /> */}
       </Popup>
     </div>
   )

@@ -11,20 +11,22 @@ function TransactionLoader({ variant, classname, text }: AlertProps) {
   const { theme } = React.useContext(UserContext)
   let color
   let icon
+  const state = 'Successful'
+  // variant = 'Successful'
 
-  switch (variant) {
+  switch (state) {
     case 'Successful':
       color = theme === 'dark' ? 'dark:bg-light-1100' : 'alertGreenGradient'
       icon = 25
       break
-    case 'Pending':
-      color = theme === 'dark' ? 'dark:bg-light-1100' : 'alertYelloGradient'
-      icon = 23
-      break
-    case 'Failed':
-      color = theme === 'dark' ? 'dark:bg-light-1100' : 'alertRedGradient'
-      icon = 21
-      break
+    // case 'Pending':
+    //   color = theme === 'dark' ? 'dark:bg-light-1100' : 'alertYelloGradient'
+    //   icon = 23
+    //   break
+    // case 'Failed':
+    //   color = theme === 'dark' ? 'dark:bg-light-1100' : 'alertRedGradient'
+    //   icon = 21
+    //   break
     default:
       color = theme === 'dark' ? 'dark:bg-light-1100' : 'alertYelloGradient'
       icon = 25

@@ -7,6 +7,8 @@ import { ethers } from 'ethers'
 import { Web3Provider } from '@ethersproject/providers'
 import { store } from './redux/store'
 import { Provider } from 'react-redux'
+import 'react-loading-skeleton/dist/skeleton.css'
+import { SkeletonTheme } from 'react-loading-skeleton'
 
 const getLibrary = (provider: any) => {
   const library = new Web3Provider(provider)
@@ -19,7 +21,9 @@ root.render(
   // <React.StrictMode>
   <Provider store={store}>
     <Web3ReactProvider getLibrary={getLibrary}>
-      <App />
+      <SkeletonTheme baseColor="#1e2024" highlightColor="#2a2b30">
+        <App />
+      </SkeletonTheme>
     </Web3ReactProvider>
   </Provider>
   // </React.StrictMode>

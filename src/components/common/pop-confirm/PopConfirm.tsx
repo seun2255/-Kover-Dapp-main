@@ -23,6 +23,8 @@ import { getPolicyData, getTokenBalance } from '../../../api'
 import { useWeb3React } from '@web3-react/core'
 import TransactionProgress from '../TransactionProgress'
 import DepositModal from '../DepositModal'
+import Popup from '../../../components/templates/Popup'
+import CarInsurance from '../../../components/common/PolicyRiskForms/carRisk'
 
 interface CommonPopConfirmProps {
   id?: Number
@@ -106,6 +108,8 @@ function PopConfirm(props: PopConfirmProps) {
   const titleClassNameLight = 'summary-light-title'
   const textClassNameLight = 'summary-light-text'
   const [balance, setBalance] = useState<any>(0)
+  const [riskForm, setRiskForm] = useState(false)
+  const toggleForm = () => setRiskForm((v) => !v)
 
   const [day, setDay] = useState(1)
   const { warning, dayTab, cover, prpInput, inputMax, disclaimer } =
@@ -540,6 +544,19 @@ function PopConfirm(props: PopConfirmProps) {
             </div>
           </div>
         )}
+
+        <Popup visible={riskForm} onClose={toggleForm}>
+          <div className="kyc-popup">
+            <div className="flex gap-5 mb-3.5">
+              <div>
+                <CarInsurance
+                  onClose={toggleForm}
+                  poolName={coverDetails.poolName}
+                />
+              </div>
+            </div>
+          </div>
+        </Popup>
       </div>
     </>
   )

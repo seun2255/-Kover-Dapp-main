@@ -209,7 +209,8 @@ function Adjuster() {
         userData,
         formState.workField,
         'NG',
-        'Car Insurance'
+        'Car Insurance',
+        dispatch
       ).then(async (result) => {
         if (result.success) {
           const userInfo = await getUser(account as string)

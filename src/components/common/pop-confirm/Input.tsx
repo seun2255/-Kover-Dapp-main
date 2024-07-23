@@ -10,10 +10,11 @@ export interface InputProps {
   value?: string | number | readonly string[]
   defaultValue?: string | number | readonly string[]
   className?: string
+  editAction?: any
 }
 
 function Input(props: InputProps) {
-  const { action, infoText, defaultValue, className } = props
+  const { action, infoText, defaultValue, className, editAction } = props
   const { theme } = React.useContext(UserContext)
   const [currentIcon, setcurrentIcon] = useState('')
   return (
@@ -32,7 +33,9 @@ function Input(props: InputProps) {
           `}
           >
             {' '}
-            {defaultValue || '50.00'}
+            {defaultValue && defaultValue !== '00.00'
+              ? `${defaultValue}%`
+              : '00%'}
           </span>
           {/* <InfoText {...infoText} variant="medium"  titleclassname ="" /> */}
           <>
@@ -72,14 +75,15 @@ function Input(props: InputProps) {
         </div>
         <div>
           <div
-            className={`px-[16px] py-[5px] w-[80px] h-[30px] flex justify-center items-center ${
+            className={`px-[16px] py-[5px] w-[80px] h-[30px] flex justify-center items-center cursor-pointer ${
               theme === 'dark'
                 ? 'bg-white text-dark-800'
                 : 'text-white bg-[#3F4048]'
             }`}
+            onClick={() => editAction(true)}
           >
             {/* <span className="fw-500 fs-12 lh-14">{action.text}</span> */}
-            <span className="fw-500 fs-12 lh-14">kover</span>
+            <span className="fw-500 fs-12 lh-14">Edit</span>
           </div>
         </div>
       </div>

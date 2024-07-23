@@ -21,8 +21,11 @@ import Pagination from '../../components/common/Pagination'
 import Drawer from 'react-modern-drawer'
 import StakingPopup from './StakePopup'
 import TableOptions from '../../components/common/Table/TableOptions/TableOptions'
-import { getUsersStake } from '../../api'
+import { getUsersStakes, unstake } from '../../api'
 import { useWeb3React } from '@web3-react/core'
+import { useDispatch } from 'react-redux'
+import { openAlert, closeAlert } from '../../redux/alerts'
+import TableSkeleton from '../../components/common/Table/TableSkeleton'
 
 function Staking() {
   const [select, setSelect] = useState(false)
@@ -35,74 +38,94 @@ function Staking() {
   const { width } = useWindowDimensions()
   const [tabs, setTabs] = useState<number>(0)
   const [dateFilter, setDateFilter] = useState<number>(0)
-  const [stake, setStake] = useState<number>(0)
-  const toggleStake = () => setStake((v) => (v === 0 ? 1 : 0))
+  const [stakeModal, setStakeModal] = useState(false)
+  const toggleStake = () => setStakeModal((v) => !v)
   const [selectItem, setselectItem] = useState()
   const handlerLink = (item: any) => {
     setselectItem(item)
   }
   const { account } = useWeb3React()
-  const [stakingPools, setStakingPools] = useState<any[]>([])
-
-  const stakingPoolsDetails = [
+  const [stakingPools, setStakingPools] = useState<any[]>([
     {
       name: 'KVER Pool',
       interestRate: '10%',
-      entryDate: '------------------',
+      releaseDate: '------------------',
       capital: '0',
       action: 'Stake',
       active: true,
       iconLight: '/images/light-diamond.svg',
       iconDark: '/images/logo-start.svg',
     },
-    {
-      name: 'KVER Pool',
-      interestRate: '10%',
-      entryDate: '------------------',
-      capital: '0',
-      action: 'Stake',
-      active: false,
-      iconLight: '/images/58.svg',
-      iconDark: '/images/59.svg',
-    },
-    {
-      name: 'KVER Pool',
-      interestRate: '10%',
-      entryDate: '------------------',
-      capital: '0',
-      action: 'Stake',
-      active: false,
-      iconLight: '/images/light-diamond.svg',
-      iconDark: '/images/logo-start.svg',
-    },
-    {
-      name: 'KVER Pool',
-      interestRate: '10%',
-      entryDate: '------------------',
-      capital: '0',
-      action: 'Stake',
-      active: false,
-      iconLight: '/images/58.svg',
-      iconDark: '/images/59.svg',
-    },
-  ]
+  ])
+  const [loading, setLoading] = useState(true)
+  const dispatch = useDispatch()
 
   const getData = async () => {
-    const stake = await getUsersStake(account as string)
+    const stakes = await getUsersStakes(account as string)
+    var pools = [
+      {
+        name: 'KVER Pool',
+        interestRate: '10%',
+        releaseDate: '------------------',
+        capital: '0',
+        action: 'Stake',
+        active: true,
+        iconLight: '/images/light-diamond.svg',
+        iconDark: '/images/logo-start.svg',
+      },
+    ]
 
-    if (stake.amount !== '0.0') {
-      stakingPoolsDetails[0].capital = stake.amount
-      stakingPoolsDetails[0].entryDate = stake.date
-      stakingPoolsDetails[0].active = false
-      stakingPoolsDetails[0].action = 'Unstake'
-    }
+    stakes.map((stake: any) => {
+      var newStake = stake
+      newStake.capital = stake.amount
+      newStake.action = 'Unstake'
+      newStake.iconLight = '/images/light-diamond.svg'
+      newStake.iconDark = '/images/logo-start.svg'
+      newStake.name = 'KVER Pool'
+      newStake.interestRate = '10%'
 
-    setStakingPools(stakingPoolsDetails)
+      if (stake.dateObject < new Date()) {
+        newStake.active = true
+      } else {
+        newStake.active = false
+      }
+
+      pools.push(newStake)
+    })
+
+    setStakingPools(pools)
+    setLoading(false)
   }
 
   useEffect(() => {
     getData()
   }, [])
+
+  setInterval(() => {
+    getData()
+  }, 10000)
+
+  const handleUnstake = async (stakeId: number) => {
+    const hash = await unstake(stakeId, dispatch)
+    await getData()
+    dispatch(
+      openAlert({
+        displayAlert: true,
+        data: {
+          id: 1,
+          variant: 'Successful',
+          classname: 'text-black',
+          title: 'Unstaked Succesfully!',
+          tag1: 'Rewards have been sent to your wallet!',
+          tag2: 'View on etherscan',
+          hash: hash,
+        },
+      })
+    )
+    setTimeout(() => {
+      dispatch(closeAlert())
+    }, 10000)
+  }
 
   const stakePopup: PopConfirmProps = {
     id: 4,
@@ -236,7 +259,7 @@ function Staking() {
         width: 'w-[16%]',
       },
       {
-        name: 'ENTRY DATE',
+        name: 'RELEASE DATE',
         width: 'w-[23%]',
       },
       {
@@ -263,14 +286,14 @@ function Staking() {
         />,
         <img src={theme === 'dark' ? pool.iconDark : pool.iconLight} alt="" />,
         <span>{pool.interestRate}</span>,
-        <span>{pool.entryDate}</span>,
+        <span>{pool.releaseDate}</span>,
         <LargeText primary={pool.capital} secondary="USDC" />,
         <div>
           <Button
             className="gap-2.5 dark:bg-white dark:box-border w-[120px]"
             text={pool.action}
             endIcon={
-              pool.action === 'Stake'
+              pool.active === true
                 ? theme === 'dark'
                   ? '/images/62.svg'
                   : '/images/61.svg'
@@ -278,9 +301,13 @@ function Staking() {
                 ? '/images/63.svg'
                 : '/images/grey-ok-circle-btn.svg'
             }
-            onClick={toggleStake}
+            onClick={
+              pool.action === 'Stake'
+                ? toggleStake
+                : () => handleUnstake(pool.id)
+            }
             color={
-              pool.action === 'Stake' && pool.active === true
+              pool.active === true
                 ? theme === 'dark'
                   ? 'whiteBgBtn'
                   : 'greenGradient'
@@ -317,7 +344,11 @@ function Staking() {
         {width >= 1000 ? (
           <>
             <div className="block max-[1000px]:hidden">
-              <Table {...validatorTable} />
+              {loading ? (
+                <TableSkeleton {...validatorTable} />
+              ) : (
+                <Table {...validatorTable} />
+              )}
             </div>
           </>
         ) : (
@@ -362,10 +393,10 @@ function Staking() {
       <Popup
         maxWidth="max-w-[900px]"
         onClose={toggleStake}
-        visible={Boolean(stake)}
+        visible={stakeModal}
       >
         <StakingPopup
-          defaultTab={stake === 2 ? 1 : 0}
+          defaultTab={0}
           onClose={toggleStake}
           {...stakePopup}
           action={getData}

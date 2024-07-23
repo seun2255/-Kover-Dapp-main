@@ -66,46 +66,6 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_member_address",
-          "type": "address"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "_kyc_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "internalType": "bool",
-          "name": "_is_accept",
-          "type": "bool"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_deposit_amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "accept_decline_policy_assessment",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
           "name": "_source",
           "type": "address"
         },
@@ -147,6 +107,38 @@
           "internalType": "uint256",
           "name": "_application_policy_duration_index",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_cost",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "_assessed_max_exposure",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_assessed_src",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_assessed_deductible_perc",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_assessed_risk_factor",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Definitions.PolicyAssesementData",
+          "name": "_assesement",
+          "type": "tuple"
         }
       ],
       "name": "apply_for_or_modify_policy",
@@ -504,6 +496,11 @@
                   "internalType": "address",
                   "name": "claim_address",
                   "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "coverId",
+                  "type": "uint256"
                 }
               ],
               "internalType": "struct Definitions.PolicyDataConstants",
@@ -864,6 +861,11 @@
               "internalType": "address",
               "name": "claim_address",
               "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "coverId",
+              "type": "uint256"
             }
           ],
           "internalType": "struct Definitions.PolicyDataConstants",
@@ -1153,6 +1155,11 @@
                   "internalType": "address",
                   "name": "claim_address",
                   "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "coverId",
+                  "type": "uint256"
                 }
               ],
               "internalType": "struct Definitions.PolicyDataConstants",
