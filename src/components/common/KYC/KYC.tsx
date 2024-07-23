@@ -30,7 +30,7 @@ import { convertJsonToString } from '../../../utils/helpers'
 import { getCurrentDateTime } from '../../../utils/dateTime'
 import app from '../../../firebaseConfig/firebaseApp'
 import Alert from '../Alert'
-import { openAlert, closeAlert } from '../../../redux/alerts'
+import { openAlert, closeAlert, openLoader } from '../../../redux/alerts'
 import { updateUser } from '../../../redux/user'
 import { useSelector, useDispatch } from 'react-redux'
 import { displayKycModal } from '../../../redux/app'
@@ -240,6 +240,12 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
     }
 
     if (formFilled && verificationState === 'verified') {
+      dispatch(
+        openLoader({
+          displaytransactionLoader: true,
+          text: 'Approving Token use',
+        })
+      )
       // if (formFilled) {
       // fetch('https://ipinfo.io/json')
       //   .then((response) => response.json())

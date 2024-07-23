@@ -227,13 +227,6 @@ const apply_for_membership = async (
   const feeParams = await contract.membership_fee_params()
 
   var fee = ethers.parseEther(feeParams.fee.toString())
-
-  dispatch(
-    openLoader({
-      displaytransactionLoader: true,
-      text: 'Approving Token use',
-    })
-  )
   await approve(fee)
 
   dispatch(
