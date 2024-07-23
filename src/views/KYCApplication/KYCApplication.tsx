@@ -67,7 +67,7 @@ import {
   insureProVerificationDone,
   updateInsureProVerificationState,
 } from '../../database'
-import { openAlert, closeAlert } from '../../redux/alerts'
+import { openAlert, closeAlert, closeLoader } from '../../redux/alerts'
 import CountdownTimer from '../../components/common/CountdownTimer'
 import { getUser } from '../../tableland'
 import { doc, onSnapshot, getDocs, collection } from 'firebase/firestore'
@@ -584,6 +584,7 @@ function KYCApplication() {
                   dispatch
                 )
                 await updateVerificationState(application.address, 'verified')
+                dispatch(closeLoader())
                 dispatch(
                   openAlert({
                     displayAlert: true,
@@ -776,6 +777,7 @@ function KYCApplication() {
                     }
                   )
                   getData()
+                  dispatch(closeLoader())
                   dispatch(
                     openAlert({
                       displayAlert: true,

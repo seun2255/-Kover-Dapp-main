@@ -30,7 +30,12 @@ import { convertJsonToString } from '../../../utils/helpers'
 import { getCurrentDateTime } from '../../../utils/dateTime'
 import app from '../../../firebaseConfig/firebaseApp'
 import Alert from '../Alert'
-import { openAlert, closeAlert, openLoader } from '../../../redux/alerts'
+import {
+  openAlert,
+  closeAlert,
+  openLoader,
+  closeLoader,
+} from '../../../redux/alerts'
 import { updateUser } from '../../../redux/user'
 import { useSelector, useDispatch } from 'react-redux'
 import { displayKycModal } from '../../../redux/app'
@@ -265,6 +270,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
       const hash = await apply_for_membership(userData, 'NG', dispatch)
       await updateVerificationState(account, 'verifying')
       await applicationsUpdate()
+      dispatch(closeLoader())
       dispatch(
         openAlert({
           displayAlert: true,

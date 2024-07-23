@@ -3,9 +3,9 @@ import { ethers } from 'ethers'
 import { convertJsonStringToObject } from './utils/helpers'
 
 //Live
-const usersTableName = 'kover_finance_421614_904'
-const coversTableName = 'kover_finance_421614_905'
-const claimsTableName = 'kover_finance_421614_906'
+const usersTableName = 'kover_finance_421614_919'
+const coversTableName = 'kover_finance_421614_920'
+const claimsTableName = 'kover_finance_421614_921'
 
 //Localhost
 // const usersTableName = ' kover_finance_31337_2'

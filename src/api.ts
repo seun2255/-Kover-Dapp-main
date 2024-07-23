@@ -237,7 +237,6 @@ const apply_for_membership = async (
   )
   const tx = await contract.apply_for_membership(region, [data, data])
   await tx.wait()
-  dispatch(closeLoader())
   return createTransactionLink(tx.hash)
 }
 
@@ -390,7 +389,6 @@ const assignMembershipApplication = async (
     false
   )
   await tx.wait()
-  dispatch(closeLoader())
   return createTransactionLink(tx.hash)
 }
 
@@ -496,7 +494,6 @@ const concludeMembershipApplication = async (
 
   const tx = await contract.conclude_membership_application(address, region)
   await tx.wait()
-  dispatch(closeLoader())
   return createTransactionLink(tx.hash)
 }
 
