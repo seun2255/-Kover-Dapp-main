@@ -787,11 +787,14 @@ const applyForPolicy = async (
       text: 'Applying for Policy',
     })
   )
+
+  const amount = ethers.parseEther(cost.toString())
+  console.log(amount)
   const tx = await policyManagerContract.apply_for_or_modify_policy(
     pool,
     [data, data],
     durationIndex,
-    ethers.parseEther(cost.toString()),
+    amount,
     [
       ethers.parseEther(policyValues.maxExposure.toString()),
       ethers.parseEther(policyValues.src.toString()),
