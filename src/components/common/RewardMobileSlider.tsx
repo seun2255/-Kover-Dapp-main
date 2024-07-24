@@ -18,7 +18,7 @@ function RewardMobileSlider() {
   return (
     <>
       <Slider {...settings} className="flex gap-[15px]">
-        <Rewards />
+        <Rewards details={{ rewards: 0.0 }} />
         <div className="p-3 rounded bg-primary-700 dark:text-dark-800 dark:text-primary-100 dark:bg-light-200 dark:bg-white">
           <div className="flex items-center justify-between gap-1 mb-3">
             <span className="text-lg font-bold text-primary-800 dark:text-dark-800">

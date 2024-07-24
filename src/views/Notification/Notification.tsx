@@ -12,7 +12,7 @@ import { updateNotifications } from '../../database'
 import { useWeb3React } from '@web3-react/core'
 import { getUser } from '../../tableland'
 import axios from 'axios'
-import { getPolicyData, get_covers } from '../../api'
+import { getPolicyData, get_covers, getStakeRewards } from '../../api'
 
 function Notification() {
   const { theme } = React.useContext(UserContext)
@@ -63,8 +63,11 @@ function Notification() {
       var allCovers = await Promise.all(axiosRequestsCovers)
       if (allCovers[0] === undefined) allCovers = []
 
+      const rewards = await getStakeRewards(account)
+
       const details = {
         activeCovers: allCovers.length,
+        rewards: rewards,
       }
 
       setUserDetails(details)
@@ -330,7 +333,7 @@ function Notification() {
             imgDark="/images/102.svg"
             imgLight="/images/101.svg"
           />
-          <Rewards />
+          <Rewards details={userDetails} />
         </div>
       </div>
     </div>
