@@ -6,7 +6,12 @@ import Popup from '../templates/Popup'
 import SelectionField from './SelectionField'
 import { UserContext } from '../../App'
 import { acceptPolicy, applyForPolicy, approvePoolToSpend } from '../../api'
-import { openAlert, closeAlert, openLoader } from '../..//redux/alerts'
+import {
+  openAlert,
+  closeAlert,
+  openLoader,
+  closeLoader,
+} from '../..//redux/alerts'
 import { useDispatch } from 'react-redux'
 import { depositIntoPolicy } from '../../api'
 import { disableCoverModify, setCoverBuyDate } from '../../database'
@@ -179,6 +184,7 @@ function PopupAgreament({
             )
             setStage(2)
             setTimeout(() => {
+              dispatch(closeLoader())
               setStage(3)
               dispatch(
                 openAlert({

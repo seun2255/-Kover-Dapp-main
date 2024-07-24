@@ -800,7 +800,6 @@ const applyForPolicy = async (
     ]
   )
   await tx.wait()
-  dispatch(closeLoader())
   return createTransactionLink(tx.hash)
 }
 
