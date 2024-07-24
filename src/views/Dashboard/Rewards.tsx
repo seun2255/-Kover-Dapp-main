@@ -1,8 +1,14 @@
 import React from 'react'
 import { UserContext } from '../../App'
+import { formatPremiumsPaid } from '../../utils/helpers'
 
-function Rewards() {
+interface RewardsProps {
+  details: any
+}
+
+function Rewards({ details }: RewardsProps) {
   const { theme } = React.useContext(UserContext)
+
   return (
     <>
       <div
@@ -22,9 +28,11 @@ function Rewards() {
         </div>
         <div className="flex items-end gap-1 justify-between mt-[12px]">
           <button onClick={() => alert('this is button')}>
-            <span className="claim">Claim</span>
+            <span className="claim">Claimed so far</span>
           </button>
-          <span className="claim-no">0.221746</span>
+          <span className="claim-no">
+            {formatPremiumsPaid(details.rewards.toString())}
+          </span>
         </div>
       </div>
     </>

@@ -9,9 +9,10 @@ import Skeleton from 'react-loading-skeleton'
 
 interface RewardsStagProps {
   loading: boolean
+  details: any
 }
 
-function Rewardstag({ loading }: RewardsStagProps) {
+function Rewardstag({ loading, details }: RewardsStagProps) {
   const { width } = useWindowDimensions()
   const settings = {
     className: 'slider variable-width slick-list slick-slide ',
@@ -36,7 +37,11 @@ function Rewardstag({ loading }: RewardsStagProps) {
   if (!viewPort) {
     return (
       <>
-        {loading ? <Skeleton height={'107px'} width={'261px'} /> : <Rewards />}
+        {loading ? (
+          <Skeleton height={'107px'} width={'261px'} />
+        ) : (
+          <Rewards details={details} />
+        )}
         <Claim loading={loading} />
       </>
     )
@@ -46,7 +51,7 @@ function Rewardstag({ loading }: RewardsStagProps) {
     <div className="inline sm:hidden grid grid-cols-1">
       <Slider {...settings} className="gap-5">
         <div className="pr-[15px]">
-          <Rewards />
+          <Rewards details={details} />
         </div>
         <div className="pr-[15px] box-gap min-w-min justify-start h-[110px] dark:box-border p-4 bg-dark-600 rounded flex-grow dark:text-dark-800 dark:text-primary-100 dark:bg-white">
           <div className="flex justify-between gap-1 items-center mb-3">

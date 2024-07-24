@@ -791,7 +791,7 @@ const applyForPolicy = async (
     pool,
     [data, data],
     durationIndex,
-    cost,
+    ethers.parseEther(cost.toString()),
     [
       ethers.parseEther(policyValues.maxExposure.toString()),
       ethers.parseEther(policyValues.src.toString()),
@@ -1463,38 +1463,6 @@ const unstake = async (stakeId: number, dispatch: any, network?: string) => {
   return createTransactionLink(txUnstake.hash)
 }
 
-// const getUsersStake = async (user: string) => {
-//   const stakingPoolContract = await getStakingPoolContract()
-
-//   const stakedAmount = await stakingPoolContract.stakes(user)
-//   const stakedAmountEther = ethers.formatEther(stakedAmount)
-
-//   var timestamp = await stakingPoolContract.stake_rewards_initiation_timestamp(
-//     user
-//   )
-//   timestamp = Number(timestamp)
-
-//   // Convert the timestamp to milliseconds
-//   const date = new Date(timestamp * 1000)
-
-//   // Function to pad single digit numbers with a leading zero
-//   const pad = (num: number) => (num < 10 ? '0' : '') + num
-
-//   // Extract the date components
-//   const year = date.getFullYear()
-//   const month = pad(date.getMonth() + 1) // Months are zero-based in JS
-//   const day = pad(date.getDate())
-
-//   const hours = pad(date.getHours())
-//   const minutes = pad(date.getMinutes())
-//   const seconds = pad(date.getSeconds())
-
-//   // Construct the formatted date string
-//   const formattedDate = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`
-
-//   return { amount: stakedAmountEther, date: formattedDate }
-// }
-
 const getUsersStakes = async (user: string) => {
   var data: any[] = []
   const stakingPoolContract = await getStakingPoolContract()
@@ -1513,6 +1481,13 @@ const getUsersStakes = async (user: string) => {
   const stakes = await Promise.all(stakesPromises)
 
   return stakes
+}
+
+const getStakeRewards = async (user: string) => {
+  const stakingPoolContract = await getStakingPoolContract()
+
+  const stakeReward = await stakingPoolContract.rewards_recieved(user)
+  return Number(stakeReward)
 }
 
 const approveKoverToStake = async (amount: string, dispatch: any) => {
@@ -1586,4 +1561,5 @@ export {
   unstake,
   getPolicyBalanceDetails,
   getPremiumContractInstance,
+  getStakeRewards,
 }

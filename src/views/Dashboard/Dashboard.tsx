@@ -34,6 +34,7 @@ import {
   getTokenBalance,
   getPolicyBalanceDetails,
   getPremiumContractInstance,
+  getStakeRewards,
 } from '../../api'
 import { getUser } from '../../tableland'
 import axios from 'axios'
@@ -184,6 +185,8 @@ function Dashboard() {
         'Car Insurance'
       )
 
+      const rewards = await getStakeRewards(account)
+
       const details = {
         activeCovers: allCovers.length,
         usdcData: {
@@ -206,6 +209,7 @@ function Dashboard() {
         },
         policyBalance: policyBalances.policyBalance,
         premiumsPaid: policyBalances.premiumsPaid,
+        rewards: rewards,
       }
       setUserDetails(details)
       setLoading(false)
@@ -978,7 +982,7 @@ function Dashboard() {
           {width >= 600 ? (
             <>
               <div className="hidden  sm:grid grid-cols-[36.17%_61.16%] lg:grid-cols-[36.17%_60%] xl:grid-cols-[36.17%_60.1%] xxl:grid-cols-[36.17%_61.16%] gap-[20px]">
-                <Rewardstag loading={loading} />
+                <Rewardstag loading={loading} details={userDetails} />
                 {loading ? (
                   <Skeleton height={'167px'} width={'260px'} />
                 ) : (
@@ -994,7 +998,7 @@ function Dashboard() {
           ) : (
             <>
               <div className="flex sm:hidden flex-col gap-[20px]">
-                <Rewardstag loading={loading} />
+                <Rewardstag loading={loading} details={userDetails} />
                 <Score size="w-[100%]" />
                 <Insured />
               </div>

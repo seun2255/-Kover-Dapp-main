@@ -322,10 +322,10 @@ function calculatePremiumQuote(options: CarInsuranceOptions): InsuranceValues {
   const premiumQuote = modelValue * importanceSum
 
   // Calculate max_exposure based on the value of the car model
-  const maxExposure = carModelValues[options.model] * 2 // Assumed to be 1.5 times the value of the car model
+  const maxExposure = carModelValues[options.model] * 1.2 // Assumed to be 1.5 times the value of the car model
 
   // Calculate src based on the max premium quote
-  const src = maxExposure * 0.4 // Assumed to be 10% of max_exposure
+  const src = maxExposure * 0.7 // Assumed to be 10% of max_exposure
 
   // Calculate deductible_perc as a percentage between 0% and 30%
   const deductiblePerc = Math.random() * 0.3 // Random percentage for deductible between 0% and 30%

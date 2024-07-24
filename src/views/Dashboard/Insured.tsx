@@ -1,7 +1,7 @@
-import { Tooltip as ReactTooltip } from "react-tooltip";
-import { useState } from "react";
+import { Tooltip as ReactTooltip } from 'react-tooltip'
+import { useState } from 'react'
 function Insured() {
-  const [currentIcon, setcurrentIcon] = useState("");
+  const [currentIcon, setcurrentIcon] = useState('')
   return (
     <div className="block flex-col gap-5">
       <div className="grid grid-cols-2 gap-5">
@@ -10,7 +10,7 @@ function Insured() {
             <div>
               <div className="flex flex-col items-start mb-1">
                 <div className="flex mb-[5px]">
-                  <span className="invest-no dark:invest-no-dark">2,345</span>
+                  <span className="invest-no dark:invest-no-dark">0</span>
                   <span className="usd ml-[6px]">USD</span>
                 </div>
                 <span className="total-invested">Total invested</span>
@@ -18,7 +18,7 @@ function Insured() {
               <div className="flex flex-col items-start">
                 <div className="flex mb-[5px]">
                   <span className="total-invest-no dark:total-invest-no-dark ml-[10px]">
-                    3.4330
+                    0.000
                   </span>
                   <span className="usd ml-[6px]">USD</span>
                 </div>
@@ -31,21 +31,25 @@ function Insured() {
                 <div className="flex justify-center gap-[5px] items-center mt-[5px]">
                   <span className="apr">APR</span>
                   <img
-                    src={`${currentIcon === "Insured" ? "/images/info-green-icon.svg" : "/images/Maskd (2).svg"}`}
-                    id={"Insured"}
+                    src={`${
+                      currentIcon === 'Insured'
+                        ? '/images/info-green-icon.svg'
+                        : '/images/Maskd (2).svg'
+                    }`}
+                    id={'Insured'}
                     width={10}
                     height={10}
                     onMouseEnter={() => {
-                      setcurrentIcon("Insured");
+                      setcurrentIcon('Insured')
                     }}
                     onMouseLeave={() => {
-                      setcurrentIcon("");
+                      setcurrentIcon('')
                     }}
                     alt=""
                   />
                   <ReactTooltip
                     className="my-tool-tip z-500"
-                    anchorId={"Insured"}
+                    anchorId={'Insured'}
                     place="bottom"
                     content="This is the total amount available for  you to borrow. You can borrow based on your collateral and until the borrowcap is reached."
                   />
@@ -59,7 +63,7 @@ function Insured() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
-export default Insured;
+export default Insured
