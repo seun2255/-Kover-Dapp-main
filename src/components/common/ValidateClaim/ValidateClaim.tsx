@@ -24,7 +24,7 @@ import {
   getTokenBalance,
 } from '../../../api'
 import { useDispatch } from 'react-redux'
-import { openAlert, closeAlert } from '../../../redux/alerts'
+import { openAlert, closeAlert, closeLoader } from '../../../redux/alerts'
 import { useWeb3React } from '@web3-react/core'
 import { addVote } from '../../../database'
 
@@ -163,6 +163,7 @@ function ValidateClaim(
           finalVerdict: '----',
         }
         await addVote(claimDetails.claimId, vote)
+        dispatch(closeLoader())
         dispatch(
           openAlert({
             displayAlert: true,

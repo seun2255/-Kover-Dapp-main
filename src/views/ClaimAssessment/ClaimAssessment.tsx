@@ -29,6 +29,13 @@ function shortenAddress(address: string) {
   return `${firstPart}....${lastPart}`
 }
 
+function shortenUserAddress(address: string) {
+  if (typeof address !== 'string' || address.length < 10) {
+    throw new Error('Invalid address')
+  }
+  return `${address.slice(0, 7)}...`
+}
+
 function ClaimAssessment() {
   let navigate = useNavigate()
   const { theme } = React.useContext(UserContext)
@@ -181,13 +188,13 @@ function ClaimAssessment() {
                 <div className="flex flex-col gap-6">
                   <WeightRow
                     name="Purchase"
-                    value="13/05/2022 20:58"
+                    value={claimdetails.date}
                     titleclassname={titleClassName}
                     textclassname={textClassName}
                   />
                   <WeightRow
                     name="Cover ID"
-                    value="2ab256355df..."
+                    value={claimdetails.claimId}
                     valueStyle={{ color: 'dark:text-dark-600' }}
                     titleclassname={titleClassName}
                     textclassname={textClassName}
@@ -200,13 +207,13 @@ function ClaimAssessment() {
                   />
                   <WeightRow
                     name="Claim ID"
-                    value="1250"
+                    value={claimdetails.claimId}
                     titleclassname={titleClassName}
                     textclassname={textClassName}
                   />
                   <WeightRow
                     name="Claim Amount"
-                    value="2565200 USDC"
+                    value={`${claimdetails.estimatedLossAmount} USDC`}
                     titleclassname={titleClassName}
                     textclassname={textClassName}
                   />
@@ -876,14 +883,14 @@ function ClaimAssessment() {
                 <div className="flex flex-col gap-[25px]">
                   <WeightRow
                     name="Purchase"
-                    value="13/05/2022 20:58"
+                    value={claimdetails.date}
                     valueStyle={{ color: 'dark-text-800' }}
                     titleclassname={titleClassName}
                     textclassname={textClassName}
                   />
                   <WeightRow
                     name="Cover ID"
-                    value="2ab256355df..."
+                    value={claimdetails.claimId}
                     valueStyle={{
                       color:
                         theme === 'dark'
@@ -902,14 +909,14 @@ function ClaimAssessment() {
                   />
                   <WeightRow
                     name="Claim ID"
-                    value="1250"
+                    value={claimdetails.claimId}
                     valueStyle={{ color: 'dark-text-800' }}
                     titleclassname={titleClassName}
                     textclassname={textClassName}
                   />
                   <WeightRow
                     name="Claim Amount"
-                    value="2565200 USDC"
+                    value={`${claimdetails.estimatedLossAmount} USDC`}
                     valueStyle={{ color: 'dark-text-800' }}
                     titleclassname={titleClassName}
                     textclassname={textClassName}
@@ -922,7 +929,7 @@ function ClaimAssessment() {
                           ? 'text-[#6D6E76] hover:text-[#000]'
                           : 'hover:text-brand-400',
                     }}
-                    value="0x95e441..."
+                    value={shortenUserAddress(claimdetails.reviewer)}
                     titleclassname={titleClassName}
                     textclassname={textClassName}
                   />

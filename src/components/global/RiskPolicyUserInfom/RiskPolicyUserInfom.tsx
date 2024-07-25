@@ -275,7 +275,7 @@ function RiskPolicyUserInform({ variant, user }: UserInformProps) {
                   <div className="flex justify-between gap-4">
                     <div>
                       <p className="text-3xl mb-[5px] fw-400">
-                        {variant === 'personal' ? '' : '80%'}
+                        {variant === 'personal' ? '' : `${user.PRP}%`}
                       </p>
                       <InfoText
                         className="mb-2.5"

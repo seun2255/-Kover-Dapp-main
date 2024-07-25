@@ -11,10 +11,12 @@ export interface InputProps {
   defaultValue?: string | number | readonly string[]
   className?: string
   editAction?: any
+  editText?: string
 }
 
 function Input(props: InputProps) {
-  const { action, infoText, defaultValue, className, editAction } = props
+  const { action, infoText, defaultValue, className, editAction, editText } =
+    props
   const { theme } = React.useContext(UserContext)
   const [currentIcon, setcurrentIcon] = useState('')
   return (
@@ -80,10 +82,12 @@ function Input(props: InputProps) {
                 ? 'bg-white text-dark-800'
                 : 'text-white bg-[#3F4048]'
             }`}
-            onClick={() => editAction(true)}
+            onClick={() => editAction?.(true)}
           >
             {/* <span className="fw-500 fs-12 lh-14">{action.text}</span> */}
-            <span className="fw-500 fs-12 lh-14">Edit</span>
+            <span className="fw-500 fs-12 lh-14">
+              {editText ? editText : 'Edit'}
+            </span>
           </div>
         </div>
       </div>

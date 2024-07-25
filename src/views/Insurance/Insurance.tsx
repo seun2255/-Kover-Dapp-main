@@ -20,6 +20,7 @@ import { useWeb3React } from '@web3-react/core'
 import { getPolicyData, getTokenBalance } from '../../api'
 import CoverModal from '../../components/common/pop-confirm/coverModal'
 import DepositModal from '../../components/common/DepositModal'
+import Skeleton from 'react-loading-skeleton'
 
 function Insurance() {
   const { theme } = React.useContext(UserContext)
@@ -32,6 +33,7 @@ function Insurance() {
   const handlerLink = (item: any) => {
     setselectItem(item)
   }
+  const [dataLoading, setDataLoading] = useState(true)
   const [loading, setLoading] = useState(false)
   const [policyActive, setPolicyActive] = useState(false)
   const [policyData, setPolicyData] = useState<any>()
@@ -41,6 +43,7 @@ function Insurance() {
     const getData = async () => {
       const poolnames = await getPools()
       setPools(poolnames)
+      setDataLoading(false)
     }
 
     getData()
@@ -241,30 +244,43 @@ function Insurance() {
           width > 1199 && width > 1302 ? 'grid-cols-2' : 'grid:cols-1'
         }`}
       >
-        {pools.map((pool, index) => {
-          return (
-            <Card
-              index={index}
-              coverName={`${pool} Cover`}
-              data={insuranceData}
-              selectButton={{ onClick: () => handleCoverClick(pool) }}
-            />
-          )
-        })}
+        {dataLoading ? (
+          <>
+            <Skeleton height={'285px'} width={'460px'} />
+            <Skeleton height={'285px'} width={'460px'} />
+            <Skeleton height={'285px'} width={'460px'} />
+            <Skeleton height={'285px'} width={'460px'} />
+            <Skeleton height={'285px'} width={'460px'} />
+            <Skeleton height={'285px'} width={'460px'} />
+          </>
+        ) : (
+          <>
+            {pools.map((pool, index) => {
+              return (
+                <Card
+                  index={index}
+                  coverName={`${pool} Cover`}
+                  data={insuranceData}
+                  selectButton={{ onClick: () => handleCoverClick(pool) }}
+                />
+              )
+            })}
 
-        <div className="border-dark-800 border-dashed rounded flex items-center justify-center text-center border-2">
-          <button
-            type="button"
-            className="py-[50px] sm:text-center flex flex-col gap-7 items-center"
-          >
-            <img
-              className="w-[50px]"
-              src="/images/Combined Shape (15).svg"
-              alt=""
-            />
-            <span className="text-dark-500">Add Pool</span>
-          </button>
-        </div>
+            <div className="border-dark-800 border-dashed rounded flex items-center justify-center text-center border-2">
+              <button
+                type="button"
+                className="py-[50px] sm:text-center flex flex-col gap-7 items-center"
+              >
+                <img
+                  className="w-[50px]"
+                  src="/images/Combined Shape (15).svg"
+                  alt=""
+                />
+                <span className="text-dark-500">Add Pool</span>
+              </button>
+            </div>
+          </>
+        )}
       </div>
       <Drawer
         open={isOpen}

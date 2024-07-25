@@ -286,6 +286,7 @@ function StakingPopup(props: PopConfirmProps) {
           {prpInput && (
             <Input
               {...prpInput}
+              editText="KOVER"
               // defaultValue={stakeBalance}
               className={id === 1 || id === 3 || id === 5 ? 'input-border' : ''}
             />

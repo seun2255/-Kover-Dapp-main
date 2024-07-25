@@ -217,9 +217,12 @@ function Claims() {
         <CarInsurance />,
         <Status type="Active" />,
         <span>{application.claimId}</span>,
-        <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
+        <span className="prp dark:prp-dark">{application.date}</span>,
         <span>{application.stage}</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
+        <LargeText
+          primary={application.estimatedLossAmount}
+          secondary="USDC"
+        />,
         <div>
           <Button
             to={`/claim-assessment/${application.claimId}`}

@@ -4,9 +4,10 @@ import Skeleton from 'react-loading-skeleton'
 
 interface ClaimProps {
   loading: boolean
+  details: any
 }
 
-function Claim({ loading }: ClaimProps) {
+function Claim({ loading, details }: ClaimProps) {
   return (
     <>
       <div className="flex gap-[20px]">
@@ -15,7 +16,9 @@ function Claim({ loading }: ClaimProps) {
         ) : (
           <div className="basis-basis-4/12justify-start h-[110px] box-border-2x-light dark:box-border-2x-dark  bg-dark-600 rounded flex-grow dark:text-dark-800 dark:text-primary-100 dark:bg-white rounded-sm px-[15px] py-[20px]">
             <div className="flex justify-between gap-1 items-center mb-3">
-              <span className="premium-no dark:premium-no-dark">0</span>
+              <span className="premium-no dark:premium-no-dark">
+                {details.activeClaims}
+              </span>
               <button>
                 <Link
                   to={'/claims'}

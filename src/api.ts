@@ -715,15 +715,12 @@ const getPremiumContractInstance = async (pool: string) => {
 }
 
 const approvePolicyManagement = async (pool: string, amount: any) => {
-  console.log('Reached here 3')
   const tokenContract = await getTokenContract()
-  console.log('Reached here 3.5')
   const poolAddresses = await getPoolAddresses(pool)
-  console.log('Reached here 4')
   const policyContract = await getPolicyContract(poolAddresses.policy)
-  console.log('Reached here 5')
   const policyAddresses = await policyContract.addresses()
-  console.log('Reached here 6')
+
+  console.log('Management: ', policyAddresses.management)
 
   const approvalTx = await tokenContract.approve(
     policyAddresses.management,
@@ -788,13 +785,10 @@ const applyForPolicy = async (
       text: 'Paying Application Fee',
     })
   )
-  console.log('Reached here 1')
   const policyManagerContract = await getPolicyManagerContract()
-  console.log('Reached here 2')
 
-  var newFee = ethers.parseEther('15')
+  var newFee = ethers.parseEther('15000')
   await approvePolicyManagement(pool, newFee)
-  console.log('Reached here 3')
 
   dispatch(
     openLoader({
@@ -803,7 +797,6 @@ const applyForPolicy = async (
     })
   )
 
-  console.log('Original: ', cost)
   const tx = await policyManagerContract.apply_for_or_modify_policy(
     pool,
     [data, data],
@@ -815,7 +808,7 @@ const applyForPolicy = async (
       ethers.parseEther(policyValues.deductiblePerc.toString()),
       ethers.parseEther(policyValues.riskFactor.toString()),
     ],
-    { gasLimit: 1300000 }
+    { gasLimit: 90000000 }
   )
   await tx.wait()
   return createTransactionLink(tx.hash)
@@ -952,8 +945,8 @@ const submitPolicyApplicationResult = async (
   const tx = await policyManagementContract.submit_policy_application_result(
     address,
     reviewerAddress,
-    [userData, userData],
-    [data, data],
+    // [userData, userData],
+    // [data, data],
     decision,
     reviewerAddress
   )
@@ -1230,12 +1223,6 @@ const raiseClaim = async (
   address: string,
   dispatch: any
 ) => {
-  dispatch(
-    openLoader({
-      displaytransactionLoader: true,
-      text: 'Rasising Claim',
-    })
-  )
   const addresses = await getPoolAddresses(poolName)
 
   const policyContract = await getPolicyContract(addresses.policy)
@@ -1280,7 +1267,6 @@ const raiseClaim = async (
 
   const payDuesTx = await claimContract.clearOutstandingDues()
   await payDuesTx.wait()
-  dispatch(closeLoader())
   return createTransactionLink(payDuesTx.hash)
 }
 
@@ -1322,12 +1308,6 @@ const submitClaimAssesment = async (
   data: string,
   dispatch: any
 ) => {
-  dispatch(
-    openLoader({
-      displaytransactionLoader: true,
-      text: 'Submitting Assesement',
-    })
-  )
   const claimContractAddress = await getClaimAddress(poolName, claimantAddress)
   const claimContract = await getClaimContract(claimContractAddress)
 
@@ -1395,33 +1375,13 @@ const validateClaim = async (
     })
   )
   const UserManagerContract = await getContract()
-  const stakingPoolContract = await getStakingPoolContract()
-  const claimContractAddress = await getClaimAddress(poolName, claimantAddress)
 
+  console.log('Amount: ', stake)
   const stakeEther = ethers.parseEther(stake)
 
-  await approveStakingContract(stakeEther)
+  await approveClaim(poolName, stakeEther, claimantAddress)
 
-  dispatch(
-    openLoader({
-      displaytransactionLoader: true,
-      text: 'Making a Stake',
-    })
-  )
-  const txStake = await stakingPoolContract.stake(stakeEther)
-  await txStake.wait()
-
-  dispatch(
-    openLoader({
-      displaytransactionLoader: true,
-      text: 'Locking Staked Tokens',
-    })
-  )
-  const approveStakeLock = await stakingPoolContract.approve_stake_lock(
-    claimContractAddress,
-    stakeEther
-  )
-  await approveStakeLock.wait()
+  console.log('New Data: ', { poolName, claimantAddress, rating, decision })
 
   dispatch(
     openLoader({
@@ -1437,7 +1397,6 @@ const validateClaim = async (
     decision
   )
   await tx.wait()
-  dispatch(closeLoader())
   return createTransactionLink(tx.hash)
 }
 

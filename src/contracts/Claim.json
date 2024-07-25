@@ -29,6 +29,11 @@
           "internalType": "address",
           "name": "_policy_claim",
           "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_kover_token",
+          "type": "address"
         }
       ],
       "stateMutability": "nonpayable",

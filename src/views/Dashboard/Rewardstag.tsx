@@ -42,7 +42,7 @@ function Rewardstag({ loading, details }: RewardsStagProps) {
         ) : (
           <Rewards details={details} />
         )}
-        <Claim loading={loading} />
+        <Claim loading={loading} details={details} />
       </>
     )
   }
@@ -55,7 +55,9 @@ function Rewardstag({ loading, details }: RewardsStagProps) {
         </div>
         <div className="pr-[15px] box-gap min-w-min justify-start h-[110px] dark:box-border p-4 bg-dark-600 rounded flex-grow dark:text-dark-800 dark:text-primary-100 dark:bg-white">
           <div className="flex justify-between gap-1 items-center mb-3">
-            <span className="premium-no dark:premium-no-dark">0</span>
+            <span className="premium-no dark:premium-no-dark">
+              {details.activeClaims}
+            </span>
 
             <Link
               to={'/claims'}

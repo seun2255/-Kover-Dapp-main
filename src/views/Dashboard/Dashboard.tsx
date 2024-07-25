@@ -159,20 +159,24 @@ function Dashboard() {
       var allClaims = await Promise.all(axiosRequests)
       if (allClaims[0] === undefined) allClaims = []
       setClaims(allClaims)
+      console.log(allClaims)
       // })
 
       const myVotes: any[] = []
       everyClaim.map(async (claim: any) => {
-        const allVotes = await getVotes(claim.claimId)
-        console.log('ALL VOTES: ', allVotes)
-        console.log(account)
-        allVotes.map((vote: any) => {
-          if (vote.voter === account) {
-            myVotes.push(vote)
-          }
-        })
-        console.log('Votes: ', myVotes)
-        setVotes(myVotes)
+        try {
+          const allVotes = await getVotes(claim.claimId)
+          console.log('ALL VOTES: ', allVotes)
+          console.log(account)
+          allVotes.map((vote: any) => {
+            if (vote.voter === account) {
+              myVotes.push(vote)
+            }
+          })
+          setVotes(myVotes)
+        } catch {
+          console.log('Claim has no votes')
+        }
       })
 
       const tokenBalance = await getTokenBalance(account)
@@ -186,9 +190,11 @@ function Dashboard() {
       )
 
       const rewards = await getStakeRewards(account)
+      console.log('Rewards: ', rewards)
 
       const details = {
         activeCovers: allCovers.length,
+        activeClaims: allClaims.length,
         usdcData: {
           priceUSD: '1.00',
           priceEUR: '0.9185',
@@ -390,9 +396,12 @@ function Dashboard() {
         <CarInsurance />,
         <Status type="Active" />,
         <span>{application.claimId}</span>,
-        <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
+        <span className="prp dark:prp-dark">{application.date}</span>,
         <span>{application.stage}</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
+        <LargeText
+          primary={application.estimatedLossAmount}
+          secondary="USDC"
+        />,
         <div>
           <Button
             to={
@@ -471,6 +480,9 @@ function Dashboard() {
         </div>,
       ],
       [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions options={[{ name: 'Deposit' }, { name: 'Withdraw' }]} />
+        </div>,
         <CarInsurance />,
         <Status type="Withdrawn" />,
         <span>10%</span>,
@@ -478,15 +490,18 @@ function Dashboard() {
         <LargeText primary="9.4000" secondary="USDC" />,
         <div>
           <Button
+            btnText="table-action"
             className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
             to="/bond"
             text="Manage"
-            btnText="table-action"
             endIcon={theme === 'dark' ? '/images/logo3.svg' : '/images/011.svg'}
           />
         </div>,
       ],
       [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions options={[{ name: 'Deposit' }, { name: 'Withdraw' }]} />
+        </div>,
         <CarInsurance />,
         <Status type="Active" />,
         <span>10%</span>,
@@ -494,10 +509,10 @@ function Dashboard() {
         <LargeText primary="9.4000" secondary="USDC" />,
         <div>
           <Button
+            btnText="table-action"
             className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
             to="/bond"
             text="Manage"
-            btnText="table-action"
             endIcon={theme === 'dark' ? '/images/logo3.svg' : '/images/011.svg'}
           />
         </div>,
@@ -654,6 +669,9 @@ function Dashboard() {
         </>,
       ],
       [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions options={[{ name: 'Cancel' }, { name: 'Claim' }]} />
+        </div>,
         <CarInsurance />,
         <Status type="Active" text="Ready" />,
         <span>2022/06/01 10:26:20</span>,
@@ -692,6 +710,9 @@ function Dashboard() {
         </>,
       ],
       [
+        <div className="w-6 -mr-6 min-w-[1.5rem]">
+          <TableOptions options={[{ name: 'Cancel' }, { name: 'Claim' }]} />
+        </div>,
         <CarInsurance />,
         <Status type="Active" text="Pending" />,
         <span>2022/06/01 10:26:20</span>,
@@ -1048,15 +1069,17 @@ function Dashboard() {
         </div>
 
         <div className="block max-[1200px]:hidden">
-          {tabs === 0 && loading ? (
+          {loading ? (
             <TableSkeleton {...myCover} tableId={0} />
           ) : (
-            <Table {...myCover} tableId={0} />
+            <>
+              {tabs === 0 && <Table {...myCover} tableId={0} />}
+              {tabs === 1 && <Table {...myClaims} />}
+              {tabs === 2 && <Table {...myBonds} />}
+              {tabs === 3 && <Table {...myVotes} />}
+              {tabs === 4 && <Table {...WithdrawalRequests} />}
+            </>
           )}
-          {tabs === 1 && <Table {...myClaims} />}
-          {tabs === 2 && <Table {...myBonds} />}
-          {tabs === 3 && <Table {...myVotes} />}
-          {tabs === 4 && <Table {...WithdrawalRequests} />}
         </div>
 
         {/*<div className="hidden max-[1200px]:block">

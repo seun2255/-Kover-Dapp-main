@@ -23,9 +23,9 @@ import { getClaimDataById, submitClaimAssesment } from '../../api'
 import { convertJsonToString, removeItemFromArray } from '../../utils/helpers'
 import lighthouse from '@lighthouse-web3/sdk'
 import { uploadJsonData } from '../../lighthouse'
-import { createClaim, getNotes, addNote } from '../../database'
+import { createClaim, getNotes, addNote, getCoverDetails } from '../../database'
 import { useWeb3React } from '@web3-react/core'
-import { openAlert, closeAlert } from '../../redux/alerts'
+import { openAlert, closeAlert, openLoader } from '../../redux/alerts'
 import { useDispatch } from 'react-redux'
 
 interface Document {
@@ -59,7 +59,9 @@ function ClaimView() {
     await createClaim(Number(claimId))
     const notes = await getNotes(claimId as string)
     console.log('Data: ', { ...data, notes: notes })
-    setClaimdetails({ ...data, notes: notes })
+    const userDetails = await getCoverDetails(data.address, data.poolName)
+    console.log('User: ', userDetails)
+    setClaimdetails({ ...data, ...userDetails, notes: notes })
     console.log(claimdetails)
     setLoading(false)
   }
@@ -191,6 +193,13 @@ function ClaimView() {
         documents: documents,
         approvedAmount: amount,
       }
+
+      dispatch(
+        openLoader({
+          displaytransactionLoader: true,
+          text: 'Submitting Assesement',
+        })
+      )
 
       const dataString = convertJsonToString(report)
       const reportData = await uploadJsonData(dataString)
@@ -471,13 +480,13 @@ function ClaimView() {
               <div className="flex flex-col gap-[25px]">
                 <WeightRow
                   name="Purchase"
-                  value="13/05/2022 20:58"
+                  value={claimdetails.date}
                   titleclassname={titleClassName}
                   textclassname={textClassName}
                 />
                 <WeightRow
                   name="Cover ID"
-                  value="2ab256355df..."
+                  value={claimdetails.claimId}
                   valueStyle={{
                     color:
                       theme === 'dark'
@@ -495,27 +504,27 @@ function ClaimView() {
                 />
                 <WeightRow
                   name="Claim ID"
-                  value="1250"
+                  value={claimdetails.claimId}
                   titleclassname={titleClassName}
                   textclassname={textClassName}
                 />
                 <WeightRow
                   name="Claim Amount"
-                  value="1250 USCD"
+                  value={`${claimdetails.estimatedLossAmount} USDC`}
                   titleclassname={titleClassName}
                   textclassname={textClassName}
                 />
                 <WeightRow
                   name="Claim History"
                   withInfo
-                  value="1250 USCD"
+                  value={claimdetails.claimHistory}
                   titleclassname={titleClassName}
                   textclassname={textClassName}
                 />
                 <WeightRow
                   name="PRP"
                   withInfo
-                  value="2000"
+                  value={claimdetails.PRP}
                   titleclassname={titleClassName}
                   textclassname={textClassName}
                 />
@@ -671,13 +680,13 @@ function ClaimView() {
             <div className="flex flex-col gap-[25px]">
               <WeightRow
                 name="Purchase"
-                value="13/05/2022 20:58"
+                value={claimdetails.date}
                 titleclassname={titleClassName}
                 textclassname={textClassName}
               />
               <WeightRow
                 name="Cover ID"
-                value="2ab256355df..."
+                value={claimdetails.claimId}
                 valueStyle={{
                   color:
                     theme === 'dark'
@@ -695,21 +704,21 @@ function ClaimView() {
               />
               <WeightRow
                 name="Claim ID"
-                value="1250"
+                value={claimdetails.claimId}
                 titleclassname={titleClassName}
                 textclassname={textClassName}
               />
               <WeightRow
                 withInfo
                 name=" Claim History"
-                value="2"
+                value={claimdetails.claimHistory}
                 titleclassname={titleClassName}
                 textclassname={textClassName}
               />
               <WeightRow
                 withInfo
                 name=" PRP"
-                value="2000"
+                value={claimdetails.PRP}
                 titleclassname={titleClassName}
                 textclassname={textClassName}
               />

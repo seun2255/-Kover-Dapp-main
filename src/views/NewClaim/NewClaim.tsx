@@ -20,7 +20,12 @@ import { useWeb3React } from '@web3-react/core'
 import lighthouse from '@lighthouse-web3/sdk'
 import { convertJsonToString } from '../../utils/helpers'
 import { getCurrentDateTime } from '../../utils/dateTime'
-import { openAlert, closeAlert } from '../../redux/alerts'
+import {
+  openAlert,
+  closeAlert,
+  closeLoader,
+  openLoader,
+} from '../../redux/alerts'
 import { useSelector, useDispatch } from 'react-redux'
 import { removeItemFromArray } from '../../utils/helpers'
 import { uploadJsonData } from '../../lighthouse'
@@ -201,6 +206,12 @@ function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
       // fetch('https://ipinfo.io/json')
       //   .then((response) => response.json())
       //   .then(async (data) => {
+      dispatch(
+        openLoader({
+          displaytransactionLoader: true,
+          text: 'Rasising Claim',
+        })
+      )
       const formData = {
         ...formState,
         date: date,
@@ -218,6 +229,7 @@ function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
       )
       await updateCoverClaimState(account, poolName as string, 'in progress')
       await applicationsUpdate()
+      dispatch(closeLoader())
       dispatch(
         openAlert({
           displayAlert: true,

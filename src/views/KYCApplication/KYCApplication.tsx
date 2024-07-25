@@ -1363,9 +1363,12 @@ function KYCApplication() {
         <CarInsurance />,
         <Status type="Active" />,
         <span>{application.claimId}</span>,
-        <span className="prp dark:prp-dark">2022/06/01 00:00:00</span>,
+        <span className="prp dark:prp-dark">{application.date}</span>,
         <span>{application.stage}</span>,
-        <LargeText primary="9.4000" secondary="USDC" />,
+        <LargeText
+          primary={application.estimatedLossAmount}
+          secondary="USDC"
+        />,
         <div>
           {application.reviewer ===
           '0x0000000000000000000000000000000000000000' ? (
@@ -2100,200 +2103,203 @@ function KYCApplication() {
         </div>
 
         <div className="block max-[1200px]:hidden">
-          {tabs === 0 && loading ? (
+          {loading ? (
             <TableSkeleton {...kyc} />
           ) : (
-            <Table {...kyc} />
-          )}
-          {tabs === 1 && <Table {...insurePro} />}
-          {tabs === 2 && <Table {...policies} />}
-          {tabs === 3 && <Table {...claims} />}
-          {tabs === 4 && (
             <>
-              <div className="grid  gap-[15px] sm:gap-[20px] grid-cols-1 sm:grid-cols-2  md:grid-cols-2 lg:grid-cols-4 mt-4">
-                {overfiewCards.map(({ key, ...rest }) => (
-                  <AdminCard key={key} {...rest} />
-                ))}
-              </div>
-              <Table {...riskPool} />
-            </>
-          )}
-          {tabs === 5 && (
-            <>
-              <div className="py-5">
-                <div className="flex w-[265px] mb-5 sm:mb-0 ">
-                  <SearchField
-                    width={'w-full'}
-                    text="Search ..."
-                    onSearch={handlerSearch}
-                  />{' '}
-                  <button
-                    type="button"
-                    className="dark:bg-light-1100 font-bold bg-dark-800 uppercase text-base text-dark-500 ml-3 w-100 px-5 py-0 justify-self-end sm:hidden"
-                  >
-                    Filter
-                  </button>
-                </div>
-              </div>
-              {search ? (
+              {tabs === 0 && <Table {...kyc} />}
+              {tabs === 1 && <Table {...insurePro} />}
+              {tabs === 2 && <Table {...policies} />}
+              {tabs === 3 && <Table {...claims} />}
+              {tabs === 4 && (
                 <>
-                  <Table {...searchTable} />
-                </>
-              ) : (
-                <>
-                  <div className="py-5">
-                    <div className="flex mt-[20px]">
-                      <div className="flex text-3xl font-amaranth flex-grow items-center">
-                        <div>
-                          <p className="mb-5 verify-title">
-                            You can use Search feature to find any policy, the
-                            following criteria apply:
-                          </p>
-                          <ul className="list-decimal mb-5 flex flex-col gap-2 px-6 text-dark-650">
-                            {[
-                              <span className="verify-content">
-                                {' '}
-                                Restricted to only to the InsurePro community.
-                              </span>,
-                              <span className="verify-content">
-                                Policyholders can view these policies
-                              </span>,
-                            ].map((value, index) => (
-                              <li>{value}</li>
-                            ))}
-                          </ul>
-
-                          <Link
-                            to="/"
-                            className="mb-7 block policy-line learn-more-link"
-                          >
-                            Learn more about Search feature
-                          </Link>
-                        </div>
-                      </div>
-                      <div className="hidden md:flex">
-                        <img src="/images/search.svg" alt="" />
-                      </div>
-                    </div>
+                  <div className="grid  gap-[15px] sm:gap-[20px] grid-cols-1 sm:grid-cols-2  md:grid-cols-2 lg:grid-cols-4 mt-4">
+                    {overfiewCards.map(({ key, ...rest }) => (
+                      <AdminCard key={key} {...rest} />
+                    ))}
                   </div>
+                  <Table {...riskPool} />
                 </>
               )}
-            </>
-          )}
-          {tabs === 6 && (
-            <>
-              <>
-                <div className="flex w-[265px] py-5">
-                  <SearchField
-                    width={'w-full'}
-                    text="Policy ID..."
-                    onSearch={handlerSearch}
-                  />{' '}
-                  <button
-                    type="button"
-                    className="dark:bg-light-1100 font-bold bg-dark-800 uppercase text-base text-dark-500 ml-3 w-100 px-5 py-0 justify-self-end sm:hidden"
-                  >
-                    Filter
-                  </button>
-                </div>
-                {search ? (
-                  <>
-                    <div className="mb-10">
-                      <Table {...verify} />
+              {tabs === 5 && (
+                <>
+                  <div className="py-5">
+                    <div className="flex w-[265px] mb-5 sm:mb-0 ">
+                      <SearchField
+                        width={'w-full'}
+                        text="Search ..."
+                        onSearch={handlerSearch}
+                      />{' '}
+                      <button
+                        type="button"
+                        className="dark:bg-light-1100 font-bold bg-dark-800 uppercase text-base text-dark-500 ml-3 w-100 px-5 py-0 justify-self-end sm:hidden"
+                      >
+                        Filter
+                      </button>
                     </div>
-                  </>
-                ) : (
-                  <> </>
-                )}
-                <div>
-                  {!search ? (
+                  </div>
+                  {search ? (
                     <>
-                      <div className="flex mt-[20px] py-5">
-                        <div className="text-3xl font-amaranth flex-grow">
-                          <p className="mb-5 verify-title">
-                            You can also use certificate verification feature on
-                            your phone
-                          </p>
-                          <ul className="list-decimal mb-5 flex flex-col gap-2 px-6 text-dark-650">
-                            {[
-                              <div className="flex gap-[10px]">
-                                {' '}
-                                <span className="verify-content">
-                                  {' '}
-                                  Open your wallet browser and search
-                                  www.app.solace.io
-                                </span>{' '}
-                                <img src="/images/fox-light.svg" alt="" />
-                              </div>,
-                              <div className="flex gap-[10px]">
-                                {' '}
-                                <span className="verify-content">
-                                  {' '}
-                                  Open the menu screen tab
-                                </span>
-                                <img
-                                  src={
-                                    theme === 'dark'
-                                      ? '/images/light-menu.svg'
-                                      : '/images/dark-menu.svg'
-                                  }
-                                  alt=""
-                                />
-                              </div>,
-                              <div className="flex gap-[10px]">
-                                {' '}
-                                <span className="verify-content">
-                                  {' '}
-                                  Open the QR reader and scan the QR code of the
-                                  insurance certificate
-                                </span>
-                                <img
-                                  src={
-                                    theme === 'dark'
-                                      ? '/images/dark-qr.svg'
-                                      : '/images/light-qr.svg'
-                                  }
-                                  alt=""
-                                />
-                              </div>,
-                            ].map((value, index) => (
-                              <li>{value}</li>
-                            ))}
-                          </ul>
-                          <Link to="/" className="mb-7 block policy-line">
-                            Learn more about verifing a policy
-                          </Link>
-                          <p className="mb-5 download-now">
-                            Don’t have a wallet browser on your phone?
-                            <br />
-                            Download now:
-                          </p>
-                          <div className="flex gap-2.5 max-w-[900px] flex-cols">
-                            <a href="#">
-                              <img src="/images/Group (6).svg" alt="" />
-                            </a>
-                            <a href="#">
-                              <img src="/images/Group (7).svg" alt="" />
-                            </a>
+                      <Table {...searchTable} />
+                    </>
+                  ) : (
+                    <>
+                      <div className="py-5">
+                        <div className="flex mt-[20px]">
+                          <div className="flex text-3xl font-amaranth flex-grow items-center">
+                            <div>
+                              <p className="mb-5 verify-title">
+                                You can use Search feature to find any policy,
+                                the following criteria apply:
+                              </p>
+                              <ul className="list-decimal mb-5 flex flex-col gap-2 px-6 text-dark-650">
+                                {[
+                                  <span className="verify-content">
+                                    {' '}
+                                    Restricted to only to the InsurePro
+                                    community.
+                                  </span>,
+                                  <span className="verify-content">
+                                    Policyholders can view these policies
+                                  </span>,
+                                ].map((value, index) => (
+                                  <li>{value}</li>
+                                ))}
+                              </ul>
+
+                              <Link
+                                to="/"
+                                className="mb-7 block policy-line learn-more-link"
+                              >
+                                Learn more about Search feature
+                              </Link>
+                            </div>
                           </div>
-                        </div>
-                        <div className="hidden md:flex">
-                          <img
-                            src={
-                              theme === 'dark'
-                                ? '/images/man-dark.svg'
-                                : '/images/Group (8).svg'
-                            }
-                            alt=""
-                          />
+                          <div className="hidden md:flex">
+                            <img src="/images/search.svg" alt="" />
+                          </div>
                         </div>
                       </div>
                     </>
-                  ) : (
-                    <></>
                   )}
-                </div>
-              </>
+                </>
+              )}
+              {tabs === 6 && (
+                <>
+                  <>
+                    <div className="flex w-[265px] py-5">
+                      <SearchField
+                        width={'w-full'}
+                        text="Policy ID..."
+                        onSearch={handlerSearch}
+                      />{' '}
+                      <button
+                        type="button"
+                        className="dark:bg-light-1100 font-bold bg-dark-800 uppercase text-base text-dark-500 ml-3 w-100 px-5 py-0 justify-self-end sm:hidden"
+                      >
+                        Filter
+                      </button>
+                    </div>
+                    {search ? (
+                      <>
+                        <div className="mb-10">
+                          <Table {...verify} />
+                        </div>
+                      </>
+                    ) : (
+                      <> </>
+                    )}
+                    <div>
+                      {!search ? (
+                        <>
+                          <div className="flex mt-[20px] py-5">
+                            <div className="text-3xl font-amaranth flex-grow">
+                              <p className="mb-5 verify-title">
+                                You can also use certificate verification
+                                feature on your phone
+                              </p>
+                              <ul className="list-decimal mb-5 flex flex-col gap-2 px-6 text-dark-650">
+                                {[
+                                  <div className="flex gap-[10px]">
+                                    {' '}
+                                    <span className="verify-content">
+                                      {' '}
+                                      Open your wallet browser and search
+                                      www.app.solace.io
+                                    </span>{' '}
+                                    <img src="/images/fox-light.svg" alt="" />
+                                  </div>,
+                                  <div className="flex gap-[10px]">
+                                    {' '}
+                                    <span className="verify-content">
+                                      {' '}
+                                      Open the menu screen tab
+                                    </span>
+                                    <img
+                                      src={
+                                        theme === 'dark'
+                                          ? '/images/light-menu.svg'
+                                          : '/images/dark-menu.svg'
+                                      }
+                                      alt=""
+                                    />
+                                  </div>,
+                                  <div className="flex gap-[10px]">
+                                    {' '}
+                                    <span className="verify-content">
+                                      {' '}
+                                      Open the QR reader and scan the QR code of
+                                      the insurance certificate
+                                    </span>
+                                    <img
+                                      src={
+                                        theme === 'dark'
+                                          ? '/images/dark-qr.svg'
+                                          : '/images/light-qr.svg'
+                                      }
+                                      alt=""
+                                    />
+                                  </div>,
+                                ].map((value, index) => (
+                                  <li>{value}</li>
+                                ))}
+                              </ul>
+                              <Link to="/" className="mb-7 block policy-line">
+                                Learn more about verifing a policy
+                              </Link>
+                              <p className="mb-5 download-now">
+                                Don’t have a wallet browser on your phone?
+                                <br />
+                                Download now:
+                              </p>
+                              <div className="flex gap-2.5 max-w-[900px] flex-cols">
+                                <a href="#">
+                                  <img src="/images/Group (6).svg" alt="" />
+                                </a>
+                                <a href="#">
+                                  <img src="/images/Group (7).svg" alt="" />
+                                </a>
+                              </div>
+                            </div>
+                            <div className="hidden md:flex">
+                              <img
+                                src={
+                                  theme === 'dark'
+                                    ? '/images/man-dark.svg'
+                                    : '/images/Group (8).svg'
+                                }
+                                alt=""
+                              />
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <></>
+                      )}
+                    </div>
+                  </>
+                </>
+              )}
             </>
           )}
         </div>
