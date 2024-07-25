@@ -800,7 +800,7 @@ const applyForPolicy = async (
       ethers.parseEther(policyValues.deductiblePerc.toString()),
       ethers.parseEther(policyValues.riskFactor.toString()),
     ],
-    { gasLimit: 3000000 }
+    { gasLimit: 1300000 }
   )
   await tx.wait()
   return createTransactionLink(tx.hash)
