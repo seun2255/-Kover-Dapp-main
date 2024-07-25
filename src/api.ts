@@ -788,7 +788,7 @@ const applyForPolicy = async (
     })
   )
 
-  const amount = Number(ethers.parseEther(cost.toString()))
+  const amount = ethers.parseUnits(cost.toString(), '18')
   console.log('Original: ', cost)
   console.log('String version: ', cost.toString())
   console.log('Second: ', ethers.parseEther(cost.toString()))
@@ -797,7 +797,7 @@ const applyForPolicy = async (
     pool,
     [data, data],
     durationIndex,
-    ethers.parseEther(cost.toString()),
+    cost * 10 ** 18,
     [
       ethers.parseEther(policyValues.maxExposure.toString()),
       ethers.parseEther(policyValues.src.toString()),
