@@ -793,7 +793,7 @@ const applyForPolicy = async (
     pool,
     [data, data],
     durationIndex,
-    cost,
+    ethers.parseEther(cost.toString()),
     [
       ethers.parseEther(policyValues.maxExposure.toString()),
       ethers.parseEther(policyValues.src.toString()),
