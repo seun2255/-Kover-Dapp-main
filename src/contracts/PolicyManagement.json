@@ -1233,40 +1233,6 @@
           "type": "address"
         },
         {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "_reviewed_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "string",
-              "name": "details",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "proof",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct Definitions.IpfsHashes",
-          "name": "_reviewed_credentials_ipfs_hashes",
-          "type": "tuple"
-        },
-        {
           "internalType": "bool",
           "name": "_is_approved",
           "type": "bool"
