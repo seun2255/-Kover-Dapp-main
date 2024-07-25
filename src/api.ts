@@ -49,7 +49,7 @@ const createTransactionLink = (hash: any) => {
   return `${sepoliaScan}/${hash}`
 }
 const provider = new ethers.JsonRpcProvider(
-  `https://arbitrum-sepolia.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`
+  `wss://arbitrum-sepolia.infura.io/ws/v3/${process.env.REACT_APP_INFURA_KEY}`
 )
 
 const getSigner = async () => {
