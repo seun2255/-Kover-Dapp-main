@@ -278,7 +278,7 @@ function KYCApplication() {
   const canAssignClaim = async (address: string, poolName: string) => {
     const isAnAdjustor = await isPoolAdjustor(address, poolName)
     if (
-      address === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2' ||
+      address === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD' ||
       isAnAdjustor
     ) {
       return true
@@ -304,7 +304,7 @@ function KYCApplication() {
   }
 
   const canReview = (workfield: string) => {
-    if (account !== '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2') {
+    if (account !== '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD') {
       dispatch(
         openAlert({
           displayAlert: true,
@@ -333,7 +333,7 @@ function KYCApplication() {
   const canReviewKyc = async () => {
     const isReviewer = await is_kyc_reviewer('NG')
     if (
-      account === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2' ||
+      account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD' ||
       isReviewer
     ) {
       return true
@@ -365,7 +365,7 @@ function KYCApplication() {
         getData()
       }
     )
-    if (account && account === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2') {
+    if (account && account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD') {
       setIsAdmin(true)
     }
   }, [])
