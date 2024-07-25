@@ -793,54 +793,20 @@ const applyForPolicy = async (
   console.log('String version: ', cost.toString())
   console.log('Second: ', ethers.parseEther(cost.toString()))
   console.log(amount)
-  try {
-    const tx = await policyManagerContract.apply_for_or_modify_policy(
-      pool,
-      [data, data],
-      durationIndex,
-      ethers.parseEther(cost.toString()),
-      [
-        ethers.parseEther(policyValues.maxExposure.toString()),
-        ethers.parseEther(policyValues.src.toString()),
-        ethers.parseEther(policyValues.deductiblePerc.toString()),
-        ethers.parseEther(policyValues.riskFactor.toString()),
-      ]
-    )
-    await tx.wait()
-    return createTransactionLink(tx.hash)
-  } catch {
-    try {
-      const tx = await policyManagerContract.apply_for_or_modify_policy(
-        pool,
-        [data, data],
-        durationIndex,
-        amount,
-        [
-          ethers.parseEther(policyValues.maxExposure.toString()),
-          ethers.parseEther(policyValues.src.toString()),
-          ethers.parseEther(policyValues.deductiblePerc.toString()),
-          ethers.parseEther(policyValues.riskFactor.toString()),
-        ]
-      )
-      await tx.wait()
-      return createTransactionLink(tx.hash)
-    } catch {
-      const tx = await policyManagerContract.apply_for_or_modify_policy(
-        pool,
-        [data, data],
-        durationIndex,
-        cost,
-        [
-          ethers.parseEther(policyValues.maxExposure.toString()),
-          ethers.parseEther(policyValues.src.toString()),
-          ethers.parseEther(policyValues.deductiblePerc.toString()),
-          ethers.parseEther(policyValues.riskFactor.toString()),
-        ]
-      )
-      await tx.wait()
-      return createTransactionLink(tx.hash)
-    }
-  }
+  const tx = await policyManagerContract.apply_for_or_modify_policy(
+    pool,
+    [data, data],
+    durationIndex,
+    ethers.parseEther(cost.toString()),
+    [
+      ethers.parseEther(policyValues.maxExposure.toString()),
+      ethers.parseEther(policyValues.src.toString()),
+      ethers.parseEther(policyValues.deductiblePerc.toString()),
+      ethers.parseEther(policyValues.riskFactor.toString()),
+    ]
+  )
+  await tx.wait()
+  return createTransactionLink(tx.hash)
 }
 
 const getPolicyDetails = async (address: any, pool: string) => {
