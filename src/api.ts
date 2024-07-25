@@ -48,6 +48,9 @@ const sepoliaScan = 'https://sepolia.arbiscan.io/tx'
 const createTransactionLink = (hash: any) => {
   return `${sepoliaScan}/${hash}`
 }
+const provider = new ethers.JsonRpcProvider(
+  `https://arbitrum-sepolia.infura.io/v3/${process.env.INFURA_KEY}`
+)
 
 const getSigner = async () => {
   const provider = new ethers.BrowserProvider(window.ethereum)
@@ -694,10 +697,22 @@ const approvePolicyMembers = async (pool: string, amount: any) => {
 
 const getPremiumContractInstance = async (pool: string) => {
   const poolAddresses = await getPoolAddresses(pool)
-  const premiumContract = await getPremiumContract(poolAddresses.premium)
 
-  return premiumContract
+  const contract = new ethers.Contract(
+    poolAddresses.premium,
+    PREMIUMCONTRACT.abi,
+    provider
+  )
+
+  return contract
 }
+
+// const getPremiumContractInstance = async (pool: string) => {
+//   const poolAddresses = await getPoolAddresses(pool)
+//   const premiumContract = await getPremiumContract(poolAddresses.premium)
+
+//   return premiumContract
+// }
 
 const approvePolicyManagement = async (pool: string, amount: any) => {
   console.log('Reached here 3')
