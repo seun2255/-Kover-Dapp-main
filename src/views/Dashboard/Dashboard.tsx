@@ -217,13 +217,17 @@ function Dashboard() {
   }
 
   const attachListeners = async () => {
-    const premiumContract = await getPremiumContractInstance('Car Insurance')
-    console.log('attaching listener')
-    premiumContract.on('overnightAccounting', () => {
+    // const premiumContract = await getPremiumContractInstance('Car Insurance')
+    // console.log('attaching listener')
+    // premiumContract.on('overnightAccounting', () => {
+    //   console.log('Performed Overnight Accounting')
+    //   alert('Was Triggered')
+    //   getData()
+    // })
+    setInterval(() => {
       console.log('Performed Overnight Accounting')
-      alert('Was Triggered')
       getData()
-    })
+    }, 60000)
     console.log('Listener attached')
   }
 
