@@ -788,7 +788,7 @@ const applyForPolicy = async (
     })
   )
 
-  const amount = ethers.parseUnits(cost.toString(), '18')
+  // const amount = ethers.parseUnits(cost.toString(), '18')
   // console.log('Original: ', cost)
   // console.log('String version: ', cost.toString())
   // console.log('Second: ', ethers.parseEther(cost.toString()))
