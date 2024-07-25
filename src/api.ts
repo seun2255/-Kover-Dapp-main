@@ -1464,7 +1464,7 @@ const getStakeRewards = async (user: string) => {
   const stakingPoolContract = await getStakingPoolContract()
 
   const stakeReward = await stakingPoolContract.rewards_recieved(user)
-  return Number(stakeReward)
+  return Number(ethers.formatEther(stakeReward))
 }
 
 const approveKoverToStake = async (amount: string, dispatch: any) => {

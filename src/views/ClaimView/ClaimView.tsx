@@ -25,7 +25,12 @@ import lighthouse from '@lighthouse-web3/sdk'
 import { uploadJsonData } from '../../lighthouse'
 import { createClaim, getNotes, addNote, getCoverDetails } from '../../database'
 import { useWeb3React } from '@web3-react/core'
-import { openAlert, closeAlert, openLoader } from '../../redux/alerts'
+import {
+  openAlert,
+  closeAlert,
+  openLoader,
+  closeLoader,
+} from '../../redux/alerts'
 import { useDispatch } from 'react-redux'
 
 interface Document {
@@ -919,6 +924,12 @@ function ClaimView() {
           </div>
           <button
             onClick={async () => {
+              dispatch(
+                openLoader({
+                  displaytransactionLoader: true,
+                  text: 'Saving Note',
+                })
+              )
               await addNote(
                 claimId as string,
                 'Daniel',
@@ -927,6 +938,7 @@ function ClaimView() {
               )
               await getData()
               setNoteText('')
+              dispatch(closeLoader())
               setPopup(false)
             }}
             type="button"
