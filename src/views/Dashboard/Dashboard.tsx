@@ -575,7 +575,7 @@ function Dashboard() {
         <span>{vote.finalVerdict}</span>,
         <div>
           <Button
-            to="/new-claim"
+            to={`/claim-assessment/${vote.id}`}
             className={theme === 'dark' ? 'whiteBgBtn' : 'greenGradient'}
             text="View"
             btnText="table-action"
