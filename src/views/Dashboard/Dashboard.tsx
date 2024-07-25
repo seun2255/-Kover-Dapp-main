@@ -224,6 +224,7 @@ function Dashboard() {
       alert('Was Triggered')
       getData()
     })
+    console.log('Listener attached')
   }
 
   function capitalizeFirstLetter(inputString: any) {
