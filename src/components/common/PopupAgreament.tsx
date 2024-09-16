@@ -89,11 +89,11 @@ function PopupAgreament({
   const dispatch = useDispatch()
 
   const handleClick = async () => {
-    if (depositAmount !== 0 || amountApproved) {
+    if (depositAmount === 0 || amountApproved) {
       if (isStake) {
         console.log('It is stake')
         handleStake()
-      } else if (active) {
+      } else if (active && depositAmount !== 0) {
         setTransferring(true)
         const hash = await depositIntoPolicy(
           coverDetails.poolName,
