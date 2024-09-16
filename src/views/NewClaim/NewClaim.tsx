@@ -227,31 +227,33 @@ function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
         account as string,
         dispatch
       )
-      await updateCoverClaimState(account, poolName as string, 'in progress')
-      await applicationsUpdate()
-      dispatch(closeLoader())
-      dispatch(
-        openAlert({
-          displayAlert: true,
-          data: {
-            id: 1,
-            variant: 'Successful',
-            classname: 'text-black',
-            title: 'Submission Successful',
-            tag1: 'Claim application submitted',
-            tag2: 'View on etherscan',
-            hash: hash,
-          },
-        })
-      )
-      setTimeout(() => {
-        dispatch(closeAlert())
-      }, 10000)
-      onClose?.()
-      // })
-      // .catch((error) => {
-      //   console.log('Error fetching IP address information: ', error)
-      // })
+      if (hash) {
+        await updateCoverClaimState(account, poolName as string, 'in progress')
+        await applicationsUpdate()
+        dispatch(closeLoader())
+        dispatch(
+          openAlert({
+            displayAlert: true,
+            data: {
+              id: 1,
+              variant: 'Successful',
+              classname: 'text-black',
+              title: 'Submission Successful',
+              tag1: 'Claim application submitted',
+              tag2: 'View on etherscan',
+              hash: hash,
+            },
+          })
+        )
+        setTimeout(() => {
+          dispatch(closeAlert())
+        }, 10000)
+        onClose?.()
+        // })
+        // .catch((error) => {
+        //   console.log('Error fetching IP address information: ', error)
+        // })
+      }
     }
   }
 

@@ -5,7 +5,7 @@ import TermOfUsePopup from '../global/TermOfUsePopup'
 import Popup from '../templates/Popup'
 import SelectionField from './SelectionField'
 import { UserContext } from '../../App'
-import { acceptPolicy, applyForPolicy, approvePoolToSpend } from '../../api'
+import { applyForPolicy } from '../../api'
 import {
   openAlert,
   closeAlert,
@@ -89,7 +89,7 @@ function PopupAgreament({
   const dispatch = useDispatch()
 
   const handleClick = async () => {
-    if (depositAmount === 0 || amountApproved) {
+    if (depositAmount !== 0 || amountApproved) {
       if (isStake) {
         console.log('It is stake')
         handleStake()
@@ -100,28 +100,32 @@ function PopupAgreament({
           depositAmount,
           dispatch
         )
-        setStage(2)
-        setTimeout(() => {
-          setStage(3)
-          dispatch(
-            openAlert({
-              displayAlert: true,
-              data: {
-                id: 1,
-                variant: 'Successful',
-                classname: 'text-black',
-                title: 'Deposit Succesful',
-                tag1: 'policy deposit process completetd',
-                tag2: 'cover balance toped up',
-                hash: hash,
-              },
-            })
-          )
-          onClose?.()
+        if (hash) {
+          setStage(2)
           setTimeout(() => {
-            dispatch(closeAlert())
-          }, 10000)
-        }, 1000)
+            setStage(3)
+            dispatch(
+              openAlert({
+                displayAlert: true,
+                data: {
+                  id: 1,
+                  variant: 'Successful',
+                  classname: 'text-black',
+                  title: 'Deposit Succesful',
+                  tag1: 'policy deposit process completetd',
+                  tag2: 'cover balance toped up',
+                  hash: hash,
+                },
+              })
+            )
+            onClose?.()
+            setTimeout(() => {
+              dispatch(closeAlert())
+            }, 10000)
+          }, 1000)
+        } else {
+          setTransferring(false)
+        }
       } else {
         if (id === 1) {
           if (
@@ -130,17 +134,11 @@ function PopupAgreament({
             true
           ) {
             setTransferring(true)
-            dispatch(
-              openLoader({
-                displaytransactionLoader: true,
-                text: 'Approving Token Use',
-              })
-            )
-            await approvePoolToSpend(
-              coverDetails.poolName,
-              coverDetails.premiumQuote + coverDetails.fee,
-              dispatch
-            )
+            // await approvePoolToSpend(
+            //   coverDetails.poolName,
+            //   coverDetails.premiumQuote + coverDetails.fee,
+            //   dispatch
+            // )
             // dispatch(
             //   openAlert({
             //     displayAlert: true,
@@ -173,38 +171,42 @@ function PopupAgreament({
               coverDetails,
               dispatch
             )
-            await setCoverBuyDate(
-              coverDetails.address,
-              coverDetails.poolName,
-              getCurrentDateTime()
-            )
-            await disableCoverModify(
-              coverDetails.address,
-              coverDetails.poolName
-            )
-            setStage(2)
-            setTimeout(() => {
-              dispatch(closeLoader())
-              setStage(3)
-              dispatch(
-                openAlert({
-                  displayAlert: true,
-                  data: {
-                    id: 1,
-                    variant: 'Successful',
-                    classname: 'text-black',
-                    title: 'Cover bought!',
-                    tag1: 'policy is now active',
-                    tag2: 'cover bought',
-                    hash: hash,
-                  },
-                })
+            if (hash) {
+              await setCoverBuyDate(
+                coverDetails.address,
+                coverDetails.poolName,
+                getCurrentDateTime()
               )
-              onClose?.()
+              await disableCoverModify(
+                coverDetails.address,
+                coverDetails.poolName
+              )
+              setStage(2)
               setTimeout(() => {
-                dispatch(closeAlert())
-              }, 10000)
-            }, 1000)
+                dispatch(closeLoader())
+                setStage(3)
+                dispatch(
+                  openAlert({
+                    displayAlert: true,
+                    data: {
+                      id: 1,
+                      variant: 'Successful',
+                      classname: 'text-black',
+                      title: 'Cover bought!',
+                      tag1: 'policy is now active',
+                      tag2: 'cover bought',
+                      hash: hash,
+                    },
+                  })
+                )
+                onClose?.()
+                setTimeout(() => {
+                  dispatch(closeAlert())
+                }, 10000)
+              }, 1000)
+            } else {
+              setTransferring(false)
+            }
           } else {
             if (filledForm) {
               dispatch(

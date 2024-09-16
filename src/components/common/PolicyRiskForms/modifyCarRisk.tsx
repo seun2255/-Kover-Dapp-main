@@ -269,42 +269,44 @@ function ModifyCarInsurance(
     } else {
       hash = undefined
     }
-    await updateCoverQuote(account, 'Car Insurance', {
-      ...premiumQuote,
-      formData: userData,
-    })
-    await applicationsUpdate()
-    dispatch(closeLoader())
-    dispatch(
-      openAlert({
-        displayAlert: true,
-        data: {
-          id: 1,
-          variant: 'Successful',
-          classname: 'text-black',
-          title: 'Submission Successful',
-          tag1: 'policy application modified',
-          tag2: 'View on etherscan',
-          hash: hash,
-        },
+    if (hash) {
+      await updateCoverQuote(account, 'Car Insurance', {
+        ...premiumQuote,
+        formData: userData,
       })
-    )
-    // setFilledForm(true)
-    setTimeout(() => {
-      dispatch(closeAlert())
-    }, 10000)
-    // setPolicyProcessState('verifying')
-    const updatedData = await getUserData(account)
-    dispatch(updateUser({ data: updatedData }))
-    if (kycModal) {
-      dispatch(displayKycModal({ display: false }))
+      await applicationsUpdate()
+      dispatch(closeLoader())
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 1,
+            variant: 'Successful',
+            classname: 'text-black',
+            title: 'Submission Successful',
+            tag1: 'policy application modified',
+            tag2: 'View on etherscan',
+            hash: hash,
+          },
+        })
+      )
+      // setFilledForm(true)
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+      // setPolicyProcessState('verifying')
+      const updatedData = await getUserData(account)
+      dispatch(updateUser({ data: updatedData }))
+      if (kycModal) {
+        dispatch(displayKycModal({ display: false }))
+      }
+      if (onSubmit !== undefined) onSubmit()
+      // })
+      // .catch((error) => {
+      //   console.log('Error fetching IP address information: ', error)
+      // })
+      // }
     }
-    if (onSubmit !== undefined) onSubmit()
-    // })
-    // .catch((error) => {
-    //   console.log('Error fetching IP address information: ', error)
-    // })
-    // }
   }
 
   useEffect(() => {

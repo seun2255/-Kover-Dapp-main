@@ -5,12 +5,14 @@ const initialState = {
   user: {
     notifications: [],
   },
+  isAdmin: false,
 }
 
 interface LoginAction {
   payload: {
     verified: boolean
     data: {}
+    isAdmin: boolean
   }
 }
 
@@ -27,6 +29,7 @@ export const userSlice = createSlice({
     login: (state: any, action: LoginAction) => {
       state.connected = true
       state.user = action.payload.data
+      state.isAdmin = action.payload.isAdmin
     },
     updateUser: (state: any, action: UpdateAction) => {
       state.user = action.payload.data

@@ -278,7 +278,7 @@ function KYCApplication() {
   const canAssignClaim = async (address: string, poolName: string) => {
     const isAnAdjustor = await isPoolAdjustor(address, poolName)
     if (
-      address === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD' ||
+      address === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2' ||
       isAnAdjustor
     ) {
       return true
@@ -304,7 +304,7 @@ function KYCApplication() {
   }
 
   const canReview = (workfield: string) => {
-    if (account !== '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD') {
+    if (account !== '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2') {
       dispatch(
         openAlert({
           displayAlert: true,
@@ -333,7 +333,7 @@ function KYCApplication() {
   const canReviewKyc = async () => {
     const isReviewer = await is_kyc_reviewer('NG')
     if (
-      account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD' ||
+      account === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2' ||
       isReviewer
     ) {
       return true
@@ -365,7 +365,7 @@ function KYCApplication() {
         getData()
       }
     )
-    if (account && account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD') {
+    if (account && account === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2') {
       setIsAdmin(true)
     }
   }, [])
@@ -435,8 +435,7 @@ function KYCApplication() {
   }
 
   const revert = async (address: string, region: string) => {
-    const signer = library.getSigner(account)
-    await revertMembershipApplication(signer, region, address, dispatch)
+    await revertMembershipApplication(region, address, dispatch)
     setTimeout(() => {
       getData()
     }, 10000)
@@ -583,26 +582,28 @@ function KYCApplication() {
                   application.region,
                   dispatch
                 )
-                await updateVerificationState(application.address, 'verified')
-                dispatch(closeLoader())
-                dispatch(
-                  openAlert({
-                    displayAlert: true,
-                    data: {
-                      id: 1,
-                      variant: 'Successful',
-                      classname: 'text-black',
-                      title: 'Submission Successful',
-                      tag1: 'KYC Review concluded',
-                      tag2: 'View on etherscan',
-                      hash: hash,
-                    },
-                  })
-                )
-                getData()
-                setTimeout(() => {
-                  dispatch(closeAlert())
-                }, 10000)
+                if (hash) {
+                  await updateVerificationState(application.address, 'verified')
+                  dispatch(closeLoader())
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 1,
+                        variant: 'Successful',
+                        classname: 'text-black',
+                        title: 'Submission Successful',
+                        tag1: 'KYC Review concluded',
+                        tag2: 'View on etherscan',
+                        hash: hash,
+                      },
+                    })
+                  )
+                  getData()
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                }
               }}
             />
           ) : application.resultStatus === 'approved' ||
@@ -635,24 +636,26 @@ function KYCApplication() {
                     policyDecision,
                     dispatch
                   )
-                  dispatch(
-                    openAlert({
-                      displayAlert: true,
-                      data: {
-                        id: 1,
-                        variant: 'Successful',
-                        classname: 'text-black',
-                        title: 'Submission Successful',
-                        tag1: 'KYC Review submitted',
-                        tag2: 'View on etherscan',
-                        hash: hash,
-                      },
-                    })
-                  )
-                  getData()
-                  setTimeout(() => {
-                    dispatch(closeAlert())
-                  }, 10000)
+                  if (hash) {
+                    dispatch(
+                      openAlert({
+                        displayAlert: true,
+                        data: {
+                          id: 1,
+                          variant: 'Successful',
+                          classname: 'text-black',
+                          title: 'Submission Successful',
+                          tag1: 'KYC Review submitted',
+                          tag2: 'View on etherscan',
+                          hash: hash,
+                        },
+                      })
+                    )
+                    getData()
+                    setTimeout(() => {
+                      dispatch(closeAlert())
+                    }, 10000)
+                  }
                 } else {
                   dispatch(
                     openAlert({
@@ -760,42 +763,42 @@ function KYCApplication() {
                     : `greenGradient`
                 } contained medium  font-medium px-8 w-full square button`}
                 onClick={async () => {
-                  const signer = library.getSigner(account)
                   const hash = await assignMembershipApplication(
-                    signer,
                     application.address,
                     application.region,
                     dispatch
                   )
-                  await createChatRoom(
-                    'kyc',
-                    application.region,
-                    application.id,
-                    {
-                      [application.address]: application.firstName,
-                      [account as string]: 'reviewer',
-                    }
-                  )
-                  getData()
-                  dispatch(closeLoader())
-                  dispatch(
-                    openAlert({
-                      displayAlert: true,
-                      data: {
-                        id: 1,
-                        variant: 'Successful',
-                        classname: 'text-black',
-                        title: 'Submission Successful',
-                        tag1: 'KYC application assigned to you',
-                        tag2: 'View on etherscan',
-                        hash: hash,
-                      },
-                    })
-                  )
-                  setTimeout(() => {
-                    dispatch(closeAlert())
-                  }, 10000)
-                  setAssignPopup(false)
+                  if (hash) {
+                    await createChatRoom(
+                      'kyc',
+                      application.region,
+                      application.id,
+                      {
+                        [application.address]: application.firstName,
+                        [account as string]: 'reviewer',
+                      }
+                    )
+                    getData()
+                    dispatch(closeLoader())
+                    dispatch(
+                      openAlert({
+                        displayAlert: true,
+                        data: {
+                          id: 1,
+                          variant: 'Successful',
+                          classname: 'text-black',
+                          title: 'Submission Successful',
+                          tag1: 'KYC application assigned to you',
+                          tag2: 'View on etherscan',
+                          hash: hash,
+                        },
+                      })
+                    )
+                    setTimeout(() => {
+                      dispatch(closeAlert())
+                    }, 10000)
+                    setAssignPopup(false)
+                  }
                 }}
               >
                 <span>Submit</span>
@@ -917,29 +920,31 @@ function KYCApplication() {
                     dispatch,
                     application.pool
                   )
-                  await updateInsureProVerificationState(
-                    application.address,
-                    'verified'
-                  )
-                  await insureProVerificationDone(application.address)
-                  dispatch(
-                    openAlert({
-                      displayAlert: true,
-                      data: {
-                        id: 1,
-                        variant: 'Successful',
-                        classname: 'text-black',
-                        title: 'Submission Successful',
-                        tag1: `${application.workField} Review concluded`,
-                        tag2: 'View on etherscan',
-                        hash: hash,
-                      },
-                    })
-                  )
-                  getData()
-                  setTimeout(() => {
-                    dispatch(closeAlert())
-                  }, 10000)
+                  if (hash) {
+                    await updateInsureProVerificationState(
+                      application.address,
+                      'verified'
+                    )
+                    await insureProVerificationDone(application.address)
+                    dispatch(
+                      openAlert({
+                        displayAlert: true,
+                        data: {
+                          id: 1,
+                          variant: 'Successful',
+                          classname: 'text-black',
+                          title: 'Submission Successful',
+                          tag1: `${application.workField} Review concluded`,
+                          tag2: 'View on etherscan',
+                          hash: hash,
+                        },
+                      })
+                    )
+                    getData()
+                    setTimeout(() => {
+                      dispatch(closeAlert())
+                    }, 10000)
+                  }
                 }
               }}
               text="Submit"
@@ -1087,30 +1092,32 @@ function KYCApplication() {
                   application.address,
                   dispatch
                 )
-                await updateCoverState(
-                  application.address,
-                  application.poolName,
-                  application.resultStatus === 'approved'
-                )
-                dispatch(
-                  openAlert({
-                    displayAlert: true,
-                    data: {
-                      id: 1,
-                      variant: 'Successful',
-                      classname: 'text-black',
-                      title: 'Submission Successful',
-                      tag1: 'Policy Review concluded',
-                      tag2: 'View on etherscan',
-                      hash: hash,
-                    },
-                  })
-                )
-                disableCoverModify(application.address, application.poolName)
-                getData()
-                setTimeout(() => {
-                  dispatch(closeAlert())
-                }, 10000)
+                if (hash) {
+                  await updateCoverState(
+                    application.address,
+                    application.poolName,
+                    application.resultStatus === 'approved'
+                  )
+                  dispatch(
+                    openAlert({
+                      displayAlert: true,
+                      data: {
+                        id: 1,
+                        variant: 'Successful',
+                        classname: 'text-black',
+                        title: 'Submission Successful',
+                        tag1: 'Policy Review concluded',
+                        tag2: 'View on etherscan',
+                        hash: hash,
+                      },
+                    })
+                  )
+                  disableCoverModify(application.address, application.poolName)
+                  getData()
+                  setTimeout(() => {
+                    dispatch(closeAlert())
+                  }, 10000)
+                }
               }}
             />
           ) : application.resultStatus === 'approved' ||
@@ -1145,41 +1152,43 @@ function KYCApplication() {
                     application,
                     dispatch
                   )
-                  dispatch(
-                    openAlert({
-                      displayAlert: true,
-                      data: {
-                        id: 1,
-                        variant: 'Successful',
-                        classname: 'text-black',
-                        title: 'Submission Successful',
-                        tag1: 'Policy Review submitted',
-                        tag2: 'View on etherscan',
-                        hash: hash,
-                      },
-                    })
-                  )
-                  getData()
-                  setTimeout(() => {
-                    dispatch(closeAlert())
-                  }, 10000)
-                } else {
-                  dispatch(
-                    openAlert({
-                      displayAlert: true,
-                      data: {
-                        id: 2,
-                        variant: 'Failed',
-                        classname: 'text-black',
-                        title: 'Transaction Failed',
-                        tag1: 'A decision has not been made',
-                        tag2: 'View on etherscan',
-                      },
-                    })
-                  )
-                  setTimeout(() => {
-                    dispatch(closeAlert())
-                  }, 10000)
+                  if (hash) {
+                    dispatch(
+                      openAlert({
+                        displayAlert: true,
+                        data: {
+                          id: 1,
+                          variant: 'Successful',
+                          classname: 'text-black',
+                          title: 'Submission Successful',
+                          tag1: 'Policy Review submitted',
+                          tag2: 'View on etherscan',
+                          hash: hash,
+                        },
+                      })
+                    )
+                    getData()
+                    setTimeout(() => {
+                      dispatch(closeAlert())
+                    }, 10000)
+                  } else {
+                    dispatch(
+                      openAlert({
+                        displayAlert: true,
+                        data: {
+                          id: 2,
+                          variant: 'Failed',
+                          classname: 'text-black',
+                          title: 'Transaction Failed',
+                          tag1: 'A decision has not been made',
+                          tag2: 'View on etherscan',
+                        },
+                      })
+                    )
+                    setTimeout(() => {
+                      dispatch(closeAlert())
+                    }, 10000)
+                  }
                 }
               }}
             />
@@ -1273,38 +1282,40 @@ function KYCApplication() {
                     application.region,
                     dispatch
                   )
-                  await disableCoverModify(
-                    application.address,
-                    application.poolNameF
-                  )
-                  await createChatRoom(
-                    'policy',
-                    application.region,
-                    application.id,
-                    {
-                      [application.address]: application.firstName,
-                      [account as string]: 'reviewer',
-                    }
-                  )
-                  getData()
-                  dispatch(
-                    openAlert({
-                      displayAlert: true,
-                      data: {
-                        id: 1,
-                        variant: 'Successful',
-                        classname: 'text-black',
-                        title: 'Submission Successful',
-                        tag1: 'Policy application assigned to you',
-                        tag2: 'View on etherscan',
-                        hash: hash,
-                      },
-                    })
-                  )
-                  setTimeout(() => {
-                    dispatch(closeAlert())
-                  }, 10000)
-                  setPolicyAssignPopup(false)
+                  if (hash) {
+                    await disableCoverModify(
+                      application.address,
+                      application.poolNameF
+                    )
+                    await createChatRoom(
+                      'policy',
+                      application.region,
+                      application.id,
+                      {
+                        [application.address]: application.firstName,
+                        [account as string]: 'reviewer',
+                      }
+                    )
+                    getData()
+                    dispatch(
+                      openAlert({
+                        displayAlert: true,
+                        data: {
+                          id: 1,
+                          variant: 'Successful',
+                          classname: 'text-black',
+                          title: 'Submission Successful',
+                          tag1: 'Policy application assigned to you',
+                          tag2: 'View on etherscan',
+                          hash: hash,
+                        },
+                      })
+                    )
+                    setTimeout(() => {
+                      dispatch(closeAlert())
+                    }, 10000)
+                    setPolicyAssignPopup(false)
+                  }
                 }}
               >
                 <span>Submit</span>
@@ -1485,34 +1496,36 @@ function KYCApplication() {
                     account as string,
                     dispatch
                   )
-                  await createChatRoom(
-                    'claim',
-                    application.region,
-                    application.id,
-                    {
-                      [application.address]: application.firstName,
-                      [account as string]: 'reviewer',
-                    }
-                  )
-                  getData()
-                  dispatch(
-                    openAlert({
-                      displayAlert: true,
-                      data: {
-                        id: 1,
-                        variant: 'Successful',
-                        classname: 'text-black',
-                        title: 'Submission Successful',
-                        tag1: 'Claim application assigned to you',
-                        tag2: 'View on etherscan',
-                        hash: hash,
-                      },
-                    })
-                  )
-                  setTimeout(() => {
-                    dispatch(closeAlert())
-                  }, 10000)
-                  setClaimAssignPopup(false)
+                  if (hash) {
+                    await createChatRoom(
+                      'claim',
+                      application.region,
+                      application.id,
+                      {
+                        [application.address]: application.firstName,
+                        [account as string]: 'reviewer',
+                      }
+                    )
+                    getData()
+                    dispatch(
+                      openAlert({
+                        displayAlert: true,
+                        data: {
+                          id: 1,
+                          variant: 'Successful',
+                          classname: 'text-black',
+                          title: 'Submission Successful',
+                          tag1: 'Claim application assigned to you',
+                          tag2: 'View on etherscan',
+                          hash: hash,
+                        },
+                      })
+                    )
+                    setTimeout(() => {
+                      dispatch(closeAlert())
+                    }, 10000)
+                    setClaimAssignPopup(false)
+                  }
                 }}
               >
                 <span>Submit</span>

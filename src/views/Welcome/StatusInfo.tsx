@@ -51,7 +51,7 @@ function StatusInfo(props: StatusInfoPops) {
               &nbsp;
               <b className="slc-usd-pulse dark:slc-usd-pulse-dark">
                 {' '}
-                {userDetails.usdcData.percentChange}
+                {userDetails.usdcData.percentChange}%
               </b>
             </div>
             <a

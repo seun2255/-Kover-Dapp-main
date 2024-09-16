@@ -190,7 +190,6 @@ function Dashboard() {
       )
 
       const rewards = await getStakeRewards(account)
-      console.log('Rewards: ', rewards)
 
       const details = {
         activeCovers: allCovers.length,

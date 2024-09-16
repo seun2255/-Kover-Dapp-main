@@ -268,38 +268,38 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
       // const isReviwer = await is_kyc_reviewer(signer);
 
       const hash = await apply_for_membership(userData, 'NG', dispatch)
-      await updateVerificationState(account, 'verifying')
-      await applicationsUpdate()
-      dispatch(closeLoader())
-      dispatch(
-        openAlert({
-          displayAlert: true,
-          data: {
-            id: 1,
-            variant: 'Successful',
-            classname: 'text-black',
-            title: 'Submission Successful',
-            tag1: 'KYC application submitted',
-            tag2: 'View on etherscan',
-            hash: hash,
-          },
-        })
-      )
-      setTimeout(() => {
-        dispatch(closeAlert())
-      }, 10000)
-      setUserVerificationState('verifying')
-      console.log('Account: ', account)
-      const updatedData = await getUserData(account)
-      dispatch(updateUser({ data: updatedData }))
-      if (kycModal) {
-        dispatch(displayKycModal({ display: false }))
+      console.log('got here')
+      if (hash !== undefined) {
+        console.log('Never got here')
+        await updateVerificationState(account, 'verifying')
+        await applicationsUpdate()
+        dispatch(closeLoader())
+        dispatch(
+          openAlert({
+            displayAlert: true,
+            data: {
+              id: 1,
+              variant: 'Successful',
+              classname: 'text-black',
+              title: 'Submission Successful',
+              tag1: 'KYC application submitted',
+              tag2: 'View on etherscan',
+              hash: hash,
+            },
+          })
+        )
+        setTimeout(() => {
+          dispatch(closeAlert())
+        }, 10000)
+        setUserVerificationState('verifying')
+        console.log('Account: ', account)
+        const updatedData = await getUserData(account)
+        dispatch(updateUser({ data: updatedData }))
+        if (kycModal) {
+          dispatch(displayKycModal({ display: false }))
+        }
+        if (onClose !== undefined) onClose()
       }
-      if (onClose !== undefined) onClose()
-      // })
-      // .catch((error) => {
-      //   console.log('Error fetching IP address information: ', error)
-      // })
     }
   }
 

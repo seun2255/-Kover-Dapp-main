@@ -13,18 +13,9 @@ function Pages() {
   const path = location.pathname
   const dispatch = useDispatch()
   const { theme } = React.useContext(UserContext)
-  const { connected, user } = useSelector((state: any) => state.user)
+  const { connected, user, isAdmin } = useSelector((state: any) => state.user)
   const { width } = useWindowDimensions()
   const { account } = useWeb3React()
-  const [admin, setAdmin] = useState('')
-
-  useEffect(() => {
-    const getData = async () => {
-      const adminAdrress = await getAdminAddress()
-      setAdmin(adminAdrress)
-    }
-    getData()
-  })
 
   return (
     <ul
@@ -39,7 +30,7 @@ function Pages() {
           (url === '/dashboard' ||
             url === '/profile' ||
             url === '/insurance') &&
-          account === admin
+          isAdmin
         ) {
           activeLink = '/'
         }
@@ -52,7 +43,7 @@ function Pages() {
                 onClick={() => {
                   connected &&
                   user.kycVerificationState === 'unverified' &&
-                  account !== '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD'
+                  account !== '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2'
                     ? dispatch(displayKycModal({ display: true }))
                     : dispatch(displayKycModal({ display: false }))
                 }}

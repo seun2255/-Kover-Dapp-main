@@ -107,24 +107,26 @@ function Staking() {
 
   const handleUnstake = async (stakeId: number) => {
     const hash = await unstake(stakeId, dispatch)
-    await getData()
-    dispatch(
-      openAlert({
-        displayAlert: true,
-        data: {
-          id: 1,
-          variant: 'Successful',
-          classname: 'text-black',
-          title: 'Unstaked Succesfully!',
-          tag1: 'Rewards have been sent to your wallet!',
-          tag2: 'View on etherscan',
-          hash: hash,
-        },
-      })
-    )
-    setTimeout(() => {
-      dispatch(closeAlert())
-    }, 10000)
+    if (hash) {
+      await getData()
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 1,
+            variant: 'Successful',
+            classname: 'text-black',
+            title: 'Unstaked Succesfully!',
+            tag1: 'Rewards have been sent to your wallet!',
+            tag2: 'View on etherscan',
+            hash: hash,
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+    }
   }
 
   const stakePopup: PopConfirmProps = {

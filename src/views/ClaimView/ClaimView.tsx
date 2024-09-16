@@ -221,24 +221,26 @@ function ClaimView() {
         dispatch
       )
 
-      dispatch(
-        openAlert({
-          displayAlert: true,
-          data: {
-            id: 1,
-            variant: 'Successful',
-            classname: 'text-black',
-            title: 'Submission Successful',
-            tag1: 'Claim Review submitted',
-            tag2: 'View on etherscan',
-            hash: hash,
-          },
-        })
-      )
-      setTimeout(() => {
-        dispatch(closeAlert())
-      }, 10000)
-      navigate(-1)
+      if (hash) {
+        dispatch(
+          openAlert({
+            displayAlert: true,
+            data: {
+              id: 1,
+              variant: 'Successful',
+              classname: 'text-black',
+              title: 'Submission Successful',
+              tag1: 'Claim Review submitted',
+              tag2: 'View on etherscan',
+              hash: hash,
+            },
+          })
+        )
+        setTimeout(() => {
+          dispatch(closeAlert())
+        }, 10000)
+        navigate(-1)
+      }
     }
   }
 
@@ -552,8 +554,8 @@ function ClaimView() {
             <div className="bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
               <WeightTitle title="Attachments" />
               <div className="flex gap-[12px] flex-col mt-[25px] sm:mt-[0px]">
-                {[...Array(4)].map((value, index) => (
-                  <>
+                {claimdetails.documents.map((document: any, index: number) => (
+                  <div key={index}>
                     <div className="flex justify-between">
                       <div className="flex basis-3/4 gap-[16px]">
                         <img src="/images/pin.svg" alt="" />
@@ -563,9 +565,11 @@ function ClaimView() {
                               ? 'font-bold text-[#606166] hover:text-[#000000]'
                               : 'text-white hover:text-[#50ff7f]'
                           } file-name `}
-                          to={''}
+                          to={document.link}
+                          download={true}
+                          target="_blank"
                         >
-                          Essential IPID
+                          {document.name}
                         </Link>
                       </div>
                       <img
@@ -578,7 +582,7 @@ function ClaimView() {
                         alt=""
                       />
                     </div>
-                  </>
+                  </div>
                 ))}
               </div>
             </div>
@@ -849,8 +853,8 @@ function ClaimView() {
           <div className="bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
             <WeightTitle title="Attachments" />
             <div className="flex gap-[12px] flex-col mt-[25px] sm:mt-[0px]">
-              {[...Array(4)].map((value, index) => (
-                <>
+              {claimdetails.documents.map((document: any, index: number) => (
+                <div key={index}>
                   <div className="flex justify-between">
                     <div className="flex basis-3/4 gap-[16px]">
                       <img src="/images/pin.svg" alt="" />
@@ -860,9 +864,11 @@ function ClaimView() {
                             ? 'font-bold text-[#606166] hover:text-[#000000]'
                             : 'text-white hover:text-[#50ff7f]'
                         } file-name `}
-                        to={''}
+                        to={document.link}
+                        download={true}
+                        target="_blank"
                       >
-                        Essential IPID
+                        {document.name}
                       </Link>
                     </div>
                     <img
@@ -875,7 +881,7 @@ function ClaimView() {
                       alt=""
                     />
                   </div>
-                </>
+                </div>
               ))}
             </div>
           </div>

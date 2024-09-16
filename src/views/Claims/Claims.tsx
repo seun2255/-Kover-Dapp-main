@@ -464,7 +464,8 @@ function Claims() {
           <Tabs
             currentTab={tabs}
             changeTab={setTabs}
-            tabs={['Claims', 'Validator', 'Adjuster']}
+            // tabs={['Claims', 'Validator', 'Adjuster']}
+            tabs={['Claims', 'Adjuster']}
           />
           {tabs === 0 && (
             <FilterTabs
@@ -484,8 +485,8 @@ function Claims() {
                 ) : (
                   <Table {...claimsTable} />
                 ))}
-              {tabs === 1 && <Table {...validatorTable} />}
-              {tabs === 2 && <Adjustor />}
+              {/* {tabs === 1 && <Table {...validatorTable} />} */}
+              {tabs === 1 && <Adjustor />}
             </div>
           </>
         ) : (

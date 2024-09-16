@@ -153,36 +153,38 @@ function ValidateClaim(
           rating,
           dispatch
         )
-        const vote = {
-          voter: account,
-          status: claimDetails.resultStatus,
-          id: claimDetails.claimId.toString(),
-          stage: claimDetails.stage,
-          claimAmount: claimDetails.estimatedLossAmount,
-          verdict: isYes,
-          finalVerdict: '----',
+        if (hash) {
+          const vote = {
+            voter: account,
+            status: claimDetails.resultStatus,
+            id: claimDetails.claimId.toString(),
+            stage: claimDetails.stage,
+            claimAmount: claimDetails.estimatedLossAmount,
+            verdict: isYes,
+            finalVerdict: '----',
+          }
+          await addVote(claimDetails.claimId, vote)
+          dispatch(closeLoader())
+          dispatch(
+            openAlert({
+              displayAlert: true,
+              data: {
+                id: 1,
+                variant: 'Successful',
+                classname: 'text-black',
+                title: 'Submission Successful',
+                tag1: 'Claim validation Decision submitted',
+                tag2: 'View on etherscan',
+                hash: hash,
+              },
+            })
+          )
+          setTimeout(() => {
+            dispatch(closeAlert())
+          }, 10000)
+          onClose?.()
+          onComplete?.()
         }
-        await addVote(claimDetails.claimId, vote)
-        dispatch(closeLoader())
-        dispatch(
-          openAlert({
-            displayAlert: true,
-            data: {
-              id: 1,
-              variant: 'Successful',
-              classname: 'text-black',
-              title: 'Submission Successful',
-              tag1: 'Claim validation Decision submitted',
-              tag2: 'View on etherscan',
-              hash: hash,
-            },
-          })
-        )
-        setTimeout(() => {
-          dispatch(closeAlert())
-        }, 10000)
-        onClose?.()
-        onComplete?.()
       }
     } else {
       if (rating === undefined) {
@@ -220,7 +222,6 @@ function ValidateClaim(
           dispatch(closeAlert())
         }, 10000)
       } else {
-        console.log('Claim Details: ', claimDetails)
         const hash = await submitClaimAssesmentDecision(
           claimDetails.poolName,
           claimDetails.address,
@@ -228,24 +229,26 @@ function ValidateClaim(
           rating,
           dispatch
         )
-        dispatch(
-          openAlert({
-            displayAlert: true,
-            data: {
-              id: 1,
-              variant: 'Successful',
-              classname: 'text-black',
-              title: 'Submission Successful',
-              tag1: 'Claim assesment Decision submitted',
-              tag2: 'View on etherscan',
-              hash: hash,
-            },
-          })
-        )
-        setTimeout(() => {
-          dispatch(closeAlert())
-        }, 10000)
-        navigate(-1)
+        if (hash) {
+          dispatch(
+            openAlert({
+              displayAlert: true,
+              data: {
+                id: 1,
+                variant: 'Successful',
+                classname: 'text-black',
+                title: 'Submission Successful',
+                tag1: 'Claim assesment Decision submitted',
+                tag2: 'View on etherscan',
+                hash: hash,
+              },
+            })
+          )
+          setTimeout(() => {
+            dispatch(closeAlert())
+          }, 10000)
+          navigate(-1)
+        }
       }
     }
   }

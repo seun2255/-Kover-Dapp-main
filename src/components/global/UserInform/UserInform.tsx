@@ -10,7 +10,7 @@ import { updateDp } from '../../../database'
 import { useWeb3React } from '@web3-react/core'
 import Blockies from 'react-blockies'
 import { UseDispatch } from 'react-redux'
-import { openAlert, closeAlert } from '../../../redux/alerts'
+import { openAlert, closeAlert, openLoader } from '../../../redux/alerts'
 
 interface UserInformProps {
   variant?: 'customer' | 'personal'
@@ -64,6 +64,12 @@ function UserInform({ variant, userData }: UserInformProps) {
   }
 
   const handlePictureChange = async (event: any) => {
+    dispatch(
+      openLoader({
+        displaytransactionLoader: true,
+        text: 'Saving picture',
+      })
+    )
     const files = event.target.files
     const updatedFiles = []
 

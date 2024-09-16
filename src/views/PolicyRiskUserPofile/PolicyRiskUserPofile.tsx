@@ -230,46 +230,51 @@ function RiskPolicyUserProfile() {
         durationIndex,
         dispatch
       )
-      await updateCoverQuote(account, 'Car Insurance', premiumQuote)
 
-      dispatch(
-        openAlert({
-          displayAlert: true,
-          data: {
-            id: 1,
-            variant: 'Successful',
-            classname: 'text-black',
-            title: 'Submission Successful',
-            tag1: 'Cover application modified',
-            tag2: 'modfifications made',
-            hash: hash,
-          },
-        })
-      )
-      setTimeout(() => {
-        dispatch(closeAlert())
-      }, 10000)
-      setApplicant(formData)
-      switchCoverModifyState(applicant.address, applicant.poolName).then(() => {
-        var temp = [...coverApplications]
-        var placeholder = {}
-        for (var i = 0; i < temp.length; i++) {
-          if (temp[i].id === applicant.id) {
-            placeholder = {
-              ...temp[i],
-              canModify: !temp[i].canModify,
+      if (hash) {
+        await updateCoverQuote(account, 'Car Insurance', premiumQuote)
+
+        dispatch(
+          openAlert({
+            displayAlert: true,
+            data: {
+              id: 1,
+              variant: 'Successful',
+              classname: 'text-black',
+              title: 'Submission Successful',
+              tag1: 'Cover application modified',
+              tag2: 'modfifications made',
+              hash: hash,
+            },
+          })
+        )
+        setTimeout(() => {
+          dispatch(closeAlert())
+        }, 10000)
+        setApplicant(formData)
+        switchCoverModifyState(applicant.address, applicant.poolName).then(
+          () => {
+            var temp = [...coverApplications]
+            var placeholder = {}
+            for (var i = 0; i < temp.length; i++) {
+              if (temp[i].id === applicant.id) {
+                placeholder = {
+                  ...temp[i],
+                  canModify: !temp[i].canModify,
+                }
+                temp.splice(i, 1)
+                i--
+              }
             }
-            temp.splice(i, 1)
-            i--
+            temp.push(placeholder)
+            dispatch(setCoverApplications({ data: temp }))
           }
-        }
-        temp.push(placeholder)
-        dispatch(setCoverApplications({ data: temp }))
-      })
-      // })
-      // .catch((error) => {
-      //   console.log('Error fetching IP address information: ', error)
-      // })
+        )
+        // })
+        // .catch((error) => {
+        //   console.log('Error fetching IP address information: ', error)
+        // })
+      }
     }
   }
 

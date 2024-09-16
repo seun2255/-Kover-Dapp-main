@@ -18,7 +18,12 @@ import { convertJsonToString } from '../../utils/helpers'
 import { getCurrentDateTime } from '../../utils/dateTime'
 import lighthouse from '@lighthouse-web3/sdk'
 import { uploadJsonData } from '../../lighthouse'
-import { is_kyc_reviewer, apply_for_InsurePro, getUserData } from '../../api'
+import {
+  is_kyc_reviewer,
+  apply_for_InsurePro,
+  getUserData,
+  getPools,
+} from '../../api'
 import {
   createUser,
   updateInsureProVerificationState,
@@ -30,6 +35,7 @@ import { getUserDetails } from '../../database'
 import VerifyIdentity from '../Welcome/membership/VerifyIdentity'
 import StartProcess from '../InsurePro/membership/StartProcess'
 import { useSelector } from 'react-redux'
+import { openLoader } from '../../redux/alerts'
 
 interface popupProps {
   userVerificationState: string
@@ -60,6 +66,7 @@ function Adjuster() {
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
   const [fileUploadInitated, setFileUploadInitiated] = useState(false)
   const [showPools, setShowPools] = useState(false)
+  const [policyPools, setPolicyPools] = useState([])
   const [kycVerified, setKycVerified] = useState(false)
   const [userVerificationState, setUserVerificationState] =
     useState('unverified')
@@ -70,6 +77,14 @@ function Adjuster() {
     total: number
     uploaded: number
   }
+
+  useEffect(() => {
+    const setPools = async () => {
+      const pools = await getPools()
+      setPolicyPools(pools)
+    }
+    setPools()
+  }, [])
 
   useEffect(() => {
     if (account) {
@@ -176,6 +191,12 @@ function Adjuster() {
 
   // Handle form submission
   const handleSubmit = async () => {
+    dispatch(
+      openLoader({
+        displaytransactionLoader: true,
+        text: 'Approving Token use',
+      })
+    )
     const user = await getUserData(account)
     setFileUploadInitiated(true)
     const date = getCurrentDateTime()
@@ -205,65 +226,42 @@ function Adjuster() {
       const userData = await uploadJsonData(dataString)
       // const isReviwer = await is_kyc_reviewer(signer);
 
-      await apply_for_InsurePro(
+      const hash = await apply_for_InsurePro(
         userData,
         formState.workField,
         'NG',
         'Car Insurance',
         dispatch
-      ).then(async (result) => {
-        if (result.success) {
-          const userInfo = await getUser(account as string)
-          const userId = userInfo.id
+      )
+      if (hash) {
+        const userInfo = await getUser(account as string)
+        const userId = userInfo.id
 
-          await createChatRoom('insure-pro', 'NG', userId as number, {
-            [account as string]: formData.firstName,
-            // eslint-disable-next-line no-useless-computed-key
-            ['0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD']: 'Admin',
+        await createChatRoom('insure-pro', 'NG', userId as number, {
+          [account as string]: formData.firstName,
+          // eslint-disable-next-line no-useless-computed-key
+          ['0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2']: 'Admin',
+        })
+        await updateInsureProVerificationState(account, 'verifying')
+        dispatch(
+          openAlert({
+            displayAlert: true,
+            data: {
+              id: 1,
+              variant: 'Successful',
+              classname: 'text-black',
+              title: 'Submission Successful',
+              tag1: 'Insure Pro application submitted',
+              tag2: 'View on etherscan',
+              hash: hash,
+            },
           })
-          await updateInsureProVerificationState(account, 'verifying')
-          dispatch(
-            openAlert({
-              displayAlert: true,
-              data: {
-                id: 1,
-                variant: 'Successful',
-                classname: 'text-black',
-                title: 'Submission Successful',
-                tag1: 'Insure Pro application submitted',
-                tag2: 'View on etherscan',
-                hash: result.hash,
-              },
-            })
-          )
-          setTimeout(() => {
-            dispatch(closeAlert())
-          }, 10000)
-          setUserVerificationState('verifying')
-        } else {
-          dispatch(
-            openAlert({
-              displayAlert: true,
-              data: {
-                id: 2,
-                variant: 'Failed',
-                classname: 'text-black',
-                title: 'Transaction Failed',
-                tag1: result.reason ? result.reason : '',
-                tag2: 'View on etherscan',
-                hash: result.hash,
-              },
-            })
-          )
-          setTimeout(() => {
-            dispatch(closeAlert())
-          }, 10000)
-        }
-      })
-      // })
-      // .catch((error) => {
-      //   console.log('Error fetching IP address information: ', error)
-      // })
+        )
+        setTimeout(() => {
+          dispatch(closeAlert())
+        }, 10000)
+        setUserVerificationState('verifying')
+      }
     }
   }
 
@@ -328,6 +326,7 @@ function Adjuster() {
                   label="Pool"
                   placeholder="Please select"
                   name="pool"
+                  pools={policyPools}
                 />
               )}
             </div>

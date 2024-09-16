@@ -61,43 +61,70 @@ function InputMax({
 
   const handleApprove = async () => {
     if (poolName) {
-      await approvePoolToSpend(poolName, parseInt(value), dispatch)
-      setAmountApproved(true)
-      dispatch(
-        openAlert({
-          displayAlert: true,
-          data: {
-            id: 1,
-            variant: 'Successful',
-            classname: 'text-black',
-            title: 'Amount Approved',
-            tag1: 'approved token use',
-            tag2: 'amount can now be deposited',
-          },
-        })
-      )
-      setTimeout(() => {
-        dispatch(closeAlert())
-      }, 10000)
+      if (value !== '') {
+        const approved = await approvePoolToSpend(
+          poolName,
+          parseInt(value),
+          dispatch
+        )
+        if (approved) {
+          setAmountApproved(true)
+          dispatch(
+            openAlert({
+              displayAlert: true,
+              data: {
+                id: 1,
+                variant: 'Successful',
+                classname: 'text-black',
+                title: 'Amount Approved',
+                tag1: 'approved token use',
+                tag2: 'amount can now be deposited',
+              },
+            })
+          )
+          setTimeout(() => {
+            dispatch(closeAlert())
+          }, 10000)
+        }
+      } else {
+        dispatch(
+          openAlert({
+            displayAlert: true,
+            data: {
+              id: 2,
+              variant: 'Failed',
+              classname: 'text-black',
+              title: 'Invalid value',
+              tag1: `Please input a valid amount`,
+              tag2: '',
+            },
+          })
+        )
+        setTimeout(() => {
+          dispatch(closeAlert())
+        }, 10000)
+      }
     } else if (isStake) {
-      await approveKoverToStake(value, dispatch)
-      setAmountApproved(true)
-      dispatch(
-        openAlert({
-          displayAlert: true,
-          data: {
-            id: 1,
-            variant: 'Successful',
-            classname: 'text-black',
-            title: 'Amount Approved',
-            tag1: 'approved token use',
-            tag2: 'amount can now be deposited',
-          },
-        })
-      )
-      setTimeout(() => {
-        dispatch(closeAlert())
-      }, 10000)
+      const approved = await approveKoverToStake(value, dispatch)
+      if (approved) {
+        setAmountApproved(true)
+        dispatch(
+          openAlert({
+            displayAlert: true,
+            data: {
+              id: 1,
+              variant: 'Successful',
+              classname: 'text-black',
+              title: 'Amount Approved',
+              tag1: 'approved token use',
+              tag2: 'amount can now be deposited',
+            },
+          })
+        )
+        setTimeout(() => {
+          dispatch(closeAlert())
+        }, 10000)
+      }
     }
   }
 

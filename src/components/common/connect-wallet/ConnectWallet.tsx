@@ -18,7 +18,8 @@ import {
   createUser,
   checkIfUserExists,
 } from '../../../database'
-import { getUserData } from '../../../api'
+import { getUserData, getAdminAddress } from '../../../api'
+import { openAlert, closeAlert } from '../../../redux/alerts'
 
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import {
@@ -312,6 +313,7 @@ function ConnectWallet(
           console.log('Started creating account: ', account)
           await createUser(account)
         }
+        const adminAdrress = await getAdminAddress()
         getUserDetails(account).then(async (user) => {
           var data = { ...user }
           if (user.kycVerificationState !== 'unverified') {
@@ -326,6 +328,7 @@ function ConnectWallet(
                     address: account,
                     ...data,
                   },
+                  isAdmin: account === adminAdrress,
                 })
               )
             : dispatch(
@@ -334,6 +337,7 @@ function ConnectWallet(
                   data: {
                     address: account,
                   },
+                  isAdmin: account === adminAdrress,
                 })
               )
 
@@ -355,7 +359,7 @@ function ConnectWallet(
             }
           )
           if (
-            account === '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD' ||
+            account === '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2' ||
             user.insureProVerificationState === 'verified'
           ) {
             navigate('/kyc-application')
@@ -499,7 +503,27 @@ function ConnectWallet(
 
   async function walletConnect(currentConnector: any) {
     try {
-      await activate(currentConnector.connector)
+      const onError = (error: Error) => {
+        console.error('Error during activation:', error.message)
+        dispatch(
+          openAlert({
+            displayAlert: true,
+            data: {
+              id: 2,
+              variant: 'Failed',
+              classname: 'text-black',
+              title: 'Wallet Connect Failed',
+              tag1: 'User rejected connection request',
+              tag2: 'please accept the connection request',
+            },
+          })
+        )
+        setTimeout(() => {
+          dispatch(closeAlert())
+        }, 10000)
+      }
+
+      await activate(currentConnector.connector, onError)
     } catch (error) {
       console.log('Error Dey')
       console.error('Error connecting to wallet:', error)
@@ -514,6 +538,7 @@ function ConnectWallet(
         params: [{ chainId: newChainId }], // chainId must be in hexadecimal numbers
       })
     } catch (error: any) {
+      console.log('Reached here 5')
       if (error.code === 4902) {
         try {
           await window.ethereum.request({

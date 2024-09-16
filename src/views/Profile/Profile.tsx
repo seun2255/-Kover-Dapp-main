@@ -33,9 +33,15 @@ import Popup from '../../components/templates/Popup'
 import AttachmentPreview from '../../components/common/AttachmentPreview/AttachmentPreview'
 import { setKYCApplicants } from '../../redux/kyc'
 import { switchKYCModify } from '../../database'
-import { getUserData } from '../../api'
+import {
+  getUserData,
+  getPolicyBalanceDetails,
+  getStakeRewards,
+  get_covers,
+} from '../../api'
 import { getUserDetails } from '../../database'
 import { updateUser } from '../../redux/user'
+import Skeleton from 'react-loading-skeleton'
 
 interface Document {
   link: string
@@ -59,6 +65,8 @@ function Profile() {
   const dispatch = useDispatch()
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
+  const [balancesLoading, setBalancesLoading] = useState(true)
+  const [userDetails, setUserDetails] = useState<any>({})
   const [selectedDocument, setSelectedDocument] = useState(
     user.documents
       ? user.documents[0]
@@ -267,6 +275,53 @@ function Profile() {
   useEffect(() => {
     setCanModify(user.canModifyKYC)
   }, [user.canModifyKYC])
+
+  const getData = async () => {
+    if (user.kycVerificationState === 'verified' && account) {
+      const covers = await get_covers('NG')
+      const axiosRequestsCovers = covers.map((cover) => {
+        if (cover.address === account.toLowerCase()) {
+          const result = {}
+          return result
+        }
+      })
+      var allCovers = axiosRequestsCovers
+      if (allCovers[0] === undefined) allCovers = []
+
+      const policyBalances = await getPolicyBalanceDetails(
+        account,
+        'Car Insurance'
+      )
+
+      const details = {
+        activeCovers: allCovers.length,
+        policyBalance: policyBalances.policyBalance,
+        premiumsPaid: policyBalances.premiumsPaid,
+      }
+      setUserDetails(details)
+      setBalancesLoading(false)
+    }
+  }
+
+  const attachListeners = async () => {
+    // const premiumContract = await getPremiumContractInstance('Car Insurance')
+    // console.log('attaching listener')
+    // premiumContract.on('overnightAccounting', () => {
+    //   console.log('Performed Overnight Accounting')
+    //   alert('Was Triggered')
+    //   getData()
+    // })
+    setInterval(() => {
+      console.log('Performed Overnight Accounting')
+      getData()
+    }, 60000)
+    console.log('Listener attached')
+  }
+
+  useEffect(() => {
+    getData()
+    attachListeners()
+  }, [])
 
   return (
     <>
@@ -553,65 +608,77 @@ function Profile() {
 
         {user.kycVerificationState === 'verified' ? (
           <div className="flex justify-center hidden sm:flex">
-            <div className="flex flex-col gap-5  sm:w-[285px] max-[640px]:w-full ">
-              <h6 className="text-dark-300">Overview</h6>
-              <div>
-                <div
-                  className={`dark:box-border dark:borderLight-border dark:borderLightColor-color dark:text-dark-800 dark:text-primary-100 dark:bg-white bg-dark-800  rounded flex flex-col md:flex-row md:justify-between md:flex-wrap box-border-2x-light dark:box-border-2x-dark h-[288px] rounded-sm px-5 py-[18px] w-full`}
-                >
-                  <div className="flex justify-between w-full ">
-                    <div className="sm:w-[50%]">
-                      <div className="flex gap-[6px] mb-[5px] ">
-                        <span className="premium-no dark:premium-no-dark">
-                          2,345
+            {balancesLoading ? (
+              <Skeleton height={'298px'} />
+            ) : (
+              <div className="flex flex-col gap-5  sm:w-[285px] max-[640px]:w-full ">
+                <h6 className="text-dark-300">Overview</h6>
+                <div>
+                  <div
+                    className={`dark:box-border dark:borderLight-border dark:borderLightColor-color dark:text-dark-800 dark:text-primary-100 dark:bg-white bg-dark-800  rounded flex flex-col md:flex-row md:justify-between md:flex-wrap box-border-2x-light dark:box-border-2x-dark h-[288px] rounded-sm px-5 py-[18px] w-full`}
+                  >
+                    <div className="flex justify-between w-full ">
+                      <div className="sm:w-[50%]">
+                        <div className="flex gap-[6px] mb-[5px] ">
+                          <span className="premium-no dark:premium-no-dark">
+                            {userDetails.premiumsPaid}
+                          </span>
+                          <b className="usd">USD</b>
+                        </div>
+                        <span className="mb-1 total-premium">
+                          Total Premium
                         </span>
+                      </div>
+                      <div className="  bg-dark-900 pt-[10px] px-[12px] pb-[15px] text-center dark:text-dark-800 dark:text-primary-100 dark:bg-light-200">
+                        <h5 className="mb-[10px] active-cover-no dark:active-cover-no-dark">
+                          {userDetails.activeCovers}
+                        </h5>
+                        <span className="active-cover">Active Covers</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-[19px]">
+                      <span className="mb-[10px] current-policy ">
+                        Current policy balance
+                      </span>
+                      <div className="flex gap-[6px] ml-[10px]">
+                        <h4 className="policy-balance dark:policy-balance-dark">
+                          {userDetails.policyBalance}
+                        </h4>
                         <b className="usd">USD</b>
                       </div>
-                      <span className="mb-1 total-premium">Total Premium</span>
                     </div>
-                    <div className="  bg-dark-900 pt-[10px] px-[12px] pb-[15px] text-center dark:text-dark-800 dark:text-primary-100 dark:bg-light-200">
-                      <h5 className="mb-[10px] active-cover-no dark:active-cover-no-dark">
-                        5
-                      </h5>
-                      <span className="active-cover">Active Covers</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-[19px]">
-                    <span className="mb-[10px] current-policy ">
-                      Current policy balance
-                    </span>
-                    <div className="flex gap-[6px] ml-[10px]">
-                      <h4 className="policy-balance dark:policy-balance-dark">
-                        3.4330
-                      </h4>
-                      <b className="usd">USD</b>
-                    </div>
-                  </div>
-                  <div className="status-info-sub-info">
-                    <span className="slc-usd">USDC/USD</span>
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex justify-start mt-[5px]">
-                        <b className="ml-[10px] slc-usd-no dark:slc-usd-no-dark">
-                          2.7995 USD
-                        </b>
-                        &nbsp;
-                        <b className="slc-usd-pulse dark:slc-usd-pulse-dark">
-                          {' '}
-                          +12%
-                        </b>
+                    <div className="status-info-sub-info">
+                      <span className="slc-usd">USDC/USD</span>
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex justify-start mt-[5px]">
+                          <b className="ml-[10px] slc-usd-no dark:slc-usd-no-dark">
+                            1.00 USD
+                          </b>
+                          &nbsp;
+                          <b className="slc-usd-pulse dark:slc-usd-pulse-dark">
+                            {' '}
+                            +0.0090%
+                          </b>
+                        </div>
+                        <a
+                          href="https://bitpay.com/buy-usd-coin/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <button className="buy-btn buy-btn-text dark:buy-btn-text-dark dark:buy-btn-dark">
+                            Buy
+                          </button>
+                        </a>
                       </div>
-                      <button className="buy-btn buy-btn-text dark:buy-btn-text-dark dark:buy-btn-dark">
-                        Buy
-                      </button>
                     </div>
                   </div>
                 </div>
+                <div className="pt-6">
+                  <Score size="w-[140px]" />
+                </div>
               </div>
-              <div className="pt-6">
-                <Score size="w-[140px]" />
-              </div>
-            </div>
+            )}
           </div>
         ) : (
           <div className="flex justify-center hidden sm:flex">

@@ -144,26 +144,28 @@ function StakingPopup(props: PopConfirmProps) {
 
   const handleStake = async () => {
     const hash = await stake(depositAmount, day, dispatch)
-    await getData()
-    await action()
-    dispatch(
-      openAlert({
-        displayAlert: true,
-        data: {
-          id: 1,
-          variant: 'Successful',
-          classname: 'text-black',
-          title: 'Stake Deposited!',
-          tag1: 'succesfully staked an amount!',
-          tag2: 'View on etherscan',
-          hash: hash,
-        },
-      })
-    )
-    onClose?.()
-    setTimeout(() => {
-      dispatch(closeAlert())
-    }, 10000)
+    if (hash) {
+      await getData()
+      await action()
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 1,
+            variant: 'Successful',
+            classname: 'text-black',
+            title: 'Stake Deposited!',
+            tag1: 'succesfully staked an amount!',
+            tag2: 'View on etherscan',
+            hash: hash,
+          },
+        })
+      )
+      onClose?.()
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+    }
   }
 
   const getData = async () => {

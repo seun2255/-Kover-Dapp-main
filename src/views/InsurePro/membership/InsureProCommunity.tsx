@@ -22,6 +22,7 @@ import { convertJsonToString } from '../../../utils/helpers'
 import { getCurrentDateTime } from '../../../utils/dateTime'
 import lighthouse from '@lighthouse-web3/sdk'
 import { uploadJsonData } from '../../../lighthouse'
+import { openLoader } from '../../../redux/alerts'
 import {
   is_kyc_reviewer,
   apply_for_InsurePro,
@@ -169,6 +170,12 @@ function InsureProCommunity(
 
   // Handle form submission
   const handleSubmit = async () => {
+    dispatch(
+      openLoader({
+        displaytransactionLoader: true,
+        text: 'Approving Token use',
+      })
+    )
     const user = await getUserData(account)
     setFileUploadInitiated(true)
     const date = getCurrentDateTime()
@@ -198,68 +205,44 @@ function InsureProCommunity(
       const userData = await uploadJsonData(dataString)
       // const isReviwer = await is_kyc_reviewer(signer);
 
-      await apply_for_InsurePro(
+      const hash = await apply_for_InsurePro(
         userData,
         formState.workField,
         'NG',
         'Car Insurance',
         dispatch
       )
-        .then(async (result) => {
-          if (result.success) {
-            const userInfo = await getUser(account as string)
-            const userId = userInfo.id
+      if (hash) {
+        const userInfo = await getUser(account as string)
+        const userId = userInfo.id
 
-            await createChatRoom('insure-pro', 'NG', userId as number, {
-              [account as string]: formData.firstName,
-              // eslint-disable-next-line no-useless-computed-key
-              ['0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD']: 'Admin',
-            })
-            await updateInsureProVerificationState(account, 'verifying')
-            await applicationsUpdate()
-            dispatch(
-              openAlert({
-                displayAlert: true,
-                data: {
-                  id: 1,
-                  variant: 'Successful',
-                  classname: 'text-black',
-                  title: 'Submission Successful',
-                  tag1: 'Insure Pro application submitted',
-                  tag2: 'View on etherscan',
-                  hash: result.hash,
-                },
-              })
-            )
-            setTimeout(() => {
-              dispatch(closeAlert())
-            }, 10000)
-            setUserVerificationState('verifying')
-            if (onClose !== undefined) onClose()
-          } else {
-            dispatch(
-              openAlert({
-                displayAlert: true,
-                data: {
-                  id: 2,
-                  variant: 'Failed',
-                  classname: 'text-black',
-                  title: 'Transaction Failed',
-                  tag1: result.reason ? result.reason : '',
-                  tag2: 'View on etherscan',
-                  hash: result.hash,
-                },
-              })
-            )
-            setTimeout(() => {
-              dispatch(closeAlert())
-            }, 10000)
-          }
+        await createChatRoom('insure-pro', 'NG', userId as number, {
+          [account as string]: formData.firstName,
+          // eslint-disable-next-line no-useless-computed-key
+          ['0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2']: 'Admin',
         })
-        // })
-        .catch((error) => {
-          console.log('Error fetching IP address information: ', error)
-        })
+        await updateInsureProVerificationState(account, 'verifying')
+        await applicationsUpdate()
+        dispatch(
+          openAlert({
+            displayAlert: true,
+            data: {
+              id: 1,
+              variant: 'Successful',
+              classname: 'text-black',
+              title: 'Submission Successful',
+              tag1: 'Insure Pro application submitted',
+              tag2: 'View on etherscan',
+              hash: hash,
+            },
+          })
+        )
+        setTimeout(() => {
+          dispatch(closeAlert())
+        }, 10000)
+        setUserVerificationState('verifying')
+        if (onClose !== undefined) onClose()
+      }
     }
   }
 

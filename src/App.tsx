@@ -272,63 +272,63 @@ function App() {
     }
   }, [theme])
 
-  useEffect(() => {
-    const getData = async () => {
-      // fetch('https://ipinfo.io/json')
-      //   .then((response) => response.json())
-      //   .then(async (data) => {
-      const applicantsKyc = await get_applications('NG')
+  // useEffect(() => {
+  //   const getData = async () => {
+  //     // fetch('https://ipinfo.io/json')
+  //     //   .then((response) => response.json())
+  //     //   .then(async (data) => {
+  //     const applicantsKyc = await get_applications('NG')
 
-      const axiosRequestsKyc = applicantsKyc.map(async (applicant) => {
-        const response = await axios.get(applicant.data as string)
-        const kyc_details = await getKycDetails(response.data.address, 'NG')
-        const result = addContractState(response.data, kyc_details)
-        const userFirebaseDetails = await getUserDetails(response.data.address)
-        result.id = applicant.id
-        result.canModifyKYC = userFirebaseDetails.canModifyKYC
-        result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
-        result.ipfsHash = applicant.data
-        result.kycReviewDone = userFirebaseDetails.kycReviewDone
-        result.kycVerificationState = userFirebaseDetails.kycVerificationState
-        return result
-      })
+  //     const axiosRequestsKyc = applicantsKyc.map(async (applicant) => {
+  //       const response = await axios.get(applicant.data as string)
+  //       const kyc_details = await getKycDetails(response.data.address, 'NG')
+  //       const result = addContractState(response.data, kyc_details)
+  //       const userFirebaseDetails = await getUserDetails(response.data.address)
+  //       result.id = applicant.id
+  //       result.canModifyKYC = userFirebaseDetails.canModifyKYC
+  //       result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
+  //       result.ipfsHash = applicant.data
+  //       result.kycReviewDone = userFirebaseDetails.kycReviewDone
+  //       result.kycVerificationState = userFirebaseDetails.kycVerificationState
+  //       return result
+  //     })
 
-      // Wait for all axios requests to complete
-      const membership_applicationsKyc = await Promise.all(axiosRequestsKyc)
-      dispatch(setKYCApplicants({ data: membership_applicationsKyc }))
-      // setMembershipApplications(membership_applications)
-      // })
+  //     // Wait for all axios requests to complete
+  //     const membership_applicationsKyc = await Promise.all(axiosRequestsKyc)
+  //     dispatch(setKYCApplicants({ data: membership_applicationsKyc }))
+  //     // setMembershipApplications(membership_applications)
+  //     // })
 
-      // fetch('https://ipinfo.io/json')
-      //   .then((response) => response.json())
-      //   .then(async (data) => {
-      const applicants = await get_Reviewer_applications('NG')
+  //     // fetch('https://ipinfo.io/json')
+  //     //   .then((response) => response.json())
+  //     //   .then(async (data) => {
+  //     const applicants = await get_Reviewer_applications('NG')
 
-      const axiosRequests = applicants.map(async (applicant) => {
-        const response = await axios.get(applicant.data as string)
-        const kyc_details = await getKycReveiwerDetails(
-          response.data.address,
-          'NG'
-        )
-        const result = addKycReviewerState(response.data, kyc_details)
-        const userFirebaseDetails = await getUserDetails(response.data.address)
-        result.id = applicant.id
-        result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
-        result.canModifyKYC = userFirebaseDetails.canModifyKYC
-        result.ipfsHash = applicant.data
-        result.kycReviewDone = userFirebaseDetails.kycReviewDone
-        return result
-      })
+  //     const axiosRequests = applicants.map(async (applicant) => {
+  //       const response = await axios.get(applicant.data as string)
+  //       const kyc_details = await getKycReveiwerDetails(
+  //         response.data.address,
+  //         'NG'
+  //       )
+  //       const result = addKycReviewerState(response.data, kyc_details)
+  //       const userFirebaseDetails = await getUserDetails(response.data.address)
+  //       result.id = applicant.id
+  //       result.canModifyKYCReviewer = userFirebaseDetails.canModifyKYCReviewer
+  //       result.canModifyKYC = userFirebaseDetails.canModifyKYC
+  //       result.ipfsHash = applicant.data
+  //       result.kycReviewDone = userFirebaseDetails.kycReviewDone
+  //       return result
+  //     })
 
-      // Wait for all axios requests to complete
-      const membership_applications = await Promise.all(axiosRequests)
-      dispatch(setKYCReviewerApplicants({ data: membership_applications }))
-      // setReviewerApplications(membership_applications)
-      // })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    getData()
-  }, [user])
+  //     // Wait for all axios requests to complete
+  //     const membership_applications = await Promise.all(axiosRequests)
+  //     dispatch(setKYCReviewerApplicants({ data: membership_applications }))
+  //     // setReviewerApplications(membership_applications)
+  //     // })
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   getData()
+  // }, [user])
 
   const handleThemeSwitch = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark')

@@ -91,7 +91,7 @@ function InsurePro() {
           )}
 
           <div className="flex flex-col gap-[20px] mt-[2px]">
-            <MarketStatus />
+            <MarketStatus currencyData={{}} />
           </div>
         </div>
       </div>

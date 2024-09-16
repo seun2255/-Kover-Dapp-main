@@ -41,6 +41,7 @@ export const alertsSlice = createSlice({
   initialState,
   reducers: {
     openAlert: (state: any, action: Alert) => {
+      state.displaytransactionLoader = false
       state.displayAlert = true
       state.alertData = action.payload.data
     },
@@ -48,6 +49,7 @@ export const alertsSlice = createSlice({
       state.displayAlert = false
     },
     openLoader: (state: any, action: TransactionLoader) => {
+      state.displayAlert = false
       state.displaytransactionLoader = true
       state.loaderText = action.payload.text
     },
