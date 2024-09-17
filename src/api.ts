@@ -903,6 +903,8 @@ const isPoolAdjustor = async (address: any, pool: string) => {
   return adjustorDetails.is_expert
 }
 
+// Claim
+
 const getClaimAddress = async (poolName: string, userAddress: string) => {
   const addresses = await getPoolAddresses(poolName)
 
@@ -918,6 +920,57 @@ const getClaimDetails = async (poolName: string, address: any) => {
 
   const claim_data = await claimContract.claim_data()
   return claim_data
+}
+
+const getClaimValidationTimeLeft = async (poolName: string, address: any) => {
+  const claimAddress = await getClaimAddress(poolName, address)
+  const claimContract = await getClaimContract(claimAddress)
+
+  const validationEndTime = await claimContract.claim_end_timestamp()
+
+  // Convert the uint256 value to a Date object (assuming UTC)
+  const contractTime = new Date(parseInt(validationEndTime) * 1000)
+
+  // Get the current time (UTC)
+  const currentTime = new Date()
+
+  // Calculate the difference in milliseconds
+  const timeDifference = contractTime.getTime() - currentTime.getTime()
+
+  console.log('Contract: ', timeDifference)
+
+  // Check if the contract time has ended
+  if (timeDifference < 0) {
+    return 'validation over'
+  } else {
+    // Calculate the remaining time in days, hours, minutes, and seconds
+    const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24))
+    const hours = Math.floor(
+      (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    )
+    const minutes = Math.floor(
+      (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+    )
+    const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000)
+    // Format the remaining time string
+    let remainingTime = ''
+    if (days > 0) {
+      remainingTime += `${days} day${days > 1 ? 's' : ''}, `
+    }
+    if (hours > 0) {
+      remainingTime += `${hours} hr${hours > 1 ? 's' : ''}, `
+    }
+    if (days <= 0 && hours <= 0) {
+      remainingTime += `${minutes} min${minutes > 1 ? 's' : ''}, `
+    }
+    // if (days <= 0 && hours <= 0 && seconds > 0) {
+    //   remainingTime += `${seconds} sec${seconds > 1 ? 's' : ''}, `
+    // }
+    remainingTime = remainingTime.slice(0, -2) // Remove the trailing comma and space
+
+    console.log(`${remainingTime} left`)
+    return `${remainingTime} left`
+  }
 }
 
 const getClaimData = async (poolName: string, address: any) => {
@@ -984,6 +1037,8 @@ const getClaimDataById = async (claimId: string) => {
   result.claimId = applicant.id
   return result
 }
+
+// Stake
 
 const getUsersStakes = async (user: string) => {
   var data: any[] = []
@@ -1884,4 +1939,5 @@ export {
   getPolicyBalanceDetails,
   getPremiumContractInstance,
   getStakeRewards,
+  getClaimValidationTimeLeft,
 }

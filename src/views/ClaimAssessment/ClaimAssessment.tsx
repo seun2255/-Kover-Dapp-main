@@ -17,7 +17,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import VerifyIdentity from '../Welcome/membership/VerifyIdentity'
 import CastVote from '../Welcome/membership/CastVote'
 import CastVoteWallet from '../Welcome/membership/CastVoteWallet'
-import { getClaimDataById, getClaimValidationData } from '../../api'
+import {
+  getClaimDataById,
+  getClaimValidationData,
+  getClaimValidationTimeLeft,
+} from '../../api'
 import { extractHash } from '../../utils/helpers'
 import { useWeb3React } from '@web3-react/core'
 import Popup from '../../components/templates/Popup'
@@ -45,6 +49,7 @@ function ClaimAssessment() {
   const [claimdetails, setClaimdetails] = useState<any>({})
   const [loading, setLoading] = useState(true)
   const [isYes, setIsYes] = useState(false)
+  const [timeLeft, setTimeLeft] = useState('')
   const [hoverIcon, sethoverIcon] = useState('')
   const { account } = useWeb3React()
   const handleChange = (event: any) => {
@@ -93,6 +98,20 @@ function ClaimAssessment() {
       )
       setValidationData(validationData)
       setLoading(false)
+
+      const timeLeft = await getClaimValidationTimeLeft(
+        data.poolName,
+        data.address
+      )
+      setTimeLeft(timeLeft)
+
+      setInterval(async () => {
+        const timeLeft = await getClaimValidationTimeLeft(
+          data.poolName,
+          data.address
+        )
+        setTimeLeft(timeLeft)
+      }, 60000)
     }
     getData()
   }, [])
@@ -127,7 +146,7 @@ function ClaimAssessment() {
                     <img className="" src="/images/Ellipse 21.svg" alt="" />
                   </div>
                   <span className="text-light-800 dark:text-dark-600 fw-500 fs-14 lh-16 lowercase">
-                    1 DAY, 2HRS LEFT
+                    {timeLeft}
                   </span>
                 </div>
                 <div className="flex flex-col gap-4 mb-4">
@@ -781,8 +800,7 @@ function ClaimAssessment() {
                     <img className="" src="/images/Ellipse 21.svg" alt="" />
                   </div>
                   <span className="text-light-800 dark:text-dark-600 fw-500 fs-14 lh-16 lowercase">
-                    {' '}
-                    1 DAY, 2HRS LEFT
+                    {timeLeft}
                   </span>
                 </div>
                 <div className="flex flex-col gap-4 mb-4">
