@@ -240,7 +240,7 @@ function Adjuster() {
         await createChatRoom('insure-pro', 'NG', userId as number, {
           [account as string]: formData.firstName,
           // eslint-disable-next-line no-useless-computed-key
-          ['0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2']: 'Admin',
+          ['0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD']: 'Admin',
         })
         await updateInsureProVerificationState(account, 'verifying')
         dispatch(
