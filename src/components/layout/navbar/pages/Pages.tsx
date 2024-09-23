@@ -43,7 +43,7 @@ function Pages() {
                 onClick={() => {
                   connected &&
                   user.kycVerificationState === 'unverified' &&
-                  account !== '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2' &&
+                  account !== '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD' &&
                   url !== '/claims'
                     ? dispatch(displayKycModal({ display: true }))
                     : dispatch(displayKycModal({ display: false }))
