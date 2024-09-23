@@ -94,7 +94,7 @@ function PopupAgreament({
         console.log('It is stake')
         handleStake()
       } else if (active && depositAmount !== 0) {
-        setTransferring(true)
+        // setTransferring(true)
         const hash = await depositIntoPolicy(
           coverDetails.poolName,
           depositAmount,
@@ -124,7 +124,7 @@ function PopupAgreament({
             }, 10000)
           }, 1000)
         } else {
-          setTransferring(false)
+          // setTransferring(false)
         }
       } else {
         if (id === 1) {
@@ -133,7 +133,7 @@ function PopupAgreament({
             // coverDetails.resultStatus === 'rejected'
             true
           ) {
-            setTransferring(true)
+            // setTransferring(true)
             // await approvePoolToSpend(
             //   coverDetails.poolName,
             //   coverDetails.premiumQuote + coverDetails.fee,
@@ -167,7 +167,7 @@ function PopupAgreament({
               coverDetails.poolName,
               coverDetails.formData,
               1,
-              coverDetails.premiumQuote + coverDetails.fee,
+              coverDetails.premiumQuote,
               coverDetails,
               dispatch
             )
@@ -205,7 +205,7 @@ function PopupAgreament({
                 }, 10000)
               }, 1000)
             } else {
-              setTransferring(false)
+              // setTransferring(false)
             }
           } else {
             if (filledForm) {

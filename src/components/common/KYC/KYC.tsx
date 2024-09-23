@@ -90,7 +90,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
     nationalID: '',
     documents: [] as Document[],
   })
-  const [formFilled, setFormFilled] = useState(true)
+  const [showRequiredMessage, setShowRequiredMessage] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
   type VerificationState = 'unverified' | 'verifying' | 'verified'
@@ -184,11 +184,14 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
 
   function areAllValuesFilled(obj: any) {
     for (const key in obj) {
-      if (obj.hasOwnProperty(key) && obj[key] === '') {
-        return false // If any value is not an empty string, return false
+      if (
+        obj.hasOwnProperty(key) &&
+        (obj[key] === '' || obj[key].length === 0)
+      ) {
+        return false // If any value is an empty string, return false
       }
     }
-    return true // All values are empty strings
+    return true // All values are filled
   }
 
   // Handle form submission
@@ -205,7 +208,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
       address: account,
     }))
     const formFilled = areAllValuesFilled(formState)
-    setFormFilled(formFilled)
+    setShowRequiredMessage(!formFilled)
 
     if (verificationState !== 'verified') {
       setEmailRequiredMessage(true)
@@ -225,7 +228,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
       setTimeout(() => {
         dispatch(closeAlert())
       }, 10000)
-    } else if (!formFilled) {
+    } else if (showRequiredMessage) {
       dispatch(
         openAlert({
           displayAlert: true,
@@ -251,7 +254,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
           text: 'Approving Token use',
         })
       )
-      // if (formFilled) {
+      // if (showRequiredMessage) {
       // fetch('https://ipinfo.io/json')
       //   .then((response) => response.json())
       //   .then(async (data) => {
@@ -307,6 +310,16 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
     const auth = getAuth(app)
     setVerificationState('verifying')
 
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        formState.email,
+        'dance$$183'
+      )
+      const updatedUser = userCredential.user
+      await deleteUser(updatedUser)
+    } catch {}
+
     const userCredentials = await createUserWithEmailAndPassword(
       auth,
       formState.email,
@@ -314,26 +327,27 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
     )
     const user = userCredentials.user
 
-    // Send the verification email
     await sendEmailVerification(user)
 
-    // Define the repeated function
+    // repeated function
     const checkIfVerified = async () => {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        formState.email,
-        'dance$$183'
-      )
-      const updatedUser = userCredential.user
-      if (updatedUser?.emailVerified) {
-        setVerificationState('verified')
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          formState.email,
+          'dance$$183'
+        )
+        const updatedUser = userCredential.user
+        if (updatedUser?.emailVerified) {
+          setVerificationState('verified')
 
-        // Delete the user account
-        await deleteUser(updatedUser)
-        setEmailRequiredMessage(false)
-        clearInterval(intervalID)
-        clearTimeout(timeoutID)
-      }
+          // Delete the user account
+          await deleteUser(updatedUser)
+          setEmailRequiredMessage(false)
+          clearInterval(intervalID)
+          clearTimeout(timeoutID)
+        }
+      } catch {}
     }
 
     // Run the function every 10 seconds
@@ -397,7 +411,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                     <div className="flex flex-col gap-5 lg:grid lg:grid-cols-2">
                       <TextField
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         label="First Name"
                         name="firstName"
                         labelIcon={false}
@@ -407,7 +421,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                       />
                       <TextField
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         label="Last Name"
                         name="lastName"
                         labelIcon={false}
@@ -418,7 +432,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                     </div>
                     <SelectField
                       labelIcon={false}
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       name="dob"
                       label="Date of Birth"
                       placeholder={['Month', 'Day', 'Year']}
@@ -426,7 +440,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                     />
                     <TextField
                       handleChange={handleChange}
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       label="Email"
                       name="email"
                       labelIcon={false}
@@ -436,7 +450,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                       verificationState={verificationState}
                       startVerification={verifymail}
                     />
-                    {emailRequiredMessage && !formFilled && (
+                    {emailRequiredMessage && !showRequiredMessage && (
                       <span style={{ color: 'red' }}>
                         Email verification required!
                       </span>
@@ -445,7 +459,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                     {/* <div className="sm:grid sm:grid-cols-[100px_auto]  max-[640px]:grid  max-[640px]:grid-cols-[100px_auto] sm:gap-5 gap-2.5">
                       <SelectField
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         label="Phone"
                         name="countryCode"
                         labelIcon={false}
@@ -494,7 +508,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                   <div className="flex flex-col gap-5 sm:pt-2 max-[640px]:pt-6">
                     <TextField
                       handleChange={handleChange}
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       label="State/ Province"
                       outline={true}
                       name="state"
@@ -505,7 +519,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                     <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
                       <TextField
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         label="Address Line 1"
                         outline={true}
                         name="address1"
@@ -515,7 +529,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                       />
                       <TextField
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         label="Address Line 2"
                         labelIcon={false}
                         name="address2"
@@ -527,7 +541,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                     <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
                       <TextField
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         label="City"
                         labelIcon={false}
                         name="city"
@@ -537,7 +551,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                       />
                       <TextField
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         label="Post Code"
                         labelIcon={false}
                         name="postCode"
@@ -589,7 +603,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                   <div className="flex flex-col gap-5 sm:pt-2 max-[640px]:pt-6">
                     <SelectField
                       handleChange={handleChange}
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       label="Issuing Country/Region"
                       labelIcon={false}
                       placeholder="Please Select"
@@ -598,7 +612,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
 
                     <SelectField
                       handleChange={handleChange}
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       label="Identity Type"
                       labelIcon={false}
                       name="identityType"
@@ -607,7 +621,7 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
 
                     <TextField
                       handleChange={handleChange}
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       label="National ID Number"
                       name="nationalID"
                       labelIcon={false}
@@ -700,7 +714,8 @@ function KYC({ onClose, setUserVerificationState }: popupProps, props: any) {
                     </div>
                     {((formState.documents.length === 0 &&
                       fileUploadInitated) ||
-                      !formFilled) && (
+                      (showRequiredMessage &&
+                        formState.documents.length === 0)) && (
                       <span style={{ color: 'red' }}>Document is required</span>
                     )}
                   </div>

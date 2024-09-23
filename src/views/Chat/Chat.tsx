@@ -19,11 +19,63 @@ import {
 } from '../../database'
 import { useWeb3React } from '@web3-react/core'
 import { doc, onSnapshot } from 'firebase/firestore'
+import AttachmentPreview from '../../components/common/AttachmentPreview/AttachmentPreview'
+import Popup from '../../components/templates/Popup'
+import { useSelector } from 'react-redux'
+import {
+  getUserData,
+  modifyPolicy,
+  get_covers,
+  getPolicyData,
+  getStakeRewards,
+} from '../../api'
+import { findObjectById, removeItemFromArray } from '../../utils/helpers'
+import {
+  switchCoverModifyState,
+  switchKYCReviewerModify,
+  updateCoverQuote,
+  getCoverDetails,
+} from '../../database'
+import Score from '../../views/Dashboard/Score'
+import Rewards from '../../views/Dashboard/Rewards'
+
+function getType(roomId: string) {
+  const hyphenIndex = roomId.indexOf('-')
+  if (hyphenIndex !== -1) {
+    return roomId.substring(0, hyphenIndex)
+  }
+  return roomId // If no hyphen is found, return the entire string
+}
+
+function getIndex(roomId: string) {
+  const link = roomId
+  const number = link.split('-').pop()
+  return number
+}
 
 function Chat() {
+  const { kycApplicants, kycReviewerApplicants, coverApplications } =
+    useSelector((state: any) => state.kyc)
   let navigate = useNavigate()
   const [open, setOpen] = useState<boolean>(false)
   const { account } = useWeb3React()
+  const [attachements, setAttachments] = useState<any[]>([])
+  const [popup, setPopup] = useState(false)
+  const togglePopup = () => setPopup((v) => !v)
+  const [selectedDocument, setSelectedDocument] = useState<any>({})
+  let { roomId } = useParams()
+  const type = getType(roomId as string)
+  const [summaryData, setSummaryData] = useState({
+    purchase: '---',
+    coverId: '---',
+    status: '---',
+    claimId: '---',
+    claimAmout: '---',
+    claimHistory: '---',
+    PRP: '---',
+  })
+  const [loadingRewards, setLoadingRewards] = useState(true)
+  const [userDetails, setUserDetails] = useState<any>({ rewards: 0 })
 
   interface ChatRoom {
     messages: any[]
@@ -36,7 +88,7 @@ function Chat() {
     messages: [],
     names: {},
   })
-  let { roomId } = useParams()
+
   markAllMessagesAsRead(roomId as string, account)
   const fileList = ['Id_back.png', 'Id_front.png', 'img 001.png', 'doc 002.pdf']
   const options = [
@@ -78,10 +130,71 @@ function Chat() {
     }
   }
 
+  const preLoad = async (roomId: string) => {
+    const covers = await get_covers('Car')
+    const index = getIndex(roomId)
+    console.log(index)
+    var temp = findObjectById(covers, index)
+    const userData = await getUserData(temp.address)
+    const coverFirebaseDetails = await getCoverDetails(
+      temp.address,
+      temp.poolName
+    )
+    const policyData = await getPolicyData(temp.address, temp.poolName)
+    temp = { ...userData, ...coverFirebaseDetails, ...temp, ...policyData }
+
+    const summaryData = {
+      purchase: temp.purchaseDate || '---',
+      coverId: temp.coverId || '---',
+      status: temp.status || '---',
+      claimId: temp.claimId || '---',
+      claimAmout: temp.claimAmount || '---',
+      claimHistory: '---',
+      PRP: `${temp.PRP} %` || '---',
+    }
+    setSummaryData(summaryData)
+  }
+
   useEffect(() => {
     if (roomId) {
       getChatRoom(roomId).then((chatRoom) => {
         setChatRoom(chatRoom)
+        Object.keys(chatRoom.names).map((address: string) => {
+          if (type === 'kyc') {
+            if (chatRoom.names[address] !== 'reviewer') {
+              kycApplicants.map((applicant: any) => {
+                if (applicant.address === address) {
+                  setAttachments(applicant.documents)
+                }
+              })
+            }
+          } else if (type === 'insure') {
+            if (chatRoom.names[address] !== 'Admin') {
+              console.log('all: ', kycReviewerApplicants)
+              kycReviewerApplicants.map((applicant: any) => {
+                if (applicant.address === address) {
+                  setAttachments(applicant.reviewerDocuments)
+                }
+              })
+            }
+          } else if (type === 'policy') {
+            if (chatRoom.names[address] !== 'reviewer') {
+              coverApplications.map((applicant: any) => {
+                if (applicant.address === address) {
+                  setAttachments(applicant.documents)
+                }
+              })
+            }
+            preLoad(roomId as string)
+          } else if (type === 'claim') {
+            const getRewards = async () => {
+              const rewards = await getStakeRewards(account as string)
+              setUserDetails({ rewards })
+              setLoadingRewards(false)
+            }
+            getRewards()
+          }
+        })
       })
       const unsubChatRoom = onSnapshot(doc(db, 'chat-rooms', roomId), (doc) => {
         setChatRoom(doc.data() as ChatRoom)
@@ -107,7 +220,7 @@ function Chat() {
             />
           </div>
           <div className="rounded bg-dark-600 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
-            <InfoHeader roomId={roomId} />
+            <InfoHeader roomId={roomId} users={chatRoom.names} />
             <Conversition messages={chatRoom.messages} />
             <MessageType handleSend={handleSend} />
           </div>
@@ -115,7 +228,7 @@ function Chat() {
 
         <div className="flex-col gap-5 w-full max-w-[285px] hidden md:flex mt-5">
           <h6 className="text-dark-300">Overview</h6>
-          <div className="bg-dark-600 rounded p-[30px] dark:bg-white box-border-2x-light dark:box-border-2x-dark">
+          {/* <div className="bg-dark-600 rounded p-[30px] dark:bg-white box-border-2x-light dark:box-border-2x-dark">
             <div className="mb-[30px] flex justify-between">
               <span className="current-result">Current Result</span>
               <div className="relative">
@@ -258,9 +371,9 @@ function Chat() {
                 textclassname={textClassName}
               />
             </div>
-          </div>
+          </div> */}
 
-          <div className="rounded bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
+          {/* <div className="rounded bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
             <WeightTitle title="Attachments" />
             <div className="flex gap-[12px] flex-col mt-[25px] sm:mt-[0px]">
               {[...Array(4)].map((value, index) => (
@@ -292,9 +405,184 @@ function Chat() {
                 </>
               ))}
             </div>
-          </div>
+          </div> */}
+          {type === 'kyc' ||
+            (type === 'insure' && (
+              <div className="bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
+                <WeightTitle title="Attachments" />
+                <div className="flex gap-[12px] flex-col mt-[25px] sm:mt-[0px]">
+                  {attachements.map((document: any, index: number) => (
+                    <>
+                      <div className="flex justify-between">
+                        <div className="flex basis-3/4 gap-[16px]">
+                          <img src="/images/pin.svg" alt="" />
+                          <Link
+                            onClick={() => {
+                              setSelectedDocument(document)
+                              setPopup(true)
+                            }}
+                            className={`${
+                              theme === 'dark'
+                                ? 'font-bold text-[#606166] hover:text-[#000000]'
+                                : 'text-white hover:text-[#50ff7f]'
+                            } file-name `}
+                            to={''}
+                          >
+                            {document.name}
+                          </Link>
+                        </div>
+                      </div>
+                    </>
+                  ))}
+                </div>
+              </div>
+            ))}
+          {type === 'policy' && (
+            <>
+              <div className="rounded bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
+                <div className="mb-7">
+                  <WeightTitle title="Summary" />
+                </div>
+                <div className="flex items-center justify-between mb-7">
+                  <img
+                    className="w-[35px] h-[35px]"
+                    src={
+                      theme === 'dark'
+                        ? '/images/whiteCar.svg'
+                        : '/images/lodgo.svg'
+                    }
+                    alt=""
+                  />
+                  <span className="font-medium text-dark-10 dark:text-dark-800">
+                    Car insurance{' '}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-[25px]">
+                  <WeightRow
+                    name="Purchase"
+                    value={summaryData.purchase}
+                    titleclassname={titleClassName}
+                    textclassname={textClassName}
+                  />
+                  <WeightRow
+                    name="Cover ID"
+                    value={summaryData.coverId}
+                    valueStyle={{
+                      color:
+                        theme === 'dark'
+                          ? 'text-[#6D6E76] hover:text-[#000]'
+                          : 'hover:text-brand-400',
+                    }}
+                    titleclassname={titleClassName}
+                    textclassname={textClassName}
+                  />
+                  <WeightRow
+                    name="Status"
+                    value={summaryData.status}
+                    titleclassname={titleClassName}
+                    textclassname={textClassName}
+                  />
+                  <WeightRow
+                    name="Claim ID"
+                    value={summaryData.claimId}
+                    titleclassname={titleClassName}
+                    textclassname={textClassName}
+                  />
+                  <WeightRow
+                    name="Claim Amount"
+                    value={summaryData.claimAmout}
+                    titleclassname={titleClassName}
+                    textclassname={textClassName}
+                  />
+                  <WeightRow
+                    name="Claim History"
+                    withInfo
+                    value={summaryData.claimHistory}
+                    titleclassname={titleClassName}
+                    textclassname={textClassName}
+                  />
+                  <WeightRow
+                    name="PRP"
+                    withInfo
+                    value={summaryData.PRP}
+                    titleclassname={titleClassName}
+                    textclassname={textClassName}
+                  />
+                </div>
+              </div>
+              <div className="bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
+                <WeightTitle title="Attachments" />
+                <div className="flex gap-[12px] flex-col mt-[25px] sm:mt-[0px]">
+                  {attachements.map((document: any, index: number) => (
+                    <>
+                      <div className="flex justify-between">
+                        <div className="flex basis-3/4 gap-[16px]">
+                          <img src="/images/pin.svg" alt="" />
+                          <Link
+                            onClick={() => {
+                              setSelectedDocument(document)
+                              setPopup(true)
+                            }}
+                            className={`${
+                              theme === 'dark'
+                                ? 'font-bold text-[#606166] hover:text-[#000000]'
+                                : 'text-white hover:text-[#50ff7f]'
+                            } file-name `}
+                            to={''}
+                          >
+                            {document.name}
+                          </Link>
+                        </div>
+                      </div>
+                    </>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-dark-600 p-7 dark:bg-white box-border-2x-light dark:box-border-2x-dark">
+                <WeightTitle title="Policy T&C" />
+                <div className="flex gap-[12px] flex-col mt-[25px] sm:mt-[0px]">
+                  {[...Array(2)].map((value, index) => (
+                    <>
+                      <div className="flex justify-between">
+                        <div className="flex basis-3/4 gap-[16px]">
+                          <img src="/images/pin.svg" alt="" />
+                          <Link
+                            onClick={() => {
+                              setPopup(true)
+                            }}
+                            className={`${
+                              theme === 'dark'
+                                ? 'font-bold text-[#606166] hover:text-[#000000]'
+                                : 'text-white hover:text-[#50ff7f]'
+                            } file-name block`}
+                            to={''}
+                          >
+                            Essential IPID
+                          </Link>
+                        </div>
+                      </div>
+                    </>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+          {type === 'claim' && (
+            <>
+              <Rewards details={userDetails} />
+              <Score size="w-[90px]" />
+            </>
+          )}
         </div>
       </div>
+
+      <Popup visible={popup} onClose={togglePopup} maxWidth="max-w-[824px]">
+        <AttachmentPreview
+          attachmentName={selectedDocument.name}
+          attachmentLink={selectedDocument.link}
+          onClose={togglePopup}
+        />
+      </Popup>
     </div>
   )
 }

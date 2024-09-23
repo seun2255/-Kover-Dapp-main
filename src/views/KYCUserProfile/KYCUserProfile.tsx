@@ -54,7 +54,7 @@ function KYCUserProfile() {
   )
   const [canModify, setCanModify] = useState(false)
   const [formState, setFormState] = useState(applicant)
-  const [formFilled, setFormFilled] = useState(true)
+  const [showRequiredMessage, setShowRequiredMessage] = useState(true)
   const dispatch = useDispatch()
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
@@ -85,11 +85,14 @@ function KYCUserProfile() {
 
   function areAllValuesFilled(obj: any) {
     for (const key in obj) {
-      if (obj.hasOwnProperty(key) && obj[key] === '') {
-        return false // If any value is not an empty string, return false
+      if (
+        obj.hasOwnProperty(key) &&
+        (obj[key] === '' || obj[key].length === 0)
+      ) {
+        return false // If any value is an empty string, return false
       }
     }
-    return true // All values are empty strings
+    return true // All values are filled
   }
 
   type ProgressData = {
@@ -178,7 +181,7 @@ function KYCUserProfile() {
       address: account,
     }))
     const formFilled = areAllValuesFilled(formState)
-    setFormFilled(formFilled)
+    setShowRequiredMessage(!formFilled)
 
     if (formFilled) {
       // fetch('https://ipinfo.io/json')
@@ -238,6 +241,7 @@ function KYCUserProfile() {
 
   useEffect(() => {
     const temp = findObjectById(kycApplicants, userId)
+    // console.log('Applicants: ', kycApplicants)
     setApplicant(temp)
     if (temp.canModifyKYC && temp.address === account) {
       setCanModify(true)
@@ -290,7 +294,7 @@ function KYCUserProfile() {
                 <div className="flex flex-col gap-5 border-none lg:grid lg:grid-cols-2">
                   <TextField
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     label="First Name"
                     name="firstName"
                     labelIcon={false}
@@ -302,7 +306,7 @@ function KYCUserProfile() {
                   />
                   <TextField
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     label="Last Name"
                     name="lastName"
                     labelIcon={false}
@@ -315,7 +319,7 @@ function KYCUserProfile() {
                 </div>
 
                 <SelectField
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   labelIcon={false}
                   name="dob"
                   initialValue={applicant.dob}
@@ -327,7 +331,7 @@ function KYCUserProfile() {
 
                 <TextField
                   handleChange={handleChange}
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   label="Email"
                   name="email"
                   labelIcon={false}
@@ -352,7 +356,7 @@ function KYCUserProfile() {
               <div className="flex flex-col gap-5 sm:pt-2 max-[640px]:pt-6">
                 <TextField
                   handleChange={handleChange}
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   label="State/ Province"
                   name="state"
                   labelIcon={false}
@@ -364,7 +368,7 @@ function KYCUserProfile() {
                 <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
                   <TextField
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     label="Address Line 1"
                     name="address1"
                     labelIcon={false}
@@ -375,7 +379,7 @@ function KYCUserProfile() {
                   />
                   <TextField
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     label="Address Line 2"
                     name="address2"
                     labelIcon={false}
@@ -388,7 +392,7 @@ function KYCUserProfile() {
                 <div className="grid grid-cols-2 sm:gap-5 gap-2.5">
                   <TextField
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     label="City"
                     name="city"
                     labelIcon={false}
@@ -399,7 +403,7 @@ function KYCUserProfile() {
                   />
                   <TextField
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     label="Post Code"
                     name="postCode"
                     labelIcon={false}
@@ -452,7 +456,7 @@ function KYCUserProfile() {
               <div className="flex flex-col gap-5 sm:pt-2 max-[640px]:pt-6">
                 <SelectField
                   handleChange={handleChange}
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   label="Issuing Country/Region"
                   initialValue={applicant.country}
                   disabled={!canModify}
@@ -463,7 +467,7 @@ function KYCUserProfile() {
 
                 <SelectField
                   handleChange={handleChange}
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   label="Identity Type"
                   initialValue={applicant.identityType}
                   disabled={!canModify}
@@ -474,7 +478,7 @@ function KYCUserProfile() {
 
                 <TextField
                   handleChange={handleChange}
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   label="National ID Number"
                   name="nationalID"
                   labelIcon={false}

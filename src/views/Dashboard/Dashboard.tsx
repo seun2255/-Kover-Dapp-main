@@ -132,6 +132,7 @@ function Dashboard() {
       var allCovers = await Promise.all(axiosRequestsCovers)
       if (allCovers[0] === undefined) allCovers = []
       setCovers(allCovers)
+      console.log('Covers: ', allCovers)
       // })
 
       // fetch('https://ipinfo.io/json')
@@ -1859,7 +1860,11 @@ function Dashboard() {
         <div className="kyc-popup">
           <div className="flex gap-5 mb-3.5">
             <div>
-              <NewClaim onClose={closeForm} poolName="Car Insurance" />
+              <NewClaim
+                onClose={closeForm}
+                poolName="Car Insurance"
+                cover={covers[0]}
+              />
             </div>
           </div>
         </div>

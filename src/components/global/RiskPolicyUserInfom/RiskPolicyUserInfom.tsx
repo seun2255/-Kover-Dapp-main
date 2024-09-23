@@ -8,11 +8,13 @@ import {
   switchCoverModifyState,
   switchKYCModify,
   switchKYCReviewerModify,
+  getUserDetails,
 } from '../../../database'
 import { useWeb3React } from '@web3-react/core'
 import { useDispatch, useSelector } from 'react-redux'
 import { openAlert, closeAlert } from '../../../redux/alerts'
 import { setCoverApplications, setKYCApplicants } from '../../../redux/kyc'
+import Blockies from 'react-blockies'
 
 interface UserInformProps {
   variant?: 'customer' | 'personal'
@@ -29,6 +31,7 @@ function RiskPolicyUserInform({ variant, user }: UserInformProps) {
   const viewmoreHandler = () => {
     viewmore ? setViewmore(false) : setViewmore(true)
   }
+  const [userPic, setUserPic] = useState('')
 
   const [canEdit, setCanEdit] = useState(user.canModify)
 
@@ -38,6 +41,9 @@ function RiskPolicyUserInform({ variant, user }: UserInformProps) {
 
   useEffect(() => {
     setCanEdit(variant === 'personal' ? user.canModify : user.canModify)
+    getUserDetails(user.address).then((userData) => {
+      setUserPic(userData.dp)
+    })
   }, [user])
 
   return (
@@ -47,13 +53,23 @@ function RiskPolicyUserInform({ variant, user }: UserInformProps) {
           <div className="flex flex-row justify-between">
             <div className="flex flex-row justify-between">
               <div className="flex gap-8 w-[88px] h-[88px] bg-[#2A2B31] dark:bg-light-1200 items-center justify-center">
-                <img
-                  width={50}
-                  height={50}
-                  src="/images/profile-photo.jpg"
-                  alt=""
-                  className="rounded-full"
-                />
+                {userPic === 'default' ? (
+                  <Blockies
+                    seed={user.address.toLowerCase()}
+                    size={10}
+                    scale={5}
+                    className="identicon wallet-icon"
+                  />
+                ) : (
+                  <img
+                    width={50}
+                    height={50}
+                    src={user.dp}
+                    alt=""
+                    className="rounded-full w-[50px] h-[50px]"
+                    object-fit="cover"
+                  />
+                )}
               </div>
               <div className="ml-[20px]">
                 <span className="text-md block mb-2.5 fw-400">
@@ -209,13 +225,23 @@ function RiskPolicyUserInform({ variant, user }: UserInformProps) {
               <div>
                 <div className="flex gap-8">
                   <div className="flex gap-8 w-[88px] h-[88px] bg-[#2A2B31] dark:bg-light-1200 items-center justify-center ">
-                    <img
-                      width={50}
-                      height={50}
-                      src="/images/profile-photo.jpg"
-                      alt=""
-                      className="rounded-full"
-                    />
+                    {userPic === 'default' ? (
+                      <Blockies
+                        seed={user.address.toLowerCase()}
+                        size={10}
+                        scale={5}
+                        className="identicon wallet-icon"
+                      />
+                    ) : (
+                      <img
+                        width={50}
+                        height={50}
+                        src={user.dp}
+                        alt=""
+                        className="rounded-full w-[50px] h-[50px]"
+                        object-fit="cover"
+                      />
+                    )}
                   </div>
 
                   <div className="w-max">
@@ -415,10 +441,8 @@ function RiskPolicyUserInform({ variant, user }: UserInformProps) {
                   </span>
                 </div>
                 <div className="flex flex-col gap-[20px] basis-1/3 sm:basis-1/2">
-                  <span className="text-lg font-medium">26/01/1993</span>
-                  <span className="text-lg font-medium">
-                    26 av Louis Vito CH45 8 London UK
-                  </span>
+                  <span className="text-lg font-medium">{user.dob}</span>
+                  <span className="text-lg font-medium">{`${user.address1} ${user.address2} ${user.city}`}</span>
                 </div>
               </div>
             </div>

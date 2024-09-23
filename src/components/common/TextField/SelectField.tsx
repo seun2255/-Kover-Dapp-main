@@ -13,7 +13,7 @@ interface SelectField {
   handleChange?: Function
   borderRight?: string
   placeholder?: string | any[]
-  filled?: boolean
+  showRequiredMessage?: boolean
   initialValue?: any
   disabled?: boolean
   pools?: string[]
@@ -27,7 +27,7 @@ function SelectField({
   name,
   handleDobChange,
   handleChange,
-  filled,
+  showRequiredMessage,
   initialValue,
   disabled,
   pools,
@@ -74,7 +74,7 @@ function SelectField({
               {...rest}
               name={value.toLowerCase()}
               handleChange={handleSelect}
-              filled={filled}
+              showRequiredMessage={showRequiredMessage}
               disabled={disabled}
               initialValue={
                 initialValue ? initialValue.split('/')[index] : null
@@ -88,7 +88,7 @@ function SelectField({
           {...rest}
           name={name}
           handleChange={handleSelect}
-          filled={filled}
+          showRequiredMessage={showRequiredMessage}
           disabled={disabled}
           initialValue={initialValue}
           pools={pools}

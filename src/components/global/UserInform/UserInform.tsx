@@ -219,8 +219,8 @@ function UserInform({ variant, userData }: UserInformProps) {
                     {picture === 'default' ? (
                       <Blockies
                         seed={(account as string).toLowerCase()}
-                        size={13}
-                        scale={4}
+                        size={10}
+                        scale={5}
                         className="identicon wallet-icon"
                       />
                     ) : (
@@ -229,7 +229,8 @@ function UserInform({ variant, userData }: UserInformProps) {
                         height={50}
                         src={picture}
                         alt=""
-                        className="rounded-full"
+                        className="rounded-full w-[50px] h-[50px]"
+                        object-fit="cover"
                       />
                     )}
                   </div>

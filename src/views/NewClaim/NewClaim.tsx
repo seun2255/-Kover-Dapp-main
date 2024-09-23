@@ -41,9 +41,13 @@ interface popupProps {
   onClose?: () => void
   onSubmit?: () => void
   poolName: string
+  cover: any
 }
 
-function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
+function NewClaim(
+  { onClose, poolName, onSubmit, cover }: popupProps,
+  props: any
+) {
   const { theme } = React.useContext(UserContext)
   const [currentIcon, setcurrentIcon] = useState('')
   const [timeValue, settimeValue] = useState()
@@ -65,7 +69,7 @@ function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
     incidentDescription: '',
     documents: [] as Document[],
   })
-  const [formFilled, setFormFilled] = useState(true)
+  const [showRequiredMessage, setShowRequiredMessage] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
   const [fileUploadInitated, setFileUploadInitiated] = useState(false)
@@ -161,16 +165,18 @@ function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
 
   function areAllValuesFilled(obj: any) {
     for (const key in obj) {
-      if (obj.hasOwnProperty(key) && obj[key] === '') {
-        return false // If any value is not an empty string, return false
+      if (
+        obj.hasOwnProperty(key) &&
+        (obj[key] === '' || obj[key].length === 0)
+      ) {
+        return false // If any value is an empty string, return false
       }
     }
-    return true // All values are empty strings
+    return true // All values are filled
   }
 
   // Handle form submission
   const handleSubmit = async () => {
-    console.log('Button was clicked')
     setFileUploadInitiated(true)
     const date = getCurrentDateTime()
     setFormState((prevState) => ({
@@ -182,8 +188,9 @@ function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
       address: account,
     }))
     const formFilled = areAllValuesFilled(formState)
-    setFormFilled(formFilled)
-    if (!formFilled) {
+    setShowRequiredMessage(!formFilled)
+
+    if (showRequiredMessage) {
       dispatch(
         openAlert({
           displayAlert: true,
@@ -209,7 +216,7 @@ function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
       dispatch(
         openLoader({
           displaytransactionLoader: true,
-          text: 'Rasising Claim',
+          text: 'Aprroving Token use',
         })
       )
       const formData = {
@@ -225,6 +232,7 @@ function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
         poolName as string,
         userData,
         account as string,
+        cover.premiumQuote,
         dispatch
       )
       if (hash) {
@@ -307,7 +315,7 @@ function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       label="Claim Type"
                       placeholder="Please Select"
                       handleChange={handleChange}
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       name="claimType"
                     />
                     <TextField
@@ -315,14 +323,14 @@ function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       placeholder="Please Select"
                       borderRight="border-r border-r-primary-700"
                       handleChange={handleChange}
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       name="eventType"
                     />
                     <TextField
                       label="Event Date"
                       placeholder={['Month', 'Day', 'Year']}
                       handleDobChange={handleEventDateChange}
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       name="eventDate"
                     />
                     <div className="grid grid-cols-2 sm:gap-5 gap-2.5 ">
@@ -374,7 +382,7 @@ function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         placeholder="Please Select "
                         borderRight="border-r border-r-brand-100"
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="timezone"
                       />
                     </div>
@@ -539,7 +547,8 @@ function NewClaim({ onClose, poolName, onSubmit }: popupProps, props: any) {
                     </div>
                     {((formState.documents.length === 0 &&
                       fileUploadInitated) ||
-                      !formFilled) && (
+                      (showRequiredMessage &&
+                        formState.documents.length === 0)) && (
                       <span style={{ color: 'red' }}>Document is required</span>
                     )}
                   </div>

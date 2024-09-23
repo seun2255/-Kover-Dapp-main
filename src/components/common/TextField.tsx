@@ -17,7 +17,7 @@ interface TextFieldProps {
   verificationState?: 'unverified' | 'verified' | 'verifying'
   outline?: boolean
   handleChange?: Function
-  filled?: boolean
+  showRequiredMessage?: boolean
   initialValue?: string
   disabled?: boolean
 }
@@ -38,31 +38,33 @@ function TextField(props: TextFieldProps) {
     handleChange,
     verificationState,
     startVerification,
-    filled,
+    showRequiredMessage,
     initialValue,
     disabled,
   } = props
   const { theme } = React.useContext(UserContext)
   const [error, setError] = useState(false)
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState(initialValue ? initialValue : '')
   const checkIfCorrect = (text: any) => {
     // Use a regular expression to check for only alphabetical characters
-    if (
-      name === 'state' ||
-      name === 'firstName' ||
-      name === 'lastName' ||
-      name === 'city'
-    ) {
-      const regex = /^[a-zA-Z]+$/
-      regex.test(text) ? setError(false) : setError(true)
-    } else if (
-      name === 'postCode' ||
-      name === 'nationalID' ||
-      name === 'registrationNumber' ||
-      name === 'insurableValue'
-    ) {
-      var regex = /^[0-9]+$/
-      regex.test(text) ? setError(false) : setError(true)
+    if (text !== '') {
+      if (
+        name === 'state' ||
+        name === 'firstName' ||
+        name === 'lastName' ||
+        name === 'city'
+      ) {
+        const regex = /^[a-zA-Z]+$/
+        regex.test(text) ? setError(false) : setError(true)
+      } else if (
+        name === 'postCode' ||
+        name === 'nationalID' ||
+        name === 'registrationNumber' ||
+        name === 'insurableValue'
+      ) {
+        var regex = /^[0-9]+$/
+        regex.test(text) ? setError(false) : setError(true)
+      }
     }
   }
   let variantStyle = 'bg-dark-800'
@@ -72,8 +74,8 @@ function TextField(props: TextFieldProps) {
 
   const ErrorMessage = () => {
     return (
-      <span style={{ color: 'red' }}>
-        {filled && value !== '' && name !== 'email'
+      <span className="text-lg text-[red]">
+        {!showRequiredMessage && name !== 'email'
           ? 'Error, Please enter a valid value'
           : 'This filed is required'}
       </span>
@@ -101,7 +103,7 @@ function TextField(props: TextFieldProps) {
           field ? '' : 'px-5'
         }`}
       />
-      {((!filled && value === '') || error) && ErrorMessage()}
+      {((showRequiredMessage && value === '') || error) && ErrorMessage()}
     </div>
   )
 
@@ -119,11 +121,11 @@ function TextField(props: TextFieldProps) {
               key={index}
               defaultValue={initialValue}
               disabled={disabled}
-              onBlur={(e) => {
-                if (e.target.value.trim() === '') {
-                  setError(true)
-                }
-              }}
+              // onBlur={(e) => {
+              //   if (e.target.value.trim() === '') {
+              //     setError(true)
+              //   }
+              // }}
             />
           ))}
         </div>
@@ -135,14 +137,14 @@ function TextField(props: TextFieldProps) {
                 className="rounded relative flex gap-3 items-center h-10 bg-dark-800 dark:bg-[#F1F1F1]  dark:box-border-2x-dark"
                 style={{
                   border: `1px solid ${
-                    (!filled && value === '') || error
+                    (showRequiredMessage && value === '') || error
                       ? 'red'
                       : theme === 'dark'
                       ? '#bbbbbb'
                       : '#43444B'
                   }`,
                   borderColor:
-                    (!filled && value === '') || error
+                    (showRequiredMessage && value === '') || error
                       ? 'red'
                       : theme === 'dark'
                       ? '#bbbbbb'
@@ -159,11 +161,11 @@ function TextField(props: TextFieldProps) {
                     handleChange?.(e)
                     setValue(e.target.value)
                   }}
-                  onBlur={(e) => {
-                    if (e.target.value.trim() === '') {
-                      setError(true)
-                    }
-                  }}
+                  // onBlur={(e) => {
+                  //   if (e.target.value.trim() === '') {
+                  //     setError(true)
+                  //   }
+                  // }}
                   className="placeholder:text-dark-650 flex-grow text-white dark:text-[#000000] text-lg py-3 w-full px-5  "
                 />
                 {verificationState === 'unverified' ? (
@@ -188,7 +190,8 @@ function TextField(props: TextFieldProps) {
                   </span>
                 )}
               </div>
-              {((!filled && value === '') || error) && ErrorMessage()}
+              {((showRequiredMessage && value === '') || error) &&
+                ErrorMessage()}
             </>
           ) : (
             <>
@@ -211,14 +214,14 @@ function TextField(props: TextFieldProps) {
     } rounded h-[40px] text-lg py-3 w-full px-5`}
                     style={{
                       border: `1px solid ${
-                        (!filled && value === '') || error
+                        (showRequiredMessage && value === '') || error
                           ? 'red'
                           : theme === 'dark'
                           ? '#bbbbbb'
                           : '#43444B'
                       }`,
                       borderColor:
-                        (!filled && value === '') || error
+                        (showRequiredMessage && value === '') || error
                           ? 'red'
                           : theme === 'dark'
                           ? '#bbbbbb'
@@ -229,13 +232,14 @@ function TextField(props: TextFieldProps) {
                       handleChange?.(e)
                       setValue(e.target.value)
                     }}
-                    onBlur={(e) => {
-                      if (e.target.value.trim() === '') {
-                        setError(true)
-                      }
-                    }}
+                    // onBlur={(e) => {
+                    //   if (e.target.value.trim() === '') {
+                    //     setError(true)
+                    //   }
+                    // }}
                   />
-                  {((!filled && value === '') || error) && ErrorMessage()}
+                  {((showRequiredMessage && value === '') || error) &&
+                    ErrorMessage()}
                 </>
               ) : (
                 <>
@@ -256,14 +260,14 @@ function TextField(props: TextFieldProps) {
               } rounded h-[40px] text-lg py-3 w-full px-5`}
                     style={{
                       border: `1px solid ${
-                        (!filled && value === '') || error
+                        (showRequiredMessage && value === '') || error
                           ? 'red'
                           : theme === 'dark'
                           ? '#bbbbbb'
                           : '#43444B'
                       }`,
                       borderColor:
-                        (!filled && value === '') || error
+                        (showRequiredMessage && value === '') || error
                           ? 'red'
                           : theme === 'dark'
                           ? '#bbbbbb'
@@ -274,13 +278,14 @@ function TextField(props: TextFieldProps) {
                       handleChange?.(e)
                       setValue(e.target.value)
                     }}
-                    onBlur={(e) => {
-                      if (e.target.value.trim() === '') {
-                        setError(true)
-                      }
-                    }}
+                    // onBlur={(e) => {
+                    //   if (e.target.value.trim() === '') {
+                    //     setError(true)
+                    //   }
+                    // }}
                   />
-                  {((!filled && value === '') || error) && ErrorMessage()}
+                  {((showRequiredMessage && value === '') || error) &&
+                    ErrorMessage()}
                 </>
               )}
             </>

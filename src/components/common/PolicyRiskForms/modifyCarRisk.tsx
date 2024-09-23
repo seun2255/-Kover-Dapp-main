@@ -67,7 +67,7 @@ interface popupProps {
   onSubmit?: () => void
   poolName: string
   coverDetails?: any
-  setFilledForm?: any
+  setshowRequiredMessageForm?: any
 }
 interface Document {
   link: string
@@ -121,7 +121,7 @@ function ModifyCarInsurance(
     postCode: '',
     documents: (coverDetails.documents as Document[]) || [],
   })
-  const [formFilled, setFormFilled] = useState(true)
+  const [showRequiredMessage, setShowRequiredMessage] = useState(true)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState([0]) // Tracks progress for each file
   type VerificationState = 'unverified' | 'verifying' | 'verified'
@@ -210,13 +210,16 @@ function ModifyCarInsurance(
     }))
   }
 
-  function areAllValuesFilled(obj: any) {
+  function areAllValuesshowRequiredMessage(obj: any) {
     for (const key in obj) {
-      if (obj.hasOwnProperty(key) && obj[key] === '') {
-        return false // If any value is not an empty string, return false
+      if (
+        obj.hasOwnProperty(key) &&
+        (obj[key] === '' || obj[key].length === 0)
+      ) {
+        return false // If any value is an empty string, return false
       }
     }
-    return true // All values are empty strings
+    return true // All values are showRequiredMessage
   }
 
   // Handle form submission
@@ -237,10 +240,10 @@ function ModifyCarInsurance(
       ...prevState,
       address: account,
     }))
-    const formFilled = areAllValuesFilled(formState)
-    // setFormFilled(formFilled)
+    // const formFilled = areAllValuesshowRequiredMessage(formState)
+    // setShowRequiredMessage(!formFilled)
 
-    // if (formFilled) {
+    // if (showRequiredMessage) {
     // fetch('https://ipinfo.io/json')
     //   .then((response) => response.json())
     //   .then(async (data) => {
@@ -290,7 +293,7 @@ function ModifyCarInsurance(
           },
         })
       )
-      // setFilledForm(true)
+      // setshowRequiredMessageForm(true)
       setTimeout(() => {
         dispatch(closeAlert())
       }, 10000)
@@ -376,7 +379,7 @@ function ModifyCarInsurance(
                         label="Make"
                         labelIcon={false}
                         placeholder="Please select"
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         initialValue={coverDetails.make}
                         disabled={!canModify}
                         name="make"
@@ -389,7 +392,7 @@ function ModifyCarInsurance(
                         carMake={formState.make}
                         initialValue={coverDetails.model}
                         disabled={!canModify}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="model"
                         handleChange={handleChange}
                       />
@@ -399,7 +402,7 @@ function ModifyCarInsurance(
                       labelIcon={false}
                       label="Year of Manufacture"
                       placeholder="YYYY"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       initialValue={coverDetails.yearManufactured}
                       disabled={!canModify}
                       name="yearManufactured"
@@ -409,7 +412,7 @@ function ModifyCarInsurance(
                       label="Engine Size"
                       labelIcon={false}
                       placeholder="Please select"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       initialValue={coverDetails.engineSize}
                       disabled={!canModify}
                       name="engineSize"
@@ -425,7 +428,7 @@ function ModifyCarInsurance(
                         disabled={!canModify}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="registrationNumber"
                       />
                       <TextField
@@ -437,7 +440,7 @@ function ModifyCarInsurance(
                         disabled={!canModify}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="insurableValue"
                       />
                     </div>
@@ -445,7 +448,7 @@ function ModifyCarInsurance(
                       <RiskSelectField
                         label="Estimated Annual Mileage"
                         placeholder="Please select"
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         initialValue={coverDetails.annualMileage}
                         disabled={!canModify}
                         name="annualMileage"
@@ -454,7 +457,7 @@ function ModifyCarInsurance(
                       <RiskSelectField
                         label="Overnight Parking "
                         placeholder="Please select"
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         initialValue={coverDetails.overnightParking}
                         disabled={!canModify}
                         name="overnightParking"
@@ -478,7 +481,7 @@ function ModifyCarInsurance(
                     <RiskSelectField
                       label="Cover Duration"
                       placeholder="Please select"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       initialValue={coverDetails.coverDuration}
                       disabled={!canModify}
                       name="coverDuration"
@@ -487,7 +490,7 @@ function ModifyCarInsurance(
                     <RiskSelectField
                       label="Cover Type"
                       placeholder="Please select"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       initialValue={coverDetails.coverType}
                       disabled={!canModify}
                       name="coverType"
@@ -496,7 +499,7 @@ function ModifyCarInsurance(
                     <RiskSelectField
                       label="Usage"
                       placeholder="Please select"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       initialValue={coverDetails.usage}
                       disabled={!canModify}
                       name="usage"
@@ -505,7 +508,7 @@ function ModifyCarInsurance(
                     <RiskSelectField
                       label="Security Measures"
                       placeholder="Please select"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       initialValue={coverDetails.securityMeasures}
                       disabled={!canModify}
                       name="securityMeasures"
@@ -516,7 +519,7 @@ function ModifyCarInsurance(
                       <RiskSelectField
                         label="Driving Offences"
                         placeholder="Please select"
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         initialValue={coverDetails.drivingOffences}
                         disabled={!canModify}
                         name="drivingOffences"
@@ -525,7 +528,7 @@ function ModifyCarInsurance(
                       <RiskSelectField
                         label="Claim History"
                         placeholder="Please select"
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         initialValue={coverDetails.claimHistory}
                         disabled={!canModify}
                         name="claimHistory"
@@ -535,7 +538,7 @@ function ModifyCarInsurance(
                         labelIcon={false}
                         label="Year of Obtaining Licence"
                         placeholder="YYYY"
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         initialValue={coverDetails.yearObtainedLicence}
                         disabled={!canModify}
                         name="yearObtainedLicence"
@@ -548,14 +551,14 @@ function ModifyCarInsurance(
                         handleChange={handleChange}
                         initialValue={coverDetails.drivingLicenceNumber}
                         disabled={!canModify}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="drivingLicenceNumber"
                       />
                     </div>
                     <RiskSelectField
                       label="Risk Address"
                       placeholder="Please select"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       initialValue={coverDetails.riskAddress}
                       disabled={!canModify}
                       name="riskAddress"
@@ -564,7 +567,7 @@ function ModifyCarInsurance(
                     <RiskSelectField
                       label="Country/Region"
                       placeholder="e.g. California"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       initialValue={coverDetails.country}
                       disabled={!canModify}
                       name="country"
@@ -580,7 +583,7 @@ function ModifyCarInsurance(
                         handleChange={handleChange}
                         initialValue={coverDetails.address1}
                         disabled={!canModify}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="address1"
                       />
                       <TextField
@@ -592,7 +595,7 @@ function ModifyCarInsurance(
                         handleChange={handleChange}
                         initialValue={coverDetails.address2}
                         disabled={!canModify}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="address2"
                       />
                       <TextField
@@ -604,7 +607,7 @@ function ModifyCarInsurance(
                         handleChange={handleChange}
                         initialValue={coverDetails.city}
                         disabled={!canModify}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="city"
                       />
                       <TextField
@@ -616,7 +619,7 @@ function ModifyCarInsurance(
                         handleChange={handleChange}
                         initialValue={coverDetails.postCode}
                         disabled={!canModify}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="postCode"
                       />
                     </div>
@@ -707,7 +710,7 @@ function ModifyCarInsurance(
                     </div>
                     {((formState.documents.length === 0 &&
                       fileUploadInitated) ||
-                      !formFilled) && (
+                      !showRequiredMessage) && (
                       <span style={{ color: 'red' }}>Document is required</span>
                     )}
                   </div>

@@ -18,7 +18,10 @@ function Notification() {
   const { theme } = React.useContext(UserContext)
   const { user } = useSelector((state: any) => state.user)
   const { account } = useWeb3React()
-  const [userDetails, setUserDetails] = useState<any>({ activeCovers: 0 })
+  const [userDetails, setUserDetails] = useState<any>({
+    activeCovers: 0,
+    rewards: 0,
+  })
 
   interface Document {
     from: any
@@ -43,30 +46,29 @@ function Notification() {
 
   const getData = async () => {
     if (account) {
-      const covers = await get_covers('NG')
-      const axiosRequestsCovers = covers.map(async (cover: any) => {
-        if (cover.address === account.toLowerCase()) {
-          console.log('Here')
-          const user = await getUser(cover.address)
-          const response = await axios.get(user.data as string)
-          var result = response.data
-          var policyDetails = await getPolicyData(cover.address, cover.poolName)
-          result = {
-            ...result,
-            ...cover,
-            ...policyDetails,
-            userData: user.data,
-          }
-          return result
-        }
-      })
-      var allCovers = await Promise.all(axiosRequestsCovers)
-      if (allCovers[0] === undefined) allCovers = []
+      // const covers = await get_covers('NG')
+      // const axiosRequestsCovers = covers.map(async (cover: any) => {
+      //   if (cover.address === account.toLowerCase()) {
+      //     console.log('Here')
+      //     const user = await getUser(cover.address)
+      //     const response = await axios.get(user.data as string)
+      //     var result = response.data
+      //     var policyDetails = await getPolicyData(cover.address, cover.poolName)
+      //     result = {
+      //       ...result,
+      //       ...cover,
+      //       ...policyDetails,
+      //       userData: user.data,
+      //     }
+      //     return result
+      //   }
+      // })
+      // var allCovers = await Promise.all(axiosRequestsCovers)
+      // if (allCovers[0] === undefined) allCovers = []
 
       const rewards = await getStakeRewards(account)
 
       const details = {
-        activeCovers: allCovers.length,
         rewards: rewards,
       }
 
@@ -326,14 +328,12 @@ function Notification() {
           </div>
         </div>
         <div className="hidden xl:flex flex-col gap-5 w-full max-w-[285px] sm:w-[285px] max-[640px]:w-full ">
-          <StatusInfo userDetails={userDetails} />
+          <Rewards details={userDetails} />
           <Score
             size="w-[140px]"
-            text="Response Time"
             imgDark="/images/102.svg"
             imgLight="/images/101.svg"
           />
-          <Rewards details={userDetails} />
         </div>
       </div>
     </div>

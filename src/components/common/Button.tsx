@@ -65,11 +65,12 @@ function Button(props: ButtonProps) {
           />
         ) : (
           <img
-            width={50}
-            height={50}
+            width={24}
+            height={24}
             src={user.dp}
             alt=""
-            className="rounded-full"
+            className="rounded-full w-[27px] h-[27px]"
+            object-fit="cover"
           />
         ))}
     </>

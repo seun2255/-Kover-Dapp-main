@@ -7,7 +7,7 @@ export interface SelectRootFieldProps {
   placeholder?: string | any[]
   name?: string
   handleChange: Function
-  filled?: boolean
+  showRequiredMessage?: boolean
   initialValue?: string
   disabled?: boolean
 }
@@ -474,7 +474,7 @@ function RiskSelectRootField({
   placeholder,
   name,
   handleChange,
-  filled,
+  showRequiredMessage,
   initialValue,
   disabled,
 }: SelectRootFieldProps) {
@@ -484,7 +484,9 @@ function RiskSelectRootField({
   const ErrorMessage = () => {
     return (
       <span style={{ color: 'red' }}>
-        {filled ? 'Error, Please enter a valid value' : 'Required!'}
+        {showRequiredMessage
+          ? 'Error, Please enter a valid value'
+          : 'Required!'}
       </span>
     )
   }
@@ -540,14 +542,14 @@ function RiskSelectRootField({
         }`}
         style={{
           border: `1px solid ${
-            (!filled || !selected) && value === ''
+            (showRequiredMessage || !selected) && value === ''
               ? 'red'
               : theme === 'dark'
               ? '#bbbbbb'
               : '#43444B'
           }`,
           borderColor:
-            (!filled || !selected) && value === ''
+            (showRequiredMessage || !selected) && value === ''
               ? 'red'
               : theme === 'dark'
               ? '#bbbbbb'
@@ -580,14 +582,17 @@ function RiskSelectRootField({
         </span>
         <img className="mr-4" src="/images/Frame 2928.svg" alt="" />
       </div>
-      {/* {!filled && value === '' && ErrorMessage()} */}
+      {/* {showRequiredMessage && value === '' && ErrorMessage()} */}
       {open && (
         <div className="relative z-10 bg-brand-300">
           <div
-            className="fixed top-0 bottom-0 left-0 right-0 bg-transparent -z-10"
+            className="fixed top-0 bottom-0 left-0 right-0 -z-10"
             onClick={toggleOpen}
           />
-          <div className="absolute z-10 top-0.5 left-0 right-0">
+          <div
+            className="absolute z-10 top-0.5 left-0 right-0 overflow-y-scroll h-[250px]"
+            id="style-1"
+          >
             {options.map((value, index) => (
               <Button
                 onClick={() => changeValue(value)}

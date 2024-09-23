@@ -209,6 +209,7 @@ function NewClaim() {
         poolName as string,
         userData,
         account as string,
+        860,
         dispatch
       )
       await updateCoverClaimState(account, poolName as string, 'in progress')
@@ -274,7 +275,7 @@ function NewClaim() {
                   label="Claim Type"
                   placeholder="Please Select"
                   handleChange={handleChange}
-                  filled={formFilled}
+                  showRequiredMessage={formFilled}
                   name="claimType"
                 />
                 <TextField
@@ -282,14 +283,14 @@ function NewClaim() {
                   placeholder="Please Select"
                   borderRight="border-r border-r-primary-700"
                   handleChange={handleChange}
-                  filled={formFilled}
+                  showRequiredMessage={formFilled}
                   name="eventType"
                 />
                 <TextField
                   label="Event Date"
                   placeholder={['Month', 'Day', 'Year']}
                   handleDobChange={handleEventDateChange}
-                  filled={formFilled}
+                  showRequiredMessage={formFilled}
                   name="eventDate"
                 />
                 <div className="grid grid-cols-2 sm:gap-5 gap-2.5 ">
@@ -341,7 +342,7 @@ function NewClaim() {
                     placeholder="Please Select "
                     borderRight="border-r border-r-brand-100"
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={formFilled}
                     name="timezone"
                   />
                 </div>

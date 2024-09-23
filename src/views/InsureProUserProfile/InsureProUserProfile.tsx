@@ -50,7 +50,7 @@ function InsureProUserProfile() {
   )
   const [canModify, setCanModify] = useState(false)
   const [formState, setFormState] = useState(applicant)
-  const [formFilled, setFormFilled] = useState(true)
+  const [showRequiredMessage, setShowRequiredMessage] = useState(true)
   const dispatch = useDispatch()
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
@@ -81,11 +81,14 @@ function InsureProUserProfile() {
 
   function areAllValuesFilled(obj: any) {
     for (const key in obj) {
-      if (obj.hasOwnProperty(key) && obj[key] === '') {
-        return false // If any value is not an empty string, return false
+      if (
+        obj.hasOwnProperty(key) &&
+        (obj[key] === '' || obj[key].length === 0)
+      ) {
+        return false // If any value is an empty string, return false
       }
     }
-    return true // All values are empty strings
+    return true // All values are filled
   }
 
   type ProgressData = {
@@ -179,7 +182,7 @@ function InsureProUserProfile() {
       address: account,
     }))
     const formFilled = areAllValuesFilled(formState)
-    setFormFilled(formFilled)
+    setShowRequiredMessage(!formFilled)
 
     if (formFilled) {
       // fetch('https://ipinfo.io/json')
@@ -308,7 +311,7 @@ function InsureProUserProfile() {
                   placeholder="Please Select"
                   name="workArea"
                   handleChange={handleChange}
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   initialValue={applicant.workArea}
                   disabled={!canModify}
                 />
@@ -318,7 +321,7 @@ function InsureProUserProfile() {
                   placeholder="Domain"
                   name="workField"
                   handleChange={handleChange}
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   initialValue={applicant.workField}
                   disabled={!canModify}
                 />

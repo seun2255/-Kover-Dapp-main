@@ -1114,10 +1114,12 @@ const applyForPolicy = async (
   // await approvePolicyManagement(poolName, fee)
   // dispatch(closeLoader())
 
-  var newFee = Number('15000') + cost
+  const policyFeeParams = await policyContract.policy_fee_params()
+  const policyFee = Number(policyFeeParams.fee)
+
   const tokensApproved = await handleTokenApproval(
     policyAddresses.management,
-    newFee,
+    cost + policyFee,
     dispatch
   )
 
@@ -1613,9 +1615,9 @@ const raiseClaim = async (
   poolName: string,
   data: string,
   address: string,
+  premiumQuote: number,
   dispatch: any
 ) => {
-  console.log('started running')
   const addresses = await getPoolAddresses(poolName)
 
   const policyContract = await getPolicyContract(addresses.policy)
@@ -1623,31 +1625,29 @@ const raiseClaim = async (
 
   const policyClaimContract = await getPolicyClaimContract(addresses.policy)
 
-  console.log('this about to run')
-  const raiseClaimTx = await handleContractTransaction(
-    () =>
-      policyClaimContract.raise_claim(
-        process.env.REACT_APP_CLAIMS_TABLE_CONTRACT_ADDRESS,
-        policyAddresses.members
-      ),
+  const minClaim = ethers.parseEther((premiumQuote / 2).toString())
+  const maxClaim = ethers.parseEther(premiumQuote.toString())
+
+  const tokensApproved = await handleTokenApproval(
+    policyAddresses.claims,
+    (premiumQuote * 5) / 100,
     dispatch
   )
 
-  if (raiseClaimTx) {
+  if (tokensApproved) {
     dispatch(
       openLoader({
         displaytransactionLoader: true,
-        text: 'Setting Claim Data',
+        text: 'Rasising Claim',
       })
     )
 
-    const claimAddress = await getClaimAddress(poolName, address)
-    const claimContract = await getClaimContract(claimAddress)
-
-    const initaiateClaimTx = await handleContractTransaction(
+    const raiseClaimTx = await handleContractTransaction(
       () =>
-        claimContract.setClaimParams(
-          [ethers.parseEther('10'), ethers.parseEther('100')],
+        policyClaimContract.raise_claim(
+          process.env.REACT_APP_CLAIMS_TABLE_CONTRACT_ADDRESS,
+          policyAddresses.members,
+          [minClaim, maxClaim],
           [data, data],
           poolName,
           address
@@ -1655,31 +1655,7 @@ const raiseClaim = async (
       dispatch
     )
 
-    if (initaiateClaimTx) {
-      dispatch(
-        openLoader({
-          displaytransactionLoader: true,
-          text: 'Paying Claim fees',
-        })
-      )
-
-      const fee = Number('1000000')
-
-      const tokensApproved = await handleTokenApproval(
-        claimAddress,
-        fee,
-        dispatch
-      )
-
-      if (tokensApproved) {
-        const payDuesTx = await handleContractTransaction(
-          () => claimContract.clearOutstandingDues(),
-          dispatch
-        )
-
-        return payDuesTx
-      }
-    }
+    return raiseClaimTx
   }
 }
 

@@ -62,7 +62,7 @@ function InsureProCommunity(
     pool: 'Car Insurance',
     reviewerDocuments: [] as Document[],
   })
-  const [formFilled, setFormFilled] = useState(true)
+  const [showRequiredMessage, setShowRequiredMessage] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
   const [fileUploadInitated, setFileUploadInitiated] = useState(false)
@@ -161,22 +161,18 @@ function InsureProCommunity(
 
   function areAllValuesFilled(obj: any) {
     for (const key in obj) {
-      if (obj.hasOwnProperty(key) && obj[key] === '') {
-        return false // If any value is not an empty string, return false
+      if (
+        obj.hasOwnProperty(key) &&
+        (obj[key] === '' || obj[key].length === 0)
+      ) {
+        return false // If any value is an empty string, return false
       }
     }
-    return true // All values are empty strings
+    return true // All values are filled
   }
 
   // Handle form submission
   const handleSubmit = async () => {
-    dispatch(
-      openLoader({
-        displaytransactionLoader: true,
-        text: 'Approving Token use',
-      })
-    )
-    const user = await getUserData(account)
     setFileUploadInitiated(true)
     const date = getCurrentDateTime()
     setFormState((prevState) => ({
@@ -185,12 +181,40 @@ function InsureProCommunity(
       address: account,
     }))
     const formFilled = areAllValuesFilled(formState)
-    setFormFilled(formFilled)
+    console.log('is it filled: ', formFilled)
+    setShowRequiredMessage(!formFilled)
+
+    if (showRequiredMessage) {
+      dispatch(
+        openAlert({
+          displayAlert: true,
+          data: {
+            id: 2,
+            variant: 'Failed',
+            classname: 'text-black',
+            title: 'Transaction Failed',
+            tag1: 'Some fields not filled!',
+            tag2: 'please fill all fields',
+          },
+        })
+      )
+      setTimeout(() => {
+        dispatch(closeAlert())
+      }, 10000)
+    }
+
     // if (verificationState !== 'verified') {
     //   setEmailRequiredMessage(true)
     // }
-    // if (formFilled && verificationState === 'verified') {
+    // if (showRequiredMessage && verificationState === 'verified') {
     if (formFilled) {
+      dispatch(
+        openLoader({
+          displaytransactionLoader: true,
+          text: 'Approving Token use',
+        })
+      )
+      const user = await getUserData(account)
       // fetch('https://ipinfo.io/json')
       //   .then((response) => response.json())
       //   .then(async (data) => {
@@ -219,7 +243,7 @@ function InsureProCommunity(
         await createChatRoom('insure-pro', 'NG', userId as number, {
           [account as string]: formData.firstName,
           // eslint-disable-next-line no-useless-computed-key
-          ['0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD']: 'Admin',
+          ['0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2']: 'Admin',
         })
         await updateInsureProVerificationState(account, 'verifying')
         await applicationsUpdate()
@@ -291,7 +315,7 @@ function InsureProCommunity(
                     <SelectField
                       labelIcon={false}
                       handleChange={handleChange}
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       label="Work Area"
                       placeholder="Please Select"
                       name="workArea"
@@ -299,7 +323,7 @@ function InsureProCommunity(
                     <SelectField
                       labelIcon={false}
                       handleChange={handleChange}
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       label="Work Field"
                       placeholder="Domain"
                       name="workField"
@@ -308,7 +332,7 @@ function InsureProCommunity(
                       <SelectField
                         labelIcon={false}
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         label="Pool"
                         placeholder="Please select"
                         name="pool"
@@ -390,7 +414,8 @@ function InsureProCommunity(
                     </div>
                     {((formState.reviewerDocuments.length === 0 &&
                       fileUploadInitated) ||
-                      !formFilled) && (
+                      (showRequiredMessage &&
+                        formState.reviewerDocuments.length === 0)) && (
                       <span style={{ color: 'red' }}>Document is required</span>
                     )}
                   </div>

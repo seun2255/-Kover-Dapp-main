@@ -344,7 +344,7 @@ function CoverModal(props: PopConfirmProps) {
               {filledForm ? (
                 <ModifyCarInsurance
                   onClose={closeForm}
-                  setFilledForm={setFilledForm}
+                  // setFilledForm={setFilledForm}
                   poolName={coverDetails.poolName}
                   coverDetails={policyData}
                   onSubmit={onSubmit}

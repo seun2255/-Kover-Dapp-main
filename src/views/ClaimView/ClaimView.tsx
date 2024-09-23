@@ -216,7 +216,7 @@ function ClaimView() {
         claimdetails.poolName,
         claimdetails.address,
         isYes,
-        '60',
+        (claimdetails.premiumQuote * 0.8).toString(),
         reportData,
         dispatch
       )

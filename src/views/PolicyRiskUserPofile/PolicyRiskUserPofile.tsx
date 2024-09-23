@@ -78,7 +78,7 @@ function RiskPolicyUserProfile() {
     claimHistory: '---',
     PRP: '---',
   })
-  const [formFilled, setFormFilled] = useState(true)
+  const [showRequiredMessage, setShowRequiredMessage] = useState(false)
   const dispatch = useDispatch()
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
@@ -105,11 +105,14 @@ function RiskPolicyUserProfile() {
 
   function areAllValuesFilled(obj: any) {
     for (const key in obj) {
-      if (obj.hasOwnProperty(key) && obj[key] === '') {
-        return false // If any value is not an empty string, return false
+      if (
+        obj.hasOwnProperty(key) &&
+        (obj[key] === '' || obj[key].length === 0)
+      ) {
+        return false // If any value is an empty string, return false
       }
     }
-    return true // All values are empty strings
+    return true // All values are filled
   }
 
   type ProgressData = {
@@ -203,8 +206,7 @@ function RiskPolicyUserProfile() {
       address: account,
     }))
     const formFilled = areAllValuesFilled(formState)
-    setFormFilled(formFilled)
-    console.log(formFilled)
+    setShowRequiredMessage(!formFilled)
 
     if (formFilled) {
       // fetch('https://ipinfo.io/json')
@@ -359,7 +361,7 @@ function RiskPolicyUserProfile() {
                     labelIcon={false}
                     label="Make"
                     placeholder="Please Select"
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="make"
                     handleChange={handleChange}
                     initialValue={applicant.make}
@@ -370,7 +372,7 @@ function RiskPolicyUserProfile() {
                     label="Model"
                     placeholder="Please Select"
                     carMake={formState.make}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="model"
                     handleChange={handleChange}
                     initialValue={applicant.model}
@@ -382,7 +384,7 @@ function RiskPolicyUserProfile() {
                     labelIcon={false}
                     label="Year of Manufacture"
                     placeholder="YYYY"
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="yearManufactured"
                     handleChange={handleChange}
                     initialValue={applicant.yearManufactured}
@@ -398,7 +400,7 @@ function RiskPolicyUserProfile() {
                   labelIcon={true}
                   label="Engine Size"
                   placeholder="Please Select"
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   name="engineSize"
                   handleChange={handleChange}
                   initialValue={applicant.engineSize}
@@ -412,7 +414,7 @@ function RiskPolicyUserProfile() {
                     outline={true}
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="registrationNumber"
                     initialValue={applicant.registrationNumber}
                     disabled={!canModify}
@@ -424,7 +426,7 @@ function RiskPolicyUserProfile() {
                     outline={true}
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="insurableValue"
                     initialValue={applicant.insurableValue}
                     disabled={!canModify}
@@ -435,7 +437,7 @@ function RiskPolicyUserProfile() {
                     labelIcon={true}
                     label="Estimated Annual Mileage"
                     placeholder="Please Select"
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="annualMileage"
                     handleChange={handleChange}
                     initialValue={applicant.annualMileage}
@@ -445,7 +447,7 @@ function RiskPolicyUserProfile() {
                     labelIcon={true}
                     label="Overnight Parking "
                     placeholder="Please Select"
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="overnightParking"
                     handleChange={handleChange}
                     initialValue={applicant.overnightParking}
@@ -469,7 +471,7 @@ function RiskPolicyUserProfile() {
                   labelIcon={true}
                   label="Cover Duration"
                   placeholder="Please Select"
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   name="coverDuration"
                   handleChange={handleChange}
                   initialValue={applicant.coverDuration}
@@ -479,7 +481,7 @@ function RiskPolicyUserProfile() {
                   labelIcon={true}
                   label="Cover Type"
                   placeholder="Please Select"
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   name="coverType"
                   handleChange={handleChange}
                   initialValue={applicant.coverType}
@@ -489,7 +491,7 @@ function RiskPolicyUserProfile() {
                   labelIcon={true}
                   label="Usage "
                   placeholder="Please Select"
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   name="usage"
                   handleChange={handleChange}
                   initialValue={applicant.usage}
@@ -499,7 +501,7 @@ function RiskPolicyUserProfile() {
                   labelIcon={true}
                   label="Security Measures"
                   placeholder="Please Select"
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   name="securityMeasures"
                   handleChange={handleChange}
                   initialValue={applicant.securityMeasures}
@@ -510,7 +512,7 @@ function RiskPolicyUserProfile() {
                     labelIcon={true}
                     label="Driving Offences"
                     placeholder="Please Select"
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="drivingOffences"
                     handleChange={handleChange}
                     initialValue={applicant.drivingOffences}
@@ -520,7 +522,7 @@ function RiskPolicyUserProfile() {
                     labelIcon={true}
                     label="Claim History"
                     placeholder="Please Select"
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="claimHistory"
                     handleChange={handleChange}
                     initialValue={applicant.claimHistory}
@@ -532,7 +534,7 @@ function RiskPolicyUserProfile() {
                     labelIcon={false}
                     label="Year of Obtaining Licence"
                     placeholder="YYYY"
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="yearObtainedLicence"
                     handleChange={handleChange}
                     initialValue={applicant.yearObtainedLicence}
@@ -543,7 +545,7 @@ function RiskPolicyUserProfile() {
                     label="Driving Licence Number"
                     placeholder="e.g. RJ5852"
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="drivingLicenceNumber"
                     initialValue={applicant.drivingLicenceNumber}
                     disabled={!canModify}
@@ -553,7 +555,7 @@ function RiskPolicyUserProfile() {
                   labelIcon={true}
                   label="Risk Address"
                   placeholder="Please Select"
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   name="riskAddress"
                   handleChange={handleChange}
                   initialValue={applicant.riskAddress}
@@ -562,7 +564,7 @@ function RiskPolicyUserProfile() {
                 <RiskSelectField
                   label="Country/Region"
                   placeholder="e.g. California"
-                  filled={formFilled}
+                  showRequiredMessage={showRequiredMessage}
                   name="country"
                   handleChange={handleChange}
                   initialValue={applicant.country}
@@ -575,7 +577,7 @@ function RiskPolicyUserProfile() {
                     placeholder="e.g. 645 EShaw Ave"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="address1"
                     initialValue={applicant.address1}
                     disabled={!canModify}
@@ -586,7 +588,7 @@ function RiskPolicyUserProfile() {
                     placeholder="e.g.  Fresco, ca 93710"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="address2"
                     initialValue={applicant.address2}
                     disabled={!canModify}
@@ -597,7 +599,7 @@ function RiskPolicyUserProfile() {
                     placeholder="e.g. New York"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="city"
                     initialValue={applicant.city}
                     disabled={!canModify}
@@ -608,7 +610,7 @@ function RiskPolicyUserProfile() {
                     placeholder="e.g.  4450"
                     classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                     handleChange={handleChange}
-                    filled={formFilled}
+                    showRequiredMessage={showRequiredMessage}
                     name="postCode"
                     initialValue={applicant.postCode}
                     disabled={!canModify}
@@ -712,7 +714,31 @@ function RiskPolicyUserProfile() {
                   <span className="">Cancel</span>
                 </button>
                 <Button
-                  to={`/chat/policy-NG-${applicant.id}`}
+                  to={
+                    applicant.reviewer === account
+                      ? `/chat/policy-NG-${applicant.id}`
+                      : ''
+                  }
+                  onClick={() => {
+                    if (applicant.reviewer !== account) {
+                      dispatch(
+                        openAlert({
+                          displayAlert: true,
+                          data: {
+                            id: 2,
+                            variant: 'Failed',
+                            classname: 'text-black',
+                            title: 'Access Denied!',
+                            tag1: 'You dont have access',
+                            tag2: 'cant access the chat',
+                          },
+                        })
+                      )
+                      setTimeout(() => {
+                        dispatch(closeAlert())
+                      }, 10000)
+                    }
+                  }}
                   text="Contact User"
                   color={theme === 'dark' ? '' : 'dark'}
                   className="dark:bg-light-1100 focus:bg-[#4C4D55] "

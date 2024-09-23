@@ -13,7 +13,7 @@ interface SelectField {
   handleChange?: Function
   borderRight?: string
   placeholder?: string | any[]
-  filled?: boolean
+  showRequiredMessage?: boolean
   initialValue?: any
   disabled?: boolean
   carMake?: string
@@ -27,7 +27,7 @@ function RiskSelectField({
   name,
   handleDobChange,
   handleChange,
-  filled,
+  showRequiredMessage,
   initialValue,
   disabled,
   carMake,
@@ -60,7 +60,8 @@ function RiskSelectField({
           variant="small"
           icon={labelIcon}
           text={label}
-          className={theme === 'dark' ? 'dark' : 'white'}
+          // className={theme === 'dark' ? 'text-white' : 'text-black'}
+          color="white"
         />
       )}
       {label === false && <span className="h-[14px]" />}
@@ -73,7 +74,7 @@ function RiskSelectField({
               {...rest}
               name={value.toLowerCase()}
               handleChange={handleSelect}
-              filled={filled}
+              showRequiredMessage={showRequiredMessage}
               disabled={disabled}
               initialValue={
                 initialValue ? initialValue.split('/')[index] : null
@@ -88,7 +89,7 @@ function RiskSelectField({
           {...rest}
           name={name}
           handleChange={handleSelect}
-          filled={filled}
+          showRequiredMessage={showRequiredMessage}
           disabled={disabled}
           initialValue={initialValue}
         />

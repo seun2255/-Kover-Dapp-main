@@ -10,6 +10,8 @@ import { useWeb3React } from '@web3-react/core'
 import { useDispatch, useSelector } from 'react-redux'
 import { openAlert, closeAlert } from '../../../redux/alerts'
 import { setKYCApplicants } from '../../../redux/kyc'
+import { getUserDetails } from '../../../database'
+import Blockies from 'react-blockies'
 
 interface UserInformProps {
   variant?: 'customer' | 'personal'
@@ -25,6 +27,7 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
   const viewmoreHandler = () => {
     viewmore ? setViewmore(false) : setViewmore(true)
   }
+  const [userPic, setUserPic] = useState('')
   const [canEdit, setCanEdit] = useState(
     variant === 'personal' ? user.canModifyKYC : user.canModifyKYCReviewer
   )
@@ -43,6 +46,9 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
         switchKYCModify(user.address)
       }
     }
+    getUserDetails(user.address).then((userData) => {
+      setUserPic(userData.dp)
+    })
   }, [user])
 
   return (
@@ -52,13 +58,23 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
           <div className="flex flex-row justify-between">
             <div className="flex flex-row justify-between">
               <div className="flex gap-8 w-[88px] h-[88px] bg-[#2A2B31] dark:bg-light-1200 items-center justify-center">
-                <img
-                  width={50}
-                  height={50}
-                  src="/images/profile-photo.jpg"
-                  alt=""
-                  className="rounded-full"
-                />
+                {userPic === 'default' ? (
+                  <Blockies
+                    seed={user.address.toLowerCase()}
+                    size={10}
+                    scale={5}
+                    className="identicon wallet-icon"
+                  />
+                ) : (
+                  <img
+                    width={50}
+                    height={50}
+                    src={user.dp}
+                    alt=""
+                    className="rounded-full w-[50px] h-[50px]"
+                    object-fit="cover"
+                  />
+                )}
               </div>
               <div className="ml-[20px]">
                 <span className="text-md block mb-2.5 fw-400">
@@ -173,13 +189,23 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
               <div>
                 <div className="flex gap-8">
                   <div className="flex gap-8 w-[88px] h-[88px] bg-[#2A2B31] dark:bg-light-1200 items-center justify-center ">
-                    <img
-                      width={50}
-                      height={50}
-                      src="/images/profile-photo.jpg"
-                      alt=""
-                      className="rounded-full"
-                    />
+                    {userPic === 'default' ? (
+                      <Blockies
+                        seed={user.address.toLowerCase()}
+                        size={10}
+                        scale={5}
+                        className="identicon wallet-icon"
+                      />
+                    ) : userPic !== '' ? (
+                      <img
+                        width={50}
+                        height={50}
+                        src={userPic}
+                        alt=""
+                        className="rounded-full w-[50px] h-[50px]"
+                        object-fit="cover"
+                      />
+                    ) : null}
                   </div>
 
                   <div className="w-max">
@@ -287,7 +313,7 @@ function InsureProUserInform({ variant, user }: UserInformProps) {
                       onClick={() => {
                         if (
                           account ===
-                          '0xCaB5F6542126e97b76e5C9D4cF48970a3B8AC0AD'
+                          '0x0Af54e344C1DcC79B11C20768FDE1d79E99c6CC2'
                         ) {
                           switchKYCReviewerModify(user.address).then(() => {
                             setCanEdit(!canEdit)

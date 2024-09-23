@@ -13,7 +13,6 @@ import useWindowDimensions from '../../../src/components/global/UserInform/useWi
 import Drawer from 'react-modern-drawer'
 import Card from '../../components/common/cards/StatusCard/Card'
 import { getPools } from '../../api'
-import CarInsurance from '../../components/common/PolicyRiskForms/carRisk'
 import { useSelector } from 'react-redux'
 import { ThreeDots } from 'react-loader-spinner'
 import { useWeb3React } from '@web3-react/core'

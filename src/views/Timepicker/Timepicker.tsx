@@ -80,6 +80,8 @@ function Timepicker({ onClose, setTime }: timePickerProps) {
                 setTime(createTimeString(newValue))
               }}
               renderInput={(params: any) => <TextField {...params} />}
+              ampm={false}
+              // ampmInClock={true}
             />
           </LocalizationProvider>
         </Box>

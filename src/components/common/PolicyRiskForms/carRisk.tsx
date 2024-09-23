@@ -106,7 +106,7 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
     postCode: '',
     documents: [] as Document[],
   })
-  const [formFilled, setFormFilled] = useState(true)
+  const [showRequiredMessage, setShowRequiredMessage] = useState(false)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploadProgress, setUploadProgress] = useState(0) // Tracks progress for each file
   type VerificationState = 'unverified' | 'verifying' | 'verified'
@@ -192,11 +192,14 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
 
   function areAllValuesFilled(obj: any) {
     for (const key in obj) {
-      if (obj.hasOwnProperty(key) && obj[key] === '') {
-        return false // If any value is not an empty string, return false
+      if (
+        obj.hasOwnProperty(key) &&
+        (obj[key] === '' || obj[key].length === 0)
+      ) {
+        return false // If any value is an empty string, return false
       }
     }
-    return true // All values are empty strings
+    return true // All values are filled
   }
 
   // Handle form submission
@@ -213,9 +216,9 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
       address: account,
     }))
     const formFilled = areAllValuesFilled(formState)
-    setFormFilled(formFilled)
+    setShowRequiredMessage(!formFilled)
 
-    if (!formFilled) {
+    if (showRequiredMessage) {
       dispatch(
         openAlert({
           displayAlert: true,
@@ -234,7 +237,7 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
       }, 10000)
     }
 
-    // if (formFilled) {
+    // if (showRequiredMessage) {
     // if (true) {
     if (formFilled) {
       // fetch('https://ipinfo.io/json')
@@ -371,7 +374,7 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         label="Make"
                         labelIcon={false}
                         placeholder="Please select"
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="make"
                         handleChange={handleChange}
                       />
@@ -380,17 +383,16 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         labelIcon={false}
                         placeholder="Please select"
                         carMake={formState.make}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="model"
                         handleChange={handleChange}
                       />
                     </div>
-                    <div></div>
                     <RiskSelectField
                       labelIcon={false}
                       label="Year of Manufacture"
                       placeholder="YYYY"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       name="yearManufactured"
                       handleChange={handleChange}
                     />
@@ -398,7 +400,7 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       label="Engine Size"
                       labelIcon={false}
                       placeholder="Please select"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       name="engineSize"
                       handleChange={handleChange}
                     />
@@ -410,7 +412,7 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         outline={true}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="registrationNumber"
                       />
                       <TextField
@@ -420,7 +422,7 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         outline={true}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="insurableValue"
                       />
                     </div>
@@ -428,14 +430,14 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       <RiskSelectField
                         label="Estimated Annual Mileage"
                         placeholder="Please select"
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="annualMileage"
                         handleChange={handleChange}
                       />
                       <RiskSelectField
                         label="Overnight Parking "
                         placeholder="Please select"
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="overnightParking"
                         handleChange={handleChange}
                       />
@@ -457,28 +459,28 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                     <RiskSelectField
                       label="Cover Duration"
                       placeholder="Please select"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       name="coverDuration"
                       handleChange={handleChange}
                     />
                     <RiskSelectField
                       label="Cover Type"
                       placeholder="Please select"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       name="coverType"
                       handleChange={handleChange}
                     />
                     <RiskSelectField
                       label="Usage"
                       placeholder="Please select"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       name="usage"
                       handleChange={handleChange}
                     />
                     <RiskSelectField
                       label="Security Measures"
                       placeholder="Please select"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       name="securityMeasures"
                       handleChange={handleChange}
                     />
@@ -487,14 +489,14 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                       <RiskSelectField
                         label="Driving Offences"
                         placeholder="Please select"
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="drivingOffences"
                         handleChange={handleChange}
                       />
                       <RiskSelectField
                         label="Claim History"
                         placeholder="Please select"
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="claimHistory"
                         handleChange={handleChange}
                       />
@@ -502,7 +504,7 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         labelIcon={false}
                         label="Year of Obtaining Licence"
                         placeholder="YYYY"
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="yearObtainedLicence"
                         handleChange={handleChange}
                       />
@@ -511,21 +513,21 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         label="Driving Licence Number"
                         placeholder="e.g. RJ5852"
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="drivingLicenceNumber"
                       />
                     </div>
                     <RiskSelectField
                       label="Risk Address"
                       placeholder="Please select"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       name="riskAddress"
                       handleChange={handleChange}
                     />
                     <RiskSelectField
                       label="Country/Region"
                       placeholder="e.g. California"
-                      filled={formFilled}
+                      showRequiredMessage={showRequiredMessage}
                       name="country"
                       handleChange={handleChange}
                     />
@@ -537,7 +539,7 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         outline={true}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="address1"
                       />
                       <TextField
@@ -547,7 +549,7 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         outline={true}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="address2"
                       />
                       <TextField
@@ -557,7 +559,7 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         outline={true}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="city"
                       />
                       <TextField
@@ -567,7 +569,7 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                         outline={true}
                         classname="box-border-2x-light dark:box-border-2x-dark max-[700px]:w-full width-fill-available  bg-dark-800 justify-between sm:bg-dark-800 rounded p-2.5 flex items-center dark:text-dark-800 dark:text-primary-100 dark:bg-white w-[250px]"
                         handleChange={handleChange}
-                        filled={formFilled}
+                        showRequiredMessage={showRequiredMessage}
                         name="postCode"
                       />
                     </div>
@@ -657,7 +659,8 @@ function CarInsurance({ onClose, poolName, onSubmit }: popupProps, props: any) {
                     </div>
                     {((formState.documents.length === 0 &&
                       fileUploadInitated) ||
-                      !formFilled) && (
+                      (showRequiredMessage &&
+                        formState.documents.length === 0)) && (
                       <span style={{ color: 'red' }}>Document is required</span>
                     )}
                   </div>
